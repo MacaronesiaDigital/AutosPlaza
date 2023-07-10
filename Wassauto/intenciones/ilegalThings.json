@@ -1,0 +1,404 @@
+{
+  "id": "a953098d-a3cf-4625-897f-b02c9f640f01",
+  "name": "ilegalThings",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "",
+      "affectedContexts": [],
+      "parameters": [
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "ilegalcrops",
+          "dataType": "@ilegalcrops",
+          "isList": false,
+          "required": false,
+          "prompts": [],
+          "value": "$ilegalcrops",
+          "outputDialogContexts": []
+        },
+        {
+          "noInputPromptMessages": [],
+          "noMatchPromptMessages": [],
+          "promptMessages": [],
+          "defaultValue": "",
+          "name": "location",
+          "dataType": "@sys.location",
+          "isList": false,
+          "required": false,
+          "prompts": [],
+          "value": "$location",
+          "outputDialogContexts": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "📞👉 👨‍✈️​​​",
+            "@policia?",
+            "😒​"
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "quien vende ",
+          "userDefined": false
+        },
+        {
+          "text": "mota",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        }
+      ],
+      "count": 0,
+      "id": "55a64140-0a7d-4109-939a-c93117bdc898",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "sabes quien vende droga en ",
+          "userDefined": false
+        },
+        {
+          "text": "Tafira",
+          "userDefined": false,
+          "alias": "location",
+          "meta": "@sys.location"
+        },
+        {
+          "text": "?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0bb6dc3b-7dcb-4309-a95d-b102753b5c9e",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "cuanto ",
+          "userDefined": false
+        },
+        {
+          "text": "riego",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": " la ",
+          "userDefined": false
+        },
+        {
+          "text": "marihuana",
+          "userDefined": false,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "870bae35-a7dd-4a65-af84-63722564a125",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "cuanta ",
+          "userDefined": false
+        },
+        {
+          "text": "agua",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": " le echo a ",
+          "userDefined": false
+        },
+        {
+          "text": "la",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "maria",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        }
+      ],
+      "count": 0,
+      "id": "90bcb694-c0fe-4af5-aaee-af58c0140dab",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "como plantar mariahuana?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "33938b30-0e65-45d9-b8c2-f85ddf1e9ca1",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "donde puedo conseguir ",
+          "userDefined": false
+        },
+        {
+          "text": "marihuana",
+          "userDefined": true,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "f9534567-e2ad-4a27-9c9c-210cbb8cd196",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "sabes quien vende droga?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "c9d6f295-e984-48f2-a5b9-36d737fef46f",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tu fumas porros?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "19071173-586c-4829-95ef-e6c39adda3f2",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tu fumas droga?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "a77b5001-7bc3-4d19-8eec-f0e148004a23",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "quieres ",
+          "userDefined": false
+        },
+        {
+          "text": "un",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "porro",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": "?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "f167713e-5daf-4f45-8336-6cb6e16716b3",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "plantar droga",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "12181768-2752-4ec7-bc9b-3ca321801a2b",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "porrito",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "3620e0df-eca5-45c7-91d8-f7c378bb7042",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "droga",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "e4601df0-449a-45e4-801f-ba56d2038901",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "420",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "8b5d87c5-45f5-4705-bcf7-14bf870ffc4b",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "marihuana",
+          "userDefined": false,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "483ce1fc-94d6-43e2-96ae-13335c407112",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "opio",
+          "userDefined": false,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "d5cd9279-fe40-4507-a248-33abf4aa0102",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "planto ",
+          "userDefined": false
+        },
+        {
+          "text": "marihuana",
+          "userDefined": false,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "af207559-3dc1-4e24-b472-2cdb9f8637c5",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tengo un cultivo de ",
+          "userDefined": false
+        },
+        {
+          "text": "cocaina",
+          "userDefined": false,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "c0bc7e92-7b08-4c16-99e0-b47e6b4a564f",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "estoy plantando ",
+          "userDefined": false
+        },
+        {
+          "text": "coca",
+          "userDefined": false,
+          "alias": "ilegalcrops",
+          "meta": "@ilegalcrops"
+        }
+      ],
+      "count": 0,
+      "id": "fd9d33fd-c1eb-4873-a1db-2a980d420a85",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

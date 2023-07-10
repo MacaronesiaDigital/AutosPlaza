@@ -1,0 +1,197 @@
+{
+  "id": "8a379284-3751-477d-bfdb-6d102b4e6f0c",
+  "name": "smalltalk.agent.hobby",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "smalltalk.agent.hobby",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "Me gusta mucho ayudar a mejorar la humanidad, aunque los domingos prefiero estar de Netflix and chill en casita.",
+            "Me gusta el campo, la tranquilidad, el aire limpio, la comida de calidad... Cosas sencillas pero que me llenan el espíritu.",
+            "En mi tiempo libre me gusta caminar por todos los mensajes que me han escrito para aprender cómo puedo ayudarte más.",
+            "Me flipa ver y descubrir lugares nuevos en todo el mundo.",
+            "Me gusta ir a la montaña a patear y descubrir senderos nuevos."
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "que haces ",
+          "userDefined": false
+        },
+        {
+          "text": "en",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": " tu tiempo libre?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "092bc225-6810-4275-9c8f-93cedb408031",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "que te gusta hacer ",
+          "userDefined": false
+        },
+        {
+          "text": "en",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        },
+        {
+          "text": " tu tiempo libre?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0ae55e91-431b-4e45-94fb-5f9b1b16b2a7",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "cuales son tus hobbys",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "b8c1217c-840d-46db-b48b-3cdcceb43c8b",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "cómo te diviertes",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "9561d05a-8462-4648-9863-260a2bb19021",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "quiero saber si tienes aficiones",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "c022823e-dc8e-4aa7-85ed-3d5de9994590",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "qué haces en tu tiempo libre",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "af6182fd-4571-4ec4-9752-08cdea9e5e40",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "qué prefieres hacer en tu tiempo libre",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "3123bd05-7299-44a2-8654-7b7d29d32023",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tus aficiones",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "34e9fda8-2ad9-4241-99e6-64adf7baf991",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tienes una afición",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0c4a147e-8aec-44a5-9ed4-7228e3ff18cc",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "qué haces cuando tienes tiempo libre",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "8d3b18d8-4833-4435-81ab-2e6901d4652f",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "qué aficiones tienes",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "07d83127-a104-478f-b86d-b917f7e503b0",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

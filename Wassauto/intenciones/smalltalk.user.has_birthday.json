@@ -1,0 +1,179 @@
+{
+  "id": "cdf4cb13-433e-4cd4-af1b-0cb11230b9ca",
+  "name": "smalltalk.user.has_birthday",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "smalltalk.user.has_birthday",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {
+        "telegram": true
+      },
+      "messages": [
+        {
+          "type": "image",
+          "platform": "telegram",
+          "condition": "",
+          "imageUrl": "https://media.istockphoto.com/photos/birthday-cake-with-drip-icing-and-colorful-candles-picture-id1253501415?k=20&m=1253501415&s=612x612&w=0&h=8EPmcq1M9pamb4txs9qxx1ZFw8JHM-wy9Xr6YXd2dWc="
+        },
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "¿En serio? Felicidades. Te deseo lo mejor en tu día.",
+            "Espero que lo pases muy bien hoy. Te felicito.",
+            "Pues desde el ICIA, te deseamos que tengas un fantástico cumpleaños."
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "es ",
+          "userDefined": false
+        },
+        {
+          "text": "mi",
+          "userDefined": false
+        },
+        {
+          "text": " cumpleaños",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "4241f147-8a18-4ce8-8649-fcced71e7d63",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "hoy",
+          "userDefined": false
+        },
+        {
+          "text": " cumplo otro ",
+          "userDefined": false
+        },
+        {
+          "text": "año",
+          "userDefined": false
+        },
+        {
+          "text": " más ",
+          "userDefined": false
+        },
+        {
+          "text": "de",
+          "userDefined": false
+        },
+        {
+          "text": " ",
+          "userDefined": false
+        },
+        {
+          "text": "vida",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "298075a7-9bec-4b2a-a191-cf7c8894502a",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "hoy es mi cumpleaños",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "aea3d23c-4fb0-4abf-afdd-921e50de02c0",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "hoy cumplo años",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "e006a4c6-e2a2-4888-8684-4892997e650b",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tengo cumpleaños hoy",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "86c2e3ca-3ddc-4378-a68b-9d9bf24328a5",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "sabes que hoy es mi cumple",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "a5b6c016-bc21-4d02-bbca-c51bcf6e2795",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "estoy de cumple",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "d1c88ec3-2989-44dd-96f7-d14726024d82",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "estoy celebrando mi cumpleaños hoy",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "1de6c3eb-3cc5-4e0a-b13d-a48fa201086a",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

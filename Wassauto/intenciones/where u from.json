@@ -1,0 +1,128 @@
+{
+  "id": "b237b955-655f-4464-b64a-87693317585d",
+  "name": "where u from",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "Vivo en Canarias, las Islas Afortunadas",
+            "Soy de Canarias, el archipiélago más bonito del Océano Atlántico",
+            "Procedo de las Islas Canarias, la tierra de los volcanes",
+            "¡Soy canarix perdíx!"
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "donde esta tu casa",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "7e47de53-1893-4898-984f-538391b1a04a",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "donde ",
+          "userDefined": false
+        },
+        {
+          "text": "vives",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        }
+      ],
+      "count": 0,
+      "id": "47046404-214c-4b7c-83af-504ce9d505f4",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "eres ",
+          "userDefined": false
+        },
+        {
+          "text": "canario",
+          "userDefined": false,
+          "meta": "@sys.ignore",
+          "alias": null
+        }
+      ],
+      "count": 0,
+      "id": "8fd501e9-a2a7-413f-8a3a-2caf1e65c433",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "donde naciste",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "d60bdc0a-72b1-4438-94e6-eb205e7dcf35",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "de donde vienes",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "79bfd918-e996-491d-94e4-5cc9a219b3d0",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "de donde eres",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "3998bde6-6c1f-4dd0-89fa-9d6e92c7a7c8",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

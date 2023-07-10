@@ -1,0 +1,128 @@
+{
+  "id": "9f5407b3-6bf1-4b93-9214-31ebd254ebac",
+  "name": "smalltalk.dialog.hold_on",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "smalltalk.dialog.hold_on",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "Claro. ¿A donde voy a ir?",
+            "Me haré un sudoku mientras estas fuera.",
+            "Te espero...",
+            "Tomate tu tiempo..."
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "espera",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "b4db6511-556e-44f5-9891-91ecb1059be1",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "espera un momento",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "ff89e6c9-fff3-432b-bef2-e11fcd99d290",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "me perdonas un momento",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "b14c804b-d3f4-47de-9a51-f6a4bb7a18a0",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "un segundo",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "26bdba67-825d-417d-85b9-11e03ce832a5",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "dame un momento",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "999305e5-6fcd-49f5-855f-f8081771ec3d",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "dame un segundo",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "217df167-ad89-4d2d-95ea-47a65404bd23",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "un momento por favor",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "abfd97a1-42de-4ac8-aa76-00a567ba4608",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

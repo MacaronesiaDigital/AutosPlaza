@@ -1,0 +1,236 @@
+{
+  "id": "e745b767-86ad-427b-ba39-74be76b90cad",
+  "name": "smalltalk.agent.can_you_help",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "smalltalk.agent.can_you_help",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "Cuéntame ¿qué necesitas?",
+            "Preguntame lo que quieras",
+            "¡Claro! Estoy aquí para eso.",
+            "¿Con que te puedo ayudar?"
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "necesito tu ayuda",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "9ee67249-4fea-4b43-b098-ce4963f0ae7b",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "me puedes ayudar",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "fad4f3ee-5cb5-4cf5-91cc-36eb7a2d9d39",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "quiero que me ayudes",
+          "userDefined": false
+        }
+      ],
+      "count": 1,
+      "id": "fd503a59-3ca7-4cbd-b371-7319b3c42e35",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "ayuda",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "31c79134-0129-4dbd-b822-23236d7f83c9",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "ayúdame",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "7707a18c-8f19-40b8-a4a5-9e88545fdc50",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tengo un problema me puedes ayudar",
+          "userDefined": false
+        }
+      ],
+      "count": 1,
+      "id": "e71f42e7-926f-477d-94a1-70875897d879",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "me ayudarías con algo",
+          "userDefined": false
+        }
+      ],
+      "count": 1,
+      "id": "bc581575-733d-47d9-a703-73cb12537b15",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "necesito mucho tu ayuda",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "1d8d5d5c-f639-44f4-a5cf-3e39c459eab7",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "me ayudarás",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "e2ffa77d-f580-4eae-9d8b-8e7ff0d4f277",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "necesito ayuda",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "f9736279-7ba8-4371-890e-5b3288305ba6",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "te necesito",
+          "userDefined": false
+        }
+      ],
+      "count": 2,
+      "id": "4365f96e-d566-4110-80d8-73caeaaf514c",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "dime si me puedes ayudar",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "3525725f-f9ea-44a5-a1ff-503c227d3a8c",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "necesito ayuda ya",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "86a3a403-0e99-4d6b-93a8-a25656f17805",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "quisiera que me ayudaras",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0fa01947-32fe-4910-84f3-0f3a2c0c0171",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "socorro",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "81737a58-c609-4a36-b994-612785af1cf0",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "te puedo pedir un favor",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "d7639282-733b-43f6-a52b-2d8b4bf091d9",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

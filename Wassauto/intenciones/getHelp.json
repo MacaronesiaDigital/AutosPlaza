@@ -1,0 +1,183 @@
+{
+  "id": "06ec0308-6d2a-4be0-abf4-07b027cdf00c",
+  "name": "getHelp",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "Aquí te dejo una lista de cosas por las que me puedes preguntar.                     \n- Recomendaciones de riego semanales 🚿.\n- Ingresar tus cultivos y llevar un registro del agua que inviertes en él ​🌾​. \n- Ver datos meteorológicos de la semana ⛅.\n- Llevar un seguimiento de cuánto has regado.\n- Dudas sobre mi uso y funciones (preguntas que me suelen hacer) 🤖.\n- Contactar con entidades relacionadas con el riego cerca de tu zona 🤓​.",
+            "¡Claro! Esto es lo que puedo hacer por ti: \n- Recomendaciones de riego semanales 🚿.\n- Ingresar tus cultivos y llevar un registro del agua que inviertes en él ​🌾​. \n- Ver datos meteorológicos de la semana ⛅.\n- Llevar un seguimiento de cuánto has regado.\n- Dudas sobre mi uso y funciones (preguntas que me suelen hacer) 🤖.\n- Contactar con entidades relacionadas con el riego cerca de tu zona 🤓​."
+          ]
+        },
+        {
+          "type": "message",
+          "condition": "",
+          "speech": []
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "te necesito",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "88bb4f96-8cb3-4dbd-ae00-e7a22aaf69d1",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "en",
+          "userDefined": false
+        },
+        {
+          "text": " que me puedes ayudar",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "10ed0011-614b-4985-8df4-9c8f2e788580",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "ayuda",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "57946af4-6435-4d80-9e3d-cad57aef05f0",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "necesito ayuda",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "a55c7cd7-e1dc-4419-b40a-10e75a0cfd20",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "tus funciones",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "252758ed-7566-4051-b8f6-ff89f63ac026",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "dudas sobre tus funciones",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "ade9c4a2-b099-458e-9ff0-5e7b038c0dfa",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "Como funciona la aplicacion",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "b34dba22-5947-419d-8da5-b4dcf3df9b92",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "Para qué sirve la aplicación",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "ac431c41-c9d5-4632-80c9-edd18822f280",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "Qué puedo hacer con la app?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0dfab670-a8bd-4745-bf49-8f69d5e996c5",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "como me ayuda siar?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "9cfef738-8780-4ffb-8114-ae32eff832b9",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "como me puedes ayudar?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "99d4a004-78d9-46f7-8233-88972958d8b3",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}

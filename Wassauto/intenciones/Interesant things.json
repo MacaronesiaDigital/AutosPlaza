@@ -1,0 +1,152 @@
+{
+  "id": "fef0f049-4393-4463-888a-0dbb5de19ac3",
+  "name": "Interesant things",
+  "auto": true,
+  "condition": "",
+  "conditionalFollowupEvents": [],
+  "conditionalResponses": [],
+  "context": [],
+  "contexts": [],
+  "endInteraction": false,
+  "events": [],
+  "fallbackIntent": false,
+  "liveAgentHandoff": false,
+  "parentId": null,
+  "followUpIntents": [],
+  "priority": 500000,
+  "responses": [
+    {
+      "action": "",
+      "affectedContexts": [],
+      "parameters": [],
+      "defaultResponsePlatforms": {},
+      "messages": [
+        {
+          "type": "message",
+          "condition": "",
+          "speech": [
+            "Estaba pensando si inscribirme en los cursos del ICIA. Pintan interesantes. ¿Tu que dices? https://iciaformacion.es/",
+            "Justo estaba leyendo esto: https://www.muyinteresante.es/naturaleza/articulo/por-que-estan-desapareciendo-los-gorriones-341650124935",
+            "Estaba leyendo este interesante artículo: https://valconmac2.eu/asmacs/asmac-69-sabina-de-tirma/",
+            "Justo estaba probando la nueva ASMAC App: https://valconmac2.eu/asmac-app/"
+          ]
+        }
+      ],
+      "resetContexts": false
+    }
+  ],
+  "rootParentId": null,
+  "templates": [],
+  "userSays": [
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "haces algo?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "0b60c5aa-688b-45a0-8b14-bb7fa6382b1f",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "que haces",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "b9f48244-c502-4d3e-8dda-86aa4c2079a5",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "cosas interesantes",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "d4cd2c0f-ceff-4b12-b141-8fe8ba15099d",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "dime algo interesante",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "5a252ce7-d1fb-4978-b7a4-932b4ffc6ba8",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "que estas haciendo?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "4b051f1b-0899-4f4b-9014-c06cb4484260",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "alguna novedad?",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "4c3e99d8-2e61-45a8-8b35-dc06bb381afa",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "alguna noticia",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "82dcb9a8-ab14-4767-8544-c7091c4a0c25",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "que me puedes contar",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "931d8892-eec2-4180-8088-7e544784ba1d",
+      "updated": null
+    },
+    {
+      "isTemplate": false,
+      "data": [
+        {
+          "text": "Cuentame algo interesante",
+          "userDefined": false
+        }
+      ],
+      "count": 0,
+      "id": "9146db29-8477-4018-9a79-45b6bcd967fc",
+      "updated": null
+    }
+  ],
+  "webhookForSlotFilling": false,
+  "webhookUsed": false
+}
