@@ -1,5 +1,5 @@
 const dialogflow = require("dialogflow");
-const config = require("./config");
+const config = require("../../../config");
 
 const credentials = {
   client_email: config.GOOGLE_CLIENT_EMAIL,

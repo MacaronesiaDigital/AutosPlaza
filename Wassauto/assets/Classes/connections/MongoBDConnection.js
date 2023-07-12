@@ -41,17 +41,18 @@ function executeQuery(query) {
   });
 }
 
-function executeInsert(document){
+function executeInsert(document, thisCollectionName, forceID){
   connectToDatabase()
     .then(() => {
       const db = client.db(dbName);
-      const collection = db.collection(collectionName);
+      const collection = db.collection(thisCollectionName);
       
+      forceServerObjectId = forceID;
+
       collection.insertOne(document)
     })
     .then((result) => {
       console.log('Document inserted successfully');
-      console.log(result.insertedCount); // Number of documents inserted
     })
     .catch((error) => {
       console.error('Failed to insert document', error);

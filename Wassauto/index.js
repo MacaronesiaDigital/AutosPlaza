@@ -9,8 +9,8 @@ const { readFile } = require('fs/promises')
 const XLSX = require('xlsx');
 const { filter } = require('lodash');
 const Twilio = require('twilio');
-const twilio = require("./twilio");
-const dialogflow = require("./dialogflow");
+const twilio = require("./assets/Classes/connections/twilio");
+const dialogflow = require("./assets/Classes/connections/dialogflow");
 
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
@@ -27,7 +27,9 @@ app.use(express.urlencoded({ extended: true }));
 /*==============================================================================
 ||Referencias a las clases que manejan cada tipo de entidad                   ||
 ==============================================================================*/
-const MongoHandler = require("./assets/Classes/MongoBDConnection.js") ;
+const MongoHandler = require("./assets/Classes/connections/MongoBDConnection") ;
+const JSONFormatter = require("./assets/Classes/dataHandlers/JSONFormatter") ;
+
 /*
 const thripsHandler = require("./assets/Classes/ThripsHandler.js") ;
 const setosHandler = require("./assets/Classes/SetosHandler.js") ;
@@ -35,13 +37,33 @@ const eennHandler = require("./assets/Classes/EENNHandler.js") ;
 const dataHandler = require("./assets/Classes/DataHandler.js");
 */
 
+/*==============================================================================
+||Referencias a json                                                          ||
+==============================================================================*/
+const unformattedJSON = './Wassauto/JSON/UnformattedData.json';
+try{
+    var uVehicleJSON = require('./assets/JSONs/UnformattedVehicle.json');
+} catch (error){
+    console.error('An error occurred:', error);
+}
+
+try{
+    var uBookingJSON = require('./assets/JSONs/UnformattedBooking.json');
+} catch (error){
+    console.error('An error occurred:', error);
+}
+
+const vechicleJSON = __dirname + '/assets/JSONs/VehicleData.json';
+const bookingJSON = __dirname + '/assets/JSONs/BookingData.json';
+const userJSON = __dirname + '/assets/JSONs/USerData.json';
+
 app.use('/assets/Images', express.static(__dirname + '/assets/Images'));
 
 app.post("/upload_files", upload.single("files"), uploadFiles);
 
 async function uploadFiles(req, res) {
     try{
-        excelPath = './UploadedExcel/savedExcel.xls';
+        excelPath = './Wassauto/UploadedExcel/savedExcel.xls';
         if (fs.existsSync(excelPath)) {
             await fs.unlink(excelPath, (err) => { 
                 if (err) { 
@@ -53,15 +75,24 @@ async function uploadFiles(req, res) {
         if (err) throw err;
         console.log('Saved!');
         });
-        saveJsonToFile(convertExcelToJson(req.file['path']), './JSON/UnformattedData.json')
+        saveJsonToFile(convertExcelToJson(req.file['path']), unformattedJSON);
         res.json({ message: "Successfully uploaded files" });
     }catch (error){
         console.error('An error occurred:', error);
     }
 }
 
-app.get('/prueba', (req, res) =>{
+app.get('/prueba', async (req, res) =>{
     res.send("Esto es una prueba");
+    /*
+    JSONFormatter.vehicleJSON(uVehicleJSON, vehicleJSON);
+    const FVehicleJSON = require('./JSON/JSONTest.json');
+    saveJsonToMongo(FVehicleJSON, 'Flota', true, 'license', 'usedLicenses');
+    */
+
+    JSONFormatter.bookingJSON(uBookingJSON, bookingJSON)
+    const FBookingJSON = require(bookingJSON);
+    saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook', 'usedBookings');
 });
 
 app.listen(process.env.PORT || 5000, function () {
@@ -215,7 +246,7 @@ function ShowRatingOptions(req) {
     const buttons = [
         { title: 'Yes', payload: 'yes' },
         { title: 'No', payload: 'no' }
-      ];
+    ];
     
     twilio.sendButtonsToWhatsApp(phoneNumber, buttons);
 }
@@ -226,12 +257,6 @@ function ShowRatingOptions(req) {
 
 async function GetReturnTime(){
     try{
-        /*const document = {
-        name: 'John Doe', // Replace with the desired name value
-        dateOfPickup: new Date('2023-07-10'), // Replace with the desired dateOfPickup value
-        dateOfReturn: new Date('2023-07-15') // Replace with the desired dateOfReturn value
-        };
-        MongoHandler.executeInsert(document);*/
         result = await MongoHandler.executeQuery({_id: new ObjectId('64a585ae7b355318c1969328')});
         dateOfReturn = result[0]['dateOfReturn'];
         twilio.sendTextMessage(GetNumber(session), dateFormatter(dateOfReturn));
@@ -276,6 +301,36 @@ function saveJsonToFile(jsonData, filePath) {
       } else {
         console.log('JSON file saved successfully.');
       }
+    });
+}
+
+function formatJson(jsonToFormat){
+    JSONFormatter.vehicleJSON(jsonToFormat);
+}
+
+function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker, arrayToCheck){
+
+    var dupArray = jsonToSave[jsonToSave.length-1][arrayToCheck];
+
+    var jj = 0;
+
+    jsonToSave.forEach(element => {
+        jj+=1;
+        if(jj >= jsonToSave.length){
+            return;
+        }
+        console.log(jj + ' - ' + (jsonToSave.length-1));
+        if(checkDup){
+            dupCheck = element[dupChecker];
+            if(dupArray.includes(dupCheck)){
+                console.log(dupCheck + " ya en mongo");
+                return;
+            }else{
+                MongoHandler.executeInsert(element, collection, false);
+            }
+        } else{
+            MongoHandler.executeInsert(element, collection, false);
+        }
     });
 }
 
