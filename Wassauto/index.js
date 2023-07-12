@@ -9,11 +9,11 @@ const { readFile } = require('fs/promises')
 const XLSX = require('xlsx');
 const { filter } = require('lodash');
 const Twilio = require('twilio');
-const twilio = require("./assets/Classes/connections/twilio");
-const dialogflow = require("./assets/Classes/connections/dialogflow");
+const twilio = require('./assets/Classes/connections/twilio');
+const dialogflow = require('./assets/Classes/connections/dialogflow');
 
-const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const multer = require('multer');
+const upload = multer({ dest: __dirname + '/assets/uploads' });
 
 const { ObjectId } = require('mongodb');
 
@@ -26,35 +26,39 @@ app.use(express.urlencoded({ extended: true }));
 /*==============================================================================
 ||Referencias a las clases que manejan cada tipo de entidad                   ||
 ==============================================================================*/
-const MongoHandler = require("./assets/Classes/connections/MongoBDConnection") ;
-const JSONFormatter = require("./assets/Classes/dataHandlers/JSONFormatter") ;
+const MongoHandler = require('./assets/Classes/connections/MongoBDConnection') ;
+const JSONFormatter = require('./assets/Classes/dataHandlers/JSONFormatter') ;
 
 /*==============================================================================
 ||Referencias a json                                                          ||
 ==============================================================================*/
-const unformattedJSON = './Wassauto/JSON/UnformattedData.json';
-try{
-    var uVehicleJSON = require('./assets/JSONs/UnformattedVehicle.json');
-} catch (error){
-    console.error('An error occurred:', error);
-}
+const unformattedJSON = __dirname + '/assets/JSONs/UnformattedData.json';
+const uVehicleJSON = __dirname + '/assets/JSONs/UnformattedVehicle.json';
+const uBookingJSON = __dirname + '/assets/JSONs/UnformattedBooking.json';
 
-try{
-    var uBookingJSON = require('./assets/JSONs/UnformattedBooking.json');
-} catch (error){
-    console.error('An error occurred:', error);
-}
-
-const vechicleJSON = __dirname + '/assets/JSONs/VehicleData.json';
+const vehicleJSON = __dirname + '/assets/JSONs/VehicleData.json';
 const bookingJSON = __dirname + '/assets/JSONs/BookingData.json';
 const userJSON = __dirname + '/assets/JSONs/USerData.json';
 
 app.use('/assets/Images', express.static(__dirname + '/assets/Images'));
 
-app.post("/upload_files", upload.single("files"), uploadFiles);
+app.post('/upload_files', upload.single('files'), uploadFiles);
 
 async function uploadFiles(req, res) {
     try{
+        
+        console.log(req.body['dataType']);
+        var filePath = unformattedJSON;
+        switch(req.body['dataType']){
+            case 'vehicle':
+                filePath = uVehicleJSON;
+            break;
+
+            case 'booking':
+                filePath = uBookingJSON;
+            break;
+        }
+
         excelPath = './Wassauto/UploadedExcel/savedExcel.xls';
         if (fs.existsSync(excelPath)) {
             await fs.unlink(excelPath, (err) => { 
@@ -64,25 +68,33 @@ async function uploadFiles(req, res) {
             });
         }
         fs.copyFile(req.file['path'], excelPath, function (err) {
-        if (err) throw err;
-        console.log('Saved!');
+            if (err) throw err;
+            console.log('Saved!');
         });
-        saveJsonToFile(convertExcelToJson(req.file['path']), unformattedJSON);
+        saveJsonToFile(convertExcelToJson(req.file['path']), filePath);
         res.json({ message: "Successfully uploaded files" });
+        await fs.unlink(req.file['path'], (err) => { 
+            if (err) { 
+            console.log(err); 
+            } 
+        });
     }catch (error){
         console.error('An error occurred:', error);
     }
 }
 
-app.get('/prueba', async (req, res) =>{
+app.get("/prueba", async (req, res) =>{
     res.send("Esto es una prueba");
+
     /*
     JSONFormatter.vehicleJSON(uVehicleJSON, vehicleJSON);
-    const FVehicleJSON = require('./JSON/JSONTest.json');
+    const FVehicleJSON = require(vehicleJSON);
     saveJsonToMongo(FVehicleJSON, 'Flota', true, 'license', 'usedLicenses');
     */
 
-    JSONFormatter.bookingJSON(uBookingJSON, bookingJSON)
+    var uFile = require(uBookingJSON);
+
+    JSONFormatter.bookingJSON(uFile, bookingJSON)
     const FBookingJSON = require(bookingJSON);
     saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook', 'usedBookings');
 });

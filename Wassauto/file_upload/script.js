@@ -5,10 +5,12 @@ form.addEventListener("submit", submitForm);
 
 function submitForm(e) {
     e.preventDefault();
-    const name = document.getElementById("name");
+    const dataType = document.getElementById("dataType");
     const files = document.getElementById("files");
     const formData = new FormData();
-    formData.append("files", files.files[0])
+    var dataTypeText = dataType.value;
+    formData.append('dataType', dataTypeText);
+    formData.append('files', files.files[0])
     /*for(let i =0; i < files.files.length; i++) {
             formData.append("files", files.files[i]);
     }*/
