@@ -23,19 +23,11 @@ const schedule = require('node-schedule');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 /*==============================================================================
 ||Referencias a las clases que manejan cada tipo de entidad                   ||
 ==============================================================================*/
 const MongoHandler = require("./assets/Classes/connections/MongoBDConnection") ;
 const JSONFormatter = require("./assets/Classes/dataHandlers/JSONFormatter") ;
-
-/*
-const thripsHandler = require("./assets/Classes/ThripsHandler.js") ;
-const setosHandler = require("./assets/Classes/SetosHandler.js") ;
-const eennHandler = require("./assets/Classes/EENNHandler.js") ;
-const dataHandler = require("./assets/Classes/DataHandler.js");
-*/
 
 /*==============================================================================
 ||Referencias a json                                                          ||
@@ -101,13 +93,6 @@ app.listen(process.env.PORT || 5000, function () {
 
 app.post("/twilio", express.json(), async function (req, res) {
     try{
-        /*
-        console.log("req ->", req.body);
-        twilio.sendTextMessage(req.body.WaId, req.body.Body);
-        result = await MongoHandler.executeQuery({});
-        console.log(result);
-        res.status(200).json({ ok: true, msg: "Mensaje enviado correctamente" });
-        */
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
         payload = await dialogflow.sendToDialogFlow(receivedMessage, phone);
@@ -205,24 +190,6 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('rating-positive', GetDialogAnswer);
         intentMap.set('rating-negative', GetDialogAnswer);
         intentMap.set('Default Fallback Intent', GetDialogAnswer)
-
-        /*
-        intentMap.set('info-thrips-intent', thripsHandler.infoThrips);
-        intentMap.set('info-setos-intent', setosHandler.infoSetos);
-        intentMap.set('info-eenn-intent', eennHandler.infoEENN2);
-        intentMap.set('info-sintomas-intent', thripsHandler.filterThrips);
-        intentMap.set('info-cultivos-intent', thripsHandler.filterThrips2);
-        intentMap.set('filtro-thrips-intent', thripsHandler.filterThrips3);
-        intentMap.set('filtro-setos-intent', setosHandler.filterSetos2);
-        intentMap.set('filtro-eenn-intent', eennHandler.filterEENN);
-        intentMap.set('fight-thrip-intent', thripsHandler.fightThrip);
-        intentMap.set('fight-thrip-intent - eenn-followup', eennHandler.infoEENN);
-        intentMap.set('search-setos-intent', eennHandler.getSetos);
-        intentMap.set('search-setos-followup - filtro-setos-intent', setosHandler.filterSearchedSetos);
-        intentMap.set('search-insects-intent', thripsHandler.identifyThrip);
-        intentMap.set('search-insects-followup -insect-size', thripsHandler.filterBySize);
-        intentMap.set('-insect-size-followup -visible', thripsHandler.filterBySize);
-        */
 
         agent.handleRequest(intentMap);
     }catch (error){
