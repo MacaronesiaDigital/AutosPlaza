@@ -63,7 +63,7 @@ async function uploadFiles(req, res) {
         if (fs.existsSync(excelPath)) {
             await fs.unlink(excelPath, (err) => { 
                 if (err) { 
-                console.log(err); 
+                    console.log(err); 
                 } 
             });
         }
@@ -75,7 +75,7 @@ async function uploadFiles(req, res) {
         res.json({ message: "Successfully uploaded files" });
         await fs.unlink(req.file['path'], (err) => { 
             if (err) { 
-            console.log(err); 
+                console.log(err); 
             } 
         });
     }catch (error){
@@ -93,10 +93,17 @@ app.get("/prueba", async (req, res) =>{
     */
 
     var uFile = require(uBookingJSON);
+    /*
+    await JSONFormatter.userJSON(uFile, userJSON)
+    const FUserJSON = require(userJSON);
+    MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
+    //*/
 
-    JSONFormatter.bookingJSON(uFile, bookingJSON)
+    ///*
+    await JSONFormatter.bookingJSON(uFile, bookingJSON)
     const FBookingJSON = require(bookingJSON);
-    saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook', 'usedBookings');
+    MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook', 'usedBookings');
+    //*/
 });
 
 app.listen(process.env.PORT || 5000, function () {
@@ -219,7 +226,6 @@ function sendAnswer(phoneNumber, message){
 }
 
 function ShowRatingOptions(req) {
-
     phoneNumber = GetNumber(req.body.session);
 
     const buttons = [
@@ -287,31 +293,7 @@ function formatJson(jsonToFormat){
     JSONFormatter.vehicleJSON(jsonToFormat);
 }
 
-function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker, arrayToCheck){
 
-    var dupArray = jsonToSave[jsonToSave.length-1][arrayToCheck];
-
-    var jj = 0;
-
-    jsonToSave.forEach(element => {
-        jj+=1;
-        if(jj >= jsonToSave.length){
-            return;
-        }
-        console.log(jj + ' - ' + (jsonToSave.length-1));
-        if(checkDup){
-            dupCheck = element[dupChecker];
-            if(dupArray.includes(dupCheck)){
-                console.log(dupCheck + " ya en mongo");
-                return;
-            }else{
-                MongoHandler.executeInsert(element, collection, false);
-            }
-        } else{
-            MongoHandler.executeInsert(element, collection, false);
-        }
-    });
-}
 
 /*==============================================================================
 ||Scheduled tasks functions                                                   ||

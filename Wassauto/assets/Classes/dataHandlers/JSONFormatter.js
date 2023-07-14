@@ -1,6 +1,10 @@
 const fs = require('fs');
 const XLSX = require('xlsx');
 
+const MongoHandler = require(__dirname + '../../connections/MongoBDConnection') ;
+
+const thisUserJSON = __dirname + '/../../JSONs/ThisUSerData.json';
+
 function vehicleJSON(unformattedJSON, filePath){
     var licenseArray = [];
     var jsonString = "[\n";
@@ -59,152 +63,224 @@ function vehicleJSON(unformattedJSON, filePath){
     fs.writeFileSync(filePath, jsonString);
 }
 
-function bookingJSON(unformattedJSON, filePath){
+async function bookingJSON(unformattedJSON, filePath) {
     var codBookArray = [];
+    const userJSONF = require('../../JSONs/USerData.json');
+    var phoneUsedArray = userJSONF[userJSONF.length - 1]['usedPhones'];
+  
     var jsonString = "[\n";
     var ii = 0;
     var obj = new Object();
-    unformattedJSON.forEach(element => {
-        if(ii > unformattedJSON.length - 3)
-            return;
-
-        var codBook = ''
-
-        if(ii%2 == 0){
-
-            if(element['Fecha :']){
+    for (const element of unformattedJSON) {
+        if (ii > unformattedJSON.length - 3) break;
+  
+        var codBook = '';
+  
+        if (ii % 2 === 0) {
+            if (element['Fecha :']) {
                 codBook = element['Fecha :'].toString();
-            } else{
+            } else {
                 return;
             }
-            
+        
             obj = new Object();
-
-            if(codBook != ''){
-                obj.codBook  = codBook;
+        
+            if (codBook !== '') {
+                obj.codBook = codBook;
                 codBookArray.push(codBook);
-            } else{
+            } else {
                 obj.codBook = "";
             }
-
-            if(element[Object.keys(element)[2]]){
-                obj.codClient = element['Fecha :'];
-            } else{
-                obj.codClient = "";
+        
+            var phoneNumbers = [];
+        
+            if (element['__EMPTY_14']) {
+                const phoneNumberString = element['__EMPTY_14'];
+                const phoneNumberPattern = /(?:(?:\+|00)(?:\d{1,3})[\s-]?)?(?:\(?\d{3}\)?[\s-]?)?\d{3}[\s-]?\d{4}/g;
+                phoneNumbers = phoneNumberString.match(phoneNumberPattern);
             }
-
-            if(element['__EMPTY_7']){
+        
+            if (phoneNumbers) {
+                var codClient = "";
+                for (const phoneNumber of phoneNumbers) {
+                    if (phoneUsedArray.includes(phoneNumber)) {
+                        try {
+                            //const itemId = await MongoHandler.getItemIdByPhone(phoneNumber, 'Users');
+                            const query = { phones: phoneNumber };
+                            const item = await MongoHandler.executeQueryFirst(query, 'Users');
+                            codClient = item._id;
+                            break;
+                        } catch (error) {
+                            console.error('Error:', error);
+                        }
+                    } else {
+                        var newJSON = JSON.parse(JSON.stringify([unformattedJSON[ii], unformattedJSON[ii+1]]));
+                        await userJSON(newJSON, thisUserJSON);
+                        const FUserJSON = require(thisUserJSON);
+                        await MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
+                        const query = { phones: { $in: [phoneNumber] } };
+                        const item = await MongoHandler.executeQueryFirst(query, 'Users');
+                        codClient = item._id;
+                    }
+                }
+            
+                obj.codClient = codClient;
+            }
+        
+            if (element['__EMPTY_7']) {
                 obj.license = element['__EMPTY_7'];
-            } else{
+            } else {
                 obj.license = "";
             }
-
-            if(element['__EMPTY']){
+        
+            if (element['__EMPTY']) {
                 const dateObject = XLSX.SSF.parse_date_code(element['__EMPTY']);
-                const jsDate = new Date(Date.UTC(dateObject.y, dateObject.m - 1, dateObject.d));
                 var timeString = '00:00';
-                if(element['__EMPTY_1']){
-                    timeString = element['__EMPTY_1'];
-                } 
+                if (element['__EMPTY_1']) {
+                  timeString = element['__EMPTY_1'];
+                }
                 obj.deliveryDate = formatDate(dateObject, timeString);
-            } else{
+            } else {
                 obj.deliveryDate = "";
             }
-
-            if(element['__EMPTY_2']){
+        
+            if (element['__EMPTY_2']) {
                 const dateObject = XLSX.SSF.parse_date_code(element['__EMPTY_2']);
-                const jsDate = new Date(Date.UTC(dateObject.y, dateObject.m - 1, dateObject.d));
                 var timeString = '00:00';
-                if(element['__EMPTY_3']){
-                    timeString = element['__EMPTY_3'];
-                } 
+                if (element['__EMPTY_3']) {
+                  timeString = element['__EMPTY_3'];
+                }
                 obj.returnDate = formatDate(dateObject, timeString);
-            } else{
+            } else {
                 obj.returnDate = "";
             }
-
-            if(element['__EMPTY_5']){
-                obj.returnLocation = element['__EMPTY_5'];
-            } else{
-                obj.returnLocation = "";
-            }
-
-        } else{
-
-            if(element['__EMPTY']){
-                obj.deliveryLocation = element['__EMPTY'];
-            } else{
+        
+            if (element['__EMPTY_5']) {
+                obj.deliveryLocation = element['__EMPTY_5'];
+            } else {
                 obj.deliveryLocation = "";
             }
-
+        } else {
+            if (element['__EMPTY']) {
+                obj.returnLocation = element['__EMPTY'];
+            } else {
+                obj.returnLocation = "";
+            }
+        
             jsonString += JSON.stringify(obj);
             jsonString += ",\n";
-
-        }
-
+        }  
         ii++;
-    });
+    }
     codBookArray = JSON.stringify(codBookArray);
     jsonString += '{\"usedBookings\":' + codBookArray + "}\n]";
     fs.writeFileSync(filePath, jsonString);
 }
 
-function userJSON(unformattedJSON){
-    var codClientArray = [];
+async function userJSON(unformattedJSON, filePath){
+    var clientPhoneArray = [];
     var jsonString = "[\n";
     var ii = 0;
+
+    var obj = new Object();
+    //console.log(unformattedJSON);
     unformattedJSON.forEach(element => {
-        if(ii > unformattedJSON.length - 3)
-            return;
+        if(unformattedJSON.length > 3)
+            if(ii > unformattedJSON.length - 3)
+                return;
 
-        var codClient = ''
-
+        /*
         if(element['   Actuales (Vivos)   Listado de Vehículo. Simple.   Ordenado por: Marc-Mod']){
             codClient = element['   Actuales (Vivos)   Listado de Vehículo. Simple.   Ordenado por: Marc-Mod'].toString();
         } else{
             return;
         }
-        
-        var obj = new Object();
+        */
         /*obj.group = element[Object.keys(element)[1]];
         obj.license  = element[Object.keys(element)[3]];
         obj.model = element[Object.keys(element)[4]];
         obj.color = element[Object.keys(element)[9]];*/
-        if(codClient != ''){
-            obj.codClient = codClient;
-            licenseArray.push(codClient);
-        } else{
-            obj.codClient = "";
-        }
-        
-        if(element['Fecha :']){
-            obj.group = element['Fecha :'];
-        } else{
-            obj.group = "";
-        }
 
-        if(element['__EMPTY']){
-            obj.model = element['__EMPTY'];
-         }else{
-            obj.model = "";
-        }
+        if(ii%2 == 0){
 
-        if(element['__EMPTY_5']){
-            obj.color = element['__EMPTY_5'];
+            obj = new Object();
+
+            if(element['30/06/2023']){
+                const fullName = element['30/06/2023'];
+                const names = fullName.split(' ');
+                var firstName = '';
+                var surnames = '';
+
+                if(names.length > 3){
+                    firstName = names[names.length - 2] + ' ' + names[names.length - 1];
+                    surnames = fullName.slice(0, -firstName.length).trim();
+                } else{
+                    firstName = names[names.length - 1];
+                    surnames = fullName.slice(0, -firstName.length).trim();
+                }
+
+                obj.name = firstName;
+                obj.surname = surnames;
+            } else{
+                obj.name = "";
+                obj.surname = "";
+            }
+
+            if(element['__EMPTY_14']){
+                const phoneNumberString = element['__EMPTY_14'];
+                const phoneNumberPattern = /(?:(?:\+|00)(?:\d{1,3})[\s-]?)?(?:\(?\d{3}\)?[\s-]?)?\d{3}[\s-]?\d{4}/g;
+                const phoneNumbers = phoneNumberString.match(phoneNumberPattern);
+
+                obj.phones = phoneNumbers;
+                phoneNumbers.forEach(element => {
+                    clientPhoneArray.push(element);
+                });
+            } else{
+                obj.phones = "";
+            }
+
+            if(element['   F.Salida De 14/08/2017 a 15/08/2017   Ordenado por: Fec+Hora E.']){
+                obj.address = element['__EMPTY_5'];
+            } else{
+                obj.address = "";
+            }
+
         } else{
-            obj.color = "";
-        }
+            if(element['LISTADO DE ENTREGAS']){
+                const inputString = element['LISTADO DE ENTREGAS'];
+                const modifiedString = inputString.replace('#', '@');
+                obj.email = modifiedString;
+            } else{
+                obj.email = "";
+            }
+            /*
+            if(element['__EMPTY_5']){
+                obj.lastBooking = element['__EMPTY_5'];
+            } else{
+                obj.lastBooking = "";
+            }
+            */
+            if(element['__EMPTY_5']){
+                //obj.bookingAmmount = element['__EMPTY_5'];
+                obj.bookingAmmount = 0;
+            } else{
+                obj.bookingAmmount = "";
+            }
 
-        jsonString += JSON.stringify(obj);
-        jsonString += ",\n";
-        /*if(ii < unformattedJSON.length - 3){
-            jsonString += ",\n"
-        }*/
+            if(element['__EMPTY_5']){
+                obj.active = element['__EMPTY_5'];
+            } else{
+                obj.active = "";
+            }
+
+            jsonString += JSON.stringify(obj);
+            jsonString += ",\n";
+        }
         ii++;
     });
-    codClientString = JSON.stringify(codClientArray);
-    jsonString += '{\"usedClients\":' + codClientString + "}\n]";
-    fs.writeFileSync('./Wassauto/JSON/JSONTest.json', jsonString);
+    clientPhoneString = JSON.stringify(clientPhoneArray);
+    jsonString += '{\"usedPhones\":' + clientPhoneString + "}\n]";
+    fs.writeFileSync(filePath, jsonString);
 }
 
 function formatDate(dateObject, timeString){
