@@ -87,22 +87,25 @@ app.get("/prueba", async (req, res) =>{
     res.send("Esto es una prueba");
 
     /*
-    JSONFormatter.vehicleJSON(uVehicleJSON, vehicleJSON);
+    var uFile = require(uVehicleJSON);
+    JSONFormatter.vehicleJSON(uFile, vehicleJSON);
     const FVehicleJSON = require(vehicleJSON);
-    saveJsonToMongo(FVehicleJSON, 'Flota', true, 'license', 'usedLicenses');
-    */
+    MongoHandler.saveJsonToMongo(FVehicleJSON, 'Flota', true, 'license');
+    //*/
 
-    var uFile = require(uBookingJSON);
     /*
+    var uFile = require(uBookingJSON);
     await JSONFormatter.userJSON(uFile, userJSON)
     const FUserJSON = require(userJSON);
-    MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
+    MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones');
     //*/
 
     ///*
+    
+    var uFile = require(uBookingJSON);
     await JSONFormatter.bookingJSON(uFile, bookingJSON)
     const FBookingJSON = require(bookingJSON);
-    MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook', 'usedBookings');
+    MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');
     //*/
 });
 

@@ -71,8 +71,21 @@ function executeInsert(document, thisCollectionName, forceID){
     });
 }
 
-function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker, arrayToCheck){
-  var dupArray = jsonToSave[jsonToSave.length-1][arrayToCheck];
+async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker){
+  //var dupArray = jsonToSave[jsonToSave.length-1][arrayToCheck];
+
+  var dupArray = [];
+   
+  allItems = await executeQuery({}, collection);
+  allItems.forEach(element => {
+    if(Array.isArray(element[dupChecker])) {
+      element[dupChecker].forEach(element2 => {
+        dupArray.push(element2);
+      });
+    }else{
+      dupArray.push(element[dupChecker]);
+    }
+  });
 
   var jj = 0;
 
