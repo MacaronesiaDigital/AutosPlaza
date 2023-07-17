@@ -28,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 ==============================================================================*/
 const MongoHandler = require('./assets/Classes/connections/MongoBDConnection') ;
 const JSONFormatter = require('./assets/Classes/dataHandlers/JSONFormatter') ;
+const { time } = require('console');
 
 /*==============================================================================
 ||Referencias a json                                                          ||
@@ -101,11 +102,11 @@ app.get("/prueba", async (req, res) =>{
     //*/
 
     ///*
-    
     var uFile = require(uBookingJSON);
     await JSONFormatter.bookingJSON(uFile, bookingJSON)
     const FBookingJSON = require(bookingJSON);
-    MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');
+    var timesArr = await MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');
+    setDeliveryMessages(timesArr);
     //*/
 });
 
@@ -146,7 +147,7 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         function GetDialogAnswer(agent){
             message = req.body.queryResult.fulfillmentText;
-            sendAnswer(phoneNumber, message)
+            sendAnswer(phoneNumber, message);
         }
 
         /*==============================================================================
@@ -155,29 +156,34 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetReturnTime(){
             try{
-                /*const document = {
-                name: 'John Doe', // Replace with the desired name value
-                dateOfPickup: new Date('2023-07-10'), // Replace with the desired dateOfPickup value
-                dateOfReturn: new Date('2023-07-15') // Replace with the desired dateOfReturn value
-                };
-                MongoHandler.executeInsert(document);*/
-                result = await MongoHandler.executeQuery({_id: new ObjectId('64a585ae7b355318c1969328')});
-                dateOfReturn = result[0]['dateOfReturn'];
-                twilio.sendTextMessage(phoneNumber, dateFormatter(dateOfReturn));
+                const query = { phones: phoneNumber };
+                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                userID = user._id.toString();
+                const query2 = { codClient: userID };
+                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                sendAnswer(phoneNumber, booking.returnDate);
             }catch (error){
                 console.error('An error occurred:', error);
             }
-            
+            /*
+            try{
+                date = new Date();
+                date = getDate(date, 's', 'subs', 15);
+                scheduleMessage(date, phoneNumber, "test");
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+            */
         }
 
         async function GetReturnUbication(){
             try{
-                console.log("Entro");
-                /*latitude = '28.079820';
-                longitude = '-15.451709';
-                twilio.sendLocationMessage(phoneNumber, latitude, longitude);*/
-                const date = new Date(2023, 7, 10, 12, 11, 0);
-                scheduleMessage(AddMinutes(date, 1), phoneNumber, "test");
+                const query = { phones: phoneNumber };
+                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                userID = user._id.toString();
+                const query2 = { codClient: userID };
+                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                sendAnswer(phoneNumber, booking.returnLocation);
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -208,7 +214,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('return-key-location', GetReturnCar);
         intentMap.set('tenerife-activities', GetDialogAnswer);
         intentMap.set('other-questions', GetDialogAnswer);
-        intentMap.set('rating-context', ShowRatingOptions);
+        intentMap.set('rating-context', GetDialogAnswer);
         intentMap.set('rating-positive', GetDialogAnswer);
         intentMap.set('rating-negative', GetDialogAnswer);
         intentMap.set('Default Fallback Intent', GetDialogAnswer)
@@ -228,16 +234,6 @@ function sendAnswer(phoneNumber, message){
     twilio.sendTextMessage(phoneNumber, message);
 }
 
-function ShowRatingOptions(req) {
-    phoneNumber = GetNumber(req.body.session);
-
-    const buttons = [
-        { title: 'Yes', payload: 'yes' },
-        { title: 'No', payload: 'no' }
-    ];
-    
-    twilio.sendButtonsToWhatsApp(phoneNumber, buttons);
-}
 
 /*==============================================================================
 ||Database querys                                                             ||
@@ -302,24 +298,59 @@ function formatJson(jsonToFormat){
 ||Scheduled tasks functions                                                   ||
 ==============================================================================*/
 
-function calculateHour(workTime, hours){
-    // Get the current date
-    //const currentDate = new Date();
-    const modifiedDate = new Date(workTime.getTime() - hours * 60 * 60 * 1000);
-    // Use the modified date for scheduling or sending the message
-    //console.log(modifiedDate);
-    return modifiedDate;
-}
+async function setDeliveryMessages(collectionArray){
+    const query = { };
+    userArray = await MongoHandler.executeQuery(query, 'Users');
+    console.log(userArray);
+    try{
+        console.log(collectionArray.length);
+        console.log(userArray.length);
+        //console.log(collectionArray)
+        for(ii = 0; ii < collectionArray.length; ii++) {
+            element = collectionArray[ii];
+            console.log(ii + ' - ' + (collectionArray.length-1));
+            console.log(element.codClient);
+            var user = '';
+            userArray.forEach(element2 => {
+                console.log(element2._id.toString())
+                if(element2._id.toString() === element.codClient){
+                    user = element2;
+                }
+            });
 
-function AddMinutes(date, minutes){
-    return date.setMinutes(date.getMinutes()+minutes);
+            if(user != ''){
+                console.log(element);
+                console.log(user);
+                var bookingPhone = user.phones[0];
+                var date = stringToDate(element.deliveryDate);
+                date = getDate(date, 'h', 'subs', 24);
+                console.log(date + ' - ' + bookingPhone);
+                scheduleMessage(date, bookingPhone, "test");
+
+                var date2 = stringToDate(element.returnDate);
+                date2 = getDate(date2, 'h', 'subs', 24);
+                console.log(date2 + ' - ' + bookingPhone);
+                scheduleMessage(date2, bookingPhone, "test");
+            } else{
+                console.log('Usuario no encontrado');
+            }
+
+        }
+    }catch (error){
+        console.error('An error occurred:', error);
+    }
 }
 
 async function scheduleMessage(timeToSend, phoneNumber, message){
-    const job = schedule.scheduleJob(timeToSend, function(){
-        console.log("Tiempo");
-        twilio.sendButtonsToWhatsApp(phoneNumber, message);
-    });
+    try{
+        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
+        const job = schedule.scheduleJob(timeToSend, function(){
+            console.log("Tiempo");
+            //sendAnswer(phoneNumber, message);
+        });
+    }catch (error){
+        console.error('An error occurred:', error);
+    }
 }
 
 function dateFormatter(date){
@@ -335,14 +366,42 @@ function dateFormatter(date){
     return formatter.format(date);
 }
 
-function jsonBookingFormatter(json){
+function stringToDate(dateString){
+    const [datePart, timePart] = dateString.split(" ");
 
+    const [year, month, day] = datePart.split("-");
+    const [hours, minutes] = timePart.split(":");
+
+    const date = new Date(year, month - 1, day, hours, minutes);
+    return date;
 }
 
-function jsonReturnFormatter(json){
+function getDate(thisDate, interval, type, hours) {
+    var newDate;
+    var value;
+    switch(interval){
+        case 's':
+            value = hours * 1000;
+        break;
 
-}
+        case 'm':
+            value = hours * 60 * 1000;
+        break;
 
-function jsonPickupFormatter(json){
+        case 'h':
+            value = hours * 60 * 60 * 1000;
+        break;
+    }
 
+    switch(type){
+        case 'sum':
+            newDate = new Date(thisDate.getTime() + value);
+        break;
+
+        case 'subs':
+            newDate = new Date(thisDate.getTime() - value);
+        break;
+    }
+
+  return newDate;
 }

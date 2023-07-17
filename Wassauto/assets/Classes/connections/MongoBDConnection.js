@@ -1,3 +1,5 @@
+const { json } = require('express');
+
 const MongoClient = require('mongodb').MongoClient;
 // Connection URL
 const dbUrl = 'mongodb://localhost:27017';
@@ -5,6 +7,8 @@ const dbUrl = 'mongodb://localhost:27017';
 const dbName = 'AutosPlazaBBDD';
 // Collection Name
 //const collectionName = 'Wasssauto';
+
+const { ObjectId } = require('mongodb');
 
 const client = new MongoClient(dbUrl);
 
@@ -41,6 +45,8 @@ async function executeQueryFirst(query, collectionName) {
   try {
     await thisClient.connect();
 
+    console.log(query);
+
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
 
@@ -53,26 +59,98 @@ async function executeQueryFirst(query, collectionName) {
   }
 }
 
-function executeInsert(document, thisCollectionName, forceID){
-  connectToDatabase()
-    .then(() => {
-      const db = client.db(dbName);
-      const collection = db.collection(thisCollectionName);
-      
-      forceServerObjectId = forceID;
+async function executeInsert(document, thisCollectionName, forceID) {
+  try {
+    await connectToDatabase();
+  
+    const db = client.db(dbName);
+    const collection = db.collection(thisCollectionName);
+    
+    forceServerObjectId = forceID;
 
-      collection.insertOne(document)
-    })
-    .then((result) => {
-      console.log('Document inserted successfully');
-    })
-    .catch((error) => {
+    const existingDoc = await collection.findOne({ _id: document._id });
+    if (existingDoc) {
+      console.log('Document already exists:', existingDoc);
+      return;
+    }
+
+    await collection.insertOne(document);
+    console.log('Document inserted successfully');
+  } catch (error) {
+    if (error.code === 11000) {
+      console.log('Document with duplicate _id already exists');
+    } else {
       console.error('Failed to insert document', error);
-    });
+    }
+  }
 }
 
-async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker){
+async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker) {
+  try{
+    var collectionArray = [];
+    var dupArray = [];
+
+    allItems = await executeQuery({}, collection);
+    allItems.forEach(element => {
+      if(Array.isArray(element[dupChecker])) {
+        element[dupChecker].forEach(element2 => {
+          dupArray.push(element2);
+        });
+      }else{
+        dupArray.push(element[dupChecker]);
+      }
+    });
+
+    var jj = 0;
+
+    //console.log(jsonToSave);
+
+    for(ii = 0; ii < jsonToSave.length-1; ii++){
+      element = jsonToSave[ii];
+      
+      if(collection === 'Bookings') {
+        collectionArray.push(element);
+      }
+
+      console.log(ii + ' - ' + (jsonToSave.length - 2));
+
+      if (checkDup) {
+        if (Array.isArray(element[dupChecker])) {
+          for (const element2 of element[dupChecker]) {
+            dupCheck = element2;
+            if (dupArray.includes(dupCheck)) {
+              console.log(dupCheck + ' already exists in MongoDB');
+            } else {
+              await executeInsert(element, collection, false);
+            }
+          }
+        } else {
+          dupCheck = element[dupChecker];
+          if (dupArray.includes(dupCheck)) {
+            console.log(dupCheck + ' already exists in MongoDB ' + collection);
+          } else {
+            await executeInsert(element, collection, false);
+          }
+        }
+      } else {
+        await executeInsert(element, collection, false);
+      }
+    }
+
+    if (collection === 'Bookings') {
+      return collectionArray;
+    }
+
+  } catch (error) {
+    console.error('Failed to insert document', error);
+  }
+  
+}
+
+async function saveJsonToMongo2(jsonToSave, collection, checkDup, dupChecker){
   //var dupArray = jsonToSave[jsonToSave.length-1][arrayToCheck];
+
+  var timesArray = [];
 
   var dupArray = [];
    
@@ -113,13 +191,31 @@ async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker){
                   return;
               }else{
                   executeInsert(element, collection, false);
+                  //console.log(element);
+                  if(collection === 'Bookings'){
+                    const query = { codClient: 'ObjectId(\'' + element.codClient + '\')'};
+                    var user = MongoHandler.executeQueryFirst(query, 'Users');
+                    var bookingPhone = user.phones[0];
+                    //console.log(bookingPhone);
+                    //var thisBooking = [element.deliveryDate, element.]
+                    timesArray.push(thisTime);
+                  }
               }
           }
           
       } else{
           executeInsert(element, collection, false);
+          /*console.log(element);
+          if(collection === 'Bookings'){
+            //thisTime = 
+            timesArray.push(thisTime);
+          }*/
       }
   });
+
+  if(collection === 'Bookings'){
+    return timesArray;
+  }
 }
 
 module.exports = {
