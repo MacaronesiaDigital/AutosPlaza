@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>File Upload</h1>
+        <form id='form'>
+            <div class="input-group" style="text-align: center;">
+                <select name="bookings" id="bookings" required>
+                    <!-- Options fetched from MongoDB table will be inserted here -->
+                </select>
+            </div>
+            <div class="input-group" style="text-align: center;">
+                <select name="accessories" id="accessories" required>
+                    <!-- Options fetched from MongoDB table will be inserted here -->
+                </select>
+            </div>
+            <div class="input-group">
+                <label for='files'>Select files</label>
+                <input id='files' type="file" required multiple>
+            </div>
+            <button class="submit-btn" type='submit'>Upload</button>
+        </form>
+    </div>
+    <script src='./BookingScript.js'></script>
+</body>
+</html>

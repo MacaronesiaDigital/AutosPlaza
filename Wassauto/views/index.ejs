@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Objects List</title>
+    <style>
+      .main-container {
+        display: flex;
+        flex-direction: column; /* Stack content vertically */
+        height: 100vh; /* Set the main container height to the full viewport height */
+      }
+
+      .search-container {
+        padding: 20px;
+        margin: 10px;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 5px;
+      }
+
+      .boxes-container {
+        display: flex;
+        height: 75%;
+      }
+
+      .list-container,
+      .empty-box {
+        flex: 1;
+        height: 75%; /* Set the height to 75% of the main container */
+        padding: 20px;
+        border: 1px solid #ccc;
+        margin: 10px;
+        overflow-y: scroll; /* Enable vertical scrolling */
+      }
+
+      .empty-box {
+        flex: 1;
+        padding: 20px;
+        border: 1px solid #ccc;
+        margin: 10px;
+      }
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .object-box {
+        width: 80%;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .object-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Vertically center the button */
+      }
+      .codBook {
+        font-weight: bold;
+        text-decoration: underline;
+        padding-bottom: 5px;
+      }
+      .license2 {
+        font-weight: bold;
+        text-decoration: underline;
+        padding-bottom: 5px;
+      }
+      .details-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        margin-top: 10px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      .object-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 10px;
+      }
+      .field-group {
+        flex: 1;
+        margin-right: 20px;
+      }
+      .phones-heading {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .color {
+        margin-bottom: 5px;
+      }
+      .indented-phone {
+        margin-left: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="search-container">
+        <input class="search-input" id="searchInput" type="text" placeholder="Search...">
+      </div>
+      <div class="boxes-container">
+        <div class="list-container">
+          <% objects.forEach((item) => { %>
+            <div class="object-box">
+              <div class="object-header">
+                <div class="codBook"><%= item.codBook %></div>
+              </div>
+              <div class="object-details">
+                <div class="field-group">
+                  <div class="license">License: <%= item.license %></div>
+                  <div class="name">Name: <%= item.name %></div>
+                  <div class="email">Email: <%= item.email %></div>
+                  <div class="phones">
+                    <div class="phones-heading">Phones:</div>
+                    <% item.phones.forEach((phone, index) => { %>
+                      <div class="indented-phone">Tlf.<%= index + 1 %> <%= phone %></div>
+                    <% }); %>
+                  </div>
+                </div>
+                <div class="field-group">
+                  <div class="deliveryDate">Delivery Date: <%= item.deliveryDate %></div>
+                  <div class="returnDate">Return Date: <%= item.returnDate %></div>
+                </div>
+              </div>
+              <input type="hidden" class="objectId" value="<%= item._id %>">
+              <button class="details-button" data-id="<%= item._id %>">View Details</button>
+            </div>
+          <% }); %>
+        </div>
+
+        <div class="list-container">
+          <% objects2.forEach((item) => { %>
+            <div class="object-box">
+              <div class="object-header">
+                <div class="license2"><%= item.license %></div>
+              </div>
+              <div class="object-details">
+                <div class="field-group">
+                  <div class="model">Model: <%= item.model %></div>
+                  <div class="group">Group: <%= item.group %></div>
+                  <div class="color">Color: <%= item.color %></div>
+                </div>
+              </div>
+              <button class="details-button">View Details</button>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+      const detailsButtons = document.querySelectorAll('.details-button');
+    
+      detailsButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const objectId = button.getAttribute('data-id');
+          window.location.href = `/details-page?id=${objectId}`;
+        });
+      });
+    </script>
+  </body>
+</html>

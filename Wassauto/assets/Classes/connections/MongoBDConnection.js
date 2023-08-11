@@ -2,7 +2,7 @@ const { json } = require('express');
 
 const MongoClient = require('mongodb').MongoClient;
 // Connection URL
-const dbUrl = 'mongodb://localhost:27017';
+const dbUrl = 'mongodb://127.0.0.1:27017';
 // Database Name
 const dbName = 'AutosPlazaBBDD';
 // Collection Name
@@ -13,6 +13,7 @@ const { ObjectId } = require('mongodb');
 const client = new MongoClient(dbUrl);
 
 async function connectToDatabase() {
+  console.log("client start");
   try {
     await client.connect(); 
     console.log('Connected to the database');
@@ -22,10 +23,13 @@ async function connectToDatabase() {
 }
 
 async function executeQuery(query, collectionName) {
+
   thisClient = new MongoClient(dbUrl);
 
   try {
     await thisClient.connect();
+
+    console.log(query);
 
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
@@ -60,28 +64,55 @@ async function executeQueryFirst(query, collectionName) {
 }
 
 async function executeInsert(document, thisCollectionName, forceID) {
+  thisClient = new MongoClient(dbUrl);
+
   try {
     await connectToDatabase();
   
     const db = client.db(dbName);
     const collection = db.collection(thisCollectionName);
-    
-    forceServerObjectId = forceID;
 
+    forceServerObjectId = forceID;
+  
     const existingDoc = await collection.findOne({ _id: document._id });
     if (existingDoc) {
       console.log('Document already exists:', existingDoc);
       return;
+    } else{
+      await collection.insertOne(document);
+      console.log('Document inserted successfully');
     }
 
-    await collection.insertOne(document);
-    console.log('Document inserted successfully');
   } catch (error) {
     if (error.code === 11000) {
       console.log('Document with duplicate _id already exists');
     } else {
       console.error('Failed to insert document', error);
     }
+  } finally {
+    thisClient.close();
+  }
+}
+
+async function executeUpdate(query, updateData, collectionName) {
+  thisClient = new MongoClient(dbUrl);
+
+  try {
+    await thisClient.connect();
+
+    console.log(query);
+
+    const db = thisClient.db(dbName);
+    const collection = db.collection(collectionName);
+
+    const result = await collection.updateOne(query, { $set: updateData });
+
+    return result.modifiedCount; // Return the number of modified documents (0 or 1)
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  } finally {
+    thisClient.close();
   }
 }
 
@@ -219,5 +250,5 @@ async function saveJsonToMongo2(jsonToSave, collection, checkDup, dupChecker){
 }
 
 module.exports = {
-    executeQuery, executeQueryFirst, executeInsert, saveJsonToMongo,
+    executeQuery, executeQueryFirst, executeInsert, executeUpdate, saveJsonToMongo,
 };

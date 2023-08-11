@@ -35,7 +35,7 @@ function sendButtonsToWhatsApp(recipient, buttons) {
 
 function sendLocationMessage(recipient, latitude, longitude) {
   const message = {
-    body: 'Aquí está el coche',
+    body: 'Ubicación',
     from: 'whatsapp:+14155238886',
     to: 'whatsapp:' + recipient,
     persistentAction: ['geo:' + latitude + ',' + longitude]
@@ -53,7 +53,7 @@ function sendLocationMessage(recipient, latitude, longitude) {
 
 function sendImageMessage(recipient, imageUrl) {
   const message = {
-    body: 'Está guapo el coche',
+    body: '',
     from: 'whatsapp:+14155238886',
     to: 'whatsapp:' + recipient,
     mediaUrl: imageUrl

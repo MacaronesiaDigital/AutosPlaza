@@ -15,10 +15,14 @@ const sessionClient = new dialogflow.SessionsClient({
  * Send a query to the dialogflow agent, and return the query result.
  * @param {string} projectId The project to be used
  */
+
+var counter = 0;
+
 async function sendToDialogFlow(msg, session, params) {
-  //console.log(params)
   let textToDialogFlow = msg;
   try {
+    counter++;
+    console.log(counter);
     const sessionPath = sessionClient.sessionPath(
       config.GOOGLE_PROJECT_ID,
       session
@@ -32,10 +36,11 @@ async function sendToDialogFlow(msg, session, params) {
           languageCode: config.DF_LANGUAGE_CODE,
         },
       },
-      queryParameters: [
+      parameters: [
         {
-          "webhookHeaders": {
-            "PhoneNumber": params
+          sessionId: session,
+          payload: {
+            platform: "whatsapp",
           },
         },
       ],
