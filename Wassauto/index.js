@@ -1,10 +1,16 @@
 const express = require('express');
+const bodyParser = require('body-parser'); // Import the body-parser library
 const app = express();
 const axios = require('axios');
 const dfff = require('dialogflow-fulfillment');
 const { Card, Suggestion, Image } = require('dialogflow-fulfillment');
 'use strict';
 const fs = require('fs');
+const util = require('util');
+const copyFilePromise = util.promisify(fs.copyFile);
+const unlinkPromise = util.promisify(fs.unlink);
+const mkdirPromise = util.promisify(fs.mkdir);
+const rmPromise = util.promisify(fs.rm);
 const { readFile } = require('fs/promises')
 const XLSX = require('xlsx');
 const { filter } = require('lodash');
@@ -44,6 +50,11 @@ const vehicleJSON = __dirname + '/assets/JSONs/VehicleData.json';
 const bookingJSON = __dirname + '/assets/JSONs/BookingData.json';
 const returnJSON = __dirname + '/assets/JSONs/ReturnData.json';
 const userJSON = __dirname + '/assets/JSONs/USerData.json';
+
+const imagesDir = __dirname + '/assets/Images';
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use('/assets/Images', express.static(__dirname + '/assets/Images'));
 
@@ -92,8 +103,6 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
                     });
                 }
             });
-    
-            console.log(filePath)
 
             // Wait for the JSON conversion
             await JSONFormatter.saveJsonToFile(convertExcelToJson(req.file['path']), filePath);
@@ -176,7 +185,7 @@ async function uploadFiles(req, res) {
     } catch (error) {
         console.error('An error occurred:', error);
     }
-}
+} 
 
 var testCounter = 0;
 var testCounter2 = 0;
@@ -212,6 +221,149 @@ app.get('/', async (req, res) => {
     console.error('Error fetching data:', error);
     res.status(500).send('Internal server error');
   }
+});
+
+app.get('/details-page', async (req, res) => {
+  const objectId = req.query.id;
+  const query = { _id: new ObjectId(objectId) };
+  const objectType = req.query.type;
+  let item;
+
+  if (objectType === 'Booking') {
+    // Fetch the booking item from the Booking table based on the objectId
+    item = await MongoHandler.executeQueryFirst(query, "Bookings");
+    //console.log(item)
+    res.render('booking-details', { item });
+  } else if (objectType === 'Car') {
+    // Fetch the car item from the Car table based on the objectId
+    item = await MongoHandler.executeQueryFirst(query, "Flota");
+    res.render('car-details', { item });
+  } else {
+    // Handle other cases
+    res.send('Invalid object type');
+  }
+});
+
+app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
+    try {
+        const objectId = req.body['id'];  
+        //console.log('this id: ' + objectId);
+        if(!objectId){
+            console.log(req.body);
+            res.status(200).send('Booking not updated.');
+        } else{
+            let thisAccesories = "";
+            if(!req.body['accessories']){
+                thisAccesories = 'None';
+            } else{
+                thisAccesories = req.body['accessories'];
+            }
+        
+            let thisParking = "";
+            if(!req.body['parking']){
+                thisParking = 'None';
+            } else{
+                thisParking = req.body['parking'].toString();
+            }
+        
+            let thisNotes = "";
+            if(!req.body['notes']){
+                thisNotes = 'None';
+            } else{
+                thisNotes = req.body['notes'];
+            }
+        
+            let thisLatitude = "";
+            if(!req.body['latitude']){
+                thisLatitude = 'None';
+            } else{
+                thisLatitude = req.body['latitude'];
+            }
+        
+            let thisLongitude = "";
+            if(!req.body['longitude']){
+                thisLongitude = 'None';
+            } else{
+                thisLongitude = req.body['longitude'];
+            }
+        
+            const query = { _id: new ObjectId(objectId) };
+            const updateData = { accesories: thisAccesories, parking:  thisParking, notes: thisNotes, returnCoords: [thisLatitude, thisLongitude] };
+        
+            //console.log(updateData);
+        
+            result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
+
+            if (req.files.length > 0) {
+                const imagePath = imagesDir + '/' + req.body['id'] + '/worker';
+
+                if(await fs.existsSync(imagePath)){
+                    await rmPromise(imagePath, {recursive: true});
+                }
+
+                const files = req.files;
+                for (let i = 0; i < files.length; i++) {
+                    const element = files[i];
+                    try {
+                        // Create the directory
+                        await mkdirPromise(imagePath, { recursive: true });
+                        const imageFilePath = imagePath + '/' + element['originalname'];
+                        // Copy the file to the directory
+                        await copyFilePromise(element['path'], imageFilePath);
+                        // Delete the original file
+                        await unlinkPromise(element['path']);
+                    } catch (err) {
+                        console.error('Error processing file ' + element['originalname'] + ':', err);
+                    }
+                }
+            }
+
+            let booking = await MongoHandler.executeQueryFirst( { _id: new ObjectId(objectId) } , "Bookings");
+            let user = await MongoHandler.executeQueryFirst( { _id: new ObjectId(booking.codClient) }, "Users" ); 
+
+            askConfirmationMessage(user.phones[0]);
+
+            res.status(200).send('Booking updated successfully.');
+        }
+        
+    } catch (error) {
+      console.error('Error while updating booking:', error);
+      res.status(500).send('An error occurred while updating booking.');
+    }
+});
+
+app.post('/updateCar', async (req, res) => {
+    try {
+        console.log(req.body);
+        const objectId = req.body['id'];  
+        let thisDeposit = req.body['deposit'];
+        let thisCombustible = req.body['combustible'];
+        let thisNotes = req.body['notes']; 
+        if(!thisDeposit){
+            thisDeposit = 'Not specified';
+        }
+        if(!thisCombustible){
+            thisCombustible = 'Not specified';
+        }
+        if(!thisNotes){
+            thisNotes = 'None';
+        }
+
+        thisDeposit = thisDeposit.toString();
+        thisCombustible = thisCombustible.toString();
+        thisNotes = thisNotes.toString();
+
+        const query = { _id: new ObjectId(objectId) };
+        const updateData = { deposit: thisDeposit, combustible: thisCombustible, notes: thisNotes };
+
+        console.log(updateData);
+
+        await MongoHandler.executeUpdate(query, updateData, "Flota");    
+        res.status(200).send('Car updated successfully.');
+    } catch (error) {
+      console.error('Error while updating the car:', error);
+      res.status(500).send('An error occurred while updating the car.');
+    }
 });
 
 app.get("/prueba3", async (req, res) =>{
@@ -294,8 +446,7 @@ app.post("/twilio", express.json(), async function (req, res) {
     }catch (error){
         console.error('An error occurred:', error);
     }
-    
-})
+});
 
 //Cada intent apunta al método en la clase de la entidad que le corresponde 
 app.post("/webhook", express.json(), async function (req, res) {
@@ -563,7 +714,7 @@ async function saveUserLocation(Latitude, Longitude) {
     var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
     const query3 = { _id: new ObjectId(booking._id) };
     const updateData = { locationCoords: [Latitude, Longitude] };
-    MongoHandler.executeUpdate(query3, updateData, "Bookings");
+    await MongoHandler.executeUpdate(query3, updateData, "Bookings");
 }
 
 
@@ -571,20 +722,19 @@ async function saveUserLocation(Latitude, Longitude) {
 ||Database querys                                                             ||
 ==============================================================================*/
 
-async function GetReturnCar(){
-    var phoneNumber = "34671152525";
+async function GetReturnCar(phoneNumber, bookId){
     try{
-        frontCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba371915c42.jpg';
-        //sideCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba3ab92491c.jpg';
-        //backCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba387b1aa66.jpg';
-        //insideCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba3988b8364.jpg';
+        /*frontCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba371915c42.jpg';
+        sideCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba3ab92491c.jpg';
+        backCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba387b1aa66.jpg';
+        insideCarImgURL = 'https://cars4all.es/wp-content/uploads/thememakers/cardealer/3/2105/main/64ba3988b8364.jpg';
         parkingImgURL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.bignewsnetwork.com%2Fcus1623131278799.jpg';
         
         twilio.sendImageMessage(phoneNumber, frontCarImgURL);
-        //twilio.sendImageMessage(phoneNumber, sideCarImgURL);
-        //twilio.sendImageMessage(phoneNumber, backCarImgURL);
-        //twilio.sendImageMessage(phoneNumber, insideCarImgURL);
-        twilio.sendImageMessage(phoneNumber, parkingImgURL);
+        twilio.sendImageMessage(phoneNumber, sideCarImgURL);
+        twilio.sendImageMessage(phoneNumber, backCarImgURL);
+        twilio.sendImageMessage(phoneNumber, insideCarImgURL);
+        twilio.sendImageMessage(phoneNumber, parkingImgURL);*/
     }catch (error){
         console.error('An error occurred:', error);
     }
@@ -607,23 +757,17 @@ async function firstMessage(){
     date = new Date();
     const formattedDate = formatDateToDayMonthYearHourMinute(date);
 
-    var message = "Estimado/a cliente, gracias por elegir a Autosplaza como medio de transporte en la magnífica isla de Tenerife 🏔️. Le ofrecemos los datos de su reserva a continuación:\n"+ 
-    "Nº de confirmación: " + booking.codBook + "\n" +
-    "Fecha de la reserva: " + formattedDate.toString() + "\n" +
-    "Lugar de entrega: " + booking.deliveryLocation + "\n" +
-    "Vehículo: " + booking.license +
+    var message = "Estimado/a cliente, gracias por elegir a Autosplaza como medio de transporte en la magnífica isla de Tenerife 🏔️.\n" + 
     "\n\nTenga un feliz día 🌞."
     
     sendAnswer(phoneNumber, message);
+    
+    //await sleep(30000);
 
-    await sleep(30000);
-
-    askConfirmationMessage();
+    //askConfirmationMessage();
 }
 
-async function askConfirmationMessage(){
-
-    var phoneNumber = "34671152525";
+async function askConfirmationMessage(phoneNumber){
 
     const query = { phones: phoneNumber };
     var user = await MongoHandler.executeQueryFirst(query, 'Users');
@@ -634,23 +778,32 @@ async function askConfirmationMessage(){
     var date = stringToDate(booking.deliveryDate);
     const formattedDate = formatDateToDayMonthYearHourMinute(date);
 
-    var message = "ℹ️ Le damos la bienvenida a Tenerife, esta es toda la información que necesita para recoger su vehículo.\n\n" +
-    "Hora de recogida:" + formattedDate.toString() + "\n"+ 
-    "Medio de acceso:" + "La llave se encuentra en una caja fuera del coche, el código es: 1234\n\n"
-    
+    var message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
+    "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
+    "Lugar de recogida: " + booking.returnLocation + "\n"+ 
+    "Accesorios: " + booking.accesories + "\n" +
+    "Parking: " + booking.parking + "\n" +
+    "Ubicación: ";
+
     var message3 = "Escriba *OK* si todo ha ido bien, escriba *NO*, si no es así."
 
     sendAnswer(phoneNumber, message);
+
     await sleep(1000);
-    latitude = '28.079820';
-    longitude = '-15.451709';
-    twilio.sendLocationMessage(phoneNumber, latitude, longitude);
-    await sleep(1000);
-    GetReturnCar();
+    
+    twilio.sendLocationMessage(phoneNumber, booking.returnCoords[0], booking.returnCoords[1]);
+
+    await sleep(2000);
+
+    GetReturnCar(phoneNumber, booking._id);
+
     await sleep(30000);
+
     payload = await dialogflow.sendToDialogFlow("confirmBooking", phoneNumber);
     sendAnswer(phoneNumber, message3);
 }
+
+
 
 async function returnMessage(){
 
@@ -712,7 +865,12 @@ async function processBookings(){
     await JSONFormatter.bookingJSON(uFile, bookingJSON);
     const FBookingJSON = require(bookingJSON);
     var timesArr = await MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');
-    await setDeliveryMessages(timesArr);
+    //await setDeliveryMessages(timesArr);
+
+    testCounter = 0;
+    
+    firstMessage();
+    
 }
 
 async function processReturns(){

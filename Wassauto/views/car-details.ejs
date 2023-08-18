@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Car Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form {
+      background-color: #f4f4f4;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .form-group {
+      margin-bottom: 20px; /* Add margin between form groups */
+    }
+
+    label {
+      font-weight: bold;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 5px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    button[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Car Details</h1>
+    <form method="post" action="/updateCar">
+      <h2>Car: <%= item.license %></h2>
+      <div class="form-group">
+        <label for="deposit">Deposit Side:</label>
+        <div class="input-field">
+          <input type="checkbox" name="deposit" value="Left"> Left
+          <input type="checkbox" name="deposit" value="Right"> Right
+          <!-- Add more options as needed -->
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="carImages">Car Images:</label>
+        <div class="input-field">
+          <input type="file" name="carImages" accept="image/*" multiple>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="combustible">Combustible:</label>
+        <div class="input-field">
+          <input type="text" name="combustible">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes:</label>
+        <div class="input-field">
+          <textarea name="notes" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div>
+        <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
+        <input type="hidden" class="objectId" value="<%= item._id %>"> 
+        <button type="submit" class="save-car" data-id="<%= item._id %>">Save</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    const detailsButtons = document.querySelectorAll('.save-car');
+  
+    detailsButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        const objectId = button.getAttribute('data-id');
+        const formData = new FormData(document.querySelector('form'));
+  
+        console.log(formData)
+
+        /*try {
+          const response = await fetch(`/updateCar?id=${objectId}`, {
+            method: 'POST',
+            body: formData,
+          });
+  
+          if (response.ok) {
+            // Handle success or redirect if needed
+            console.log('Car updated successfully.');
+            // You can redirect here if needed
+          } else {
+            console.error('Failed to update booking.');
+          }
+        } catch (error) {
+          console.error('Error while updating booking:', error);
+        }*/
+      });
+    });
+  </script>
+</body>
+</html>

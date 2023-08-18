@@ -29,7 +29,7 @@ async function executeQuery(query, collectionName) {
   try {
     await thisClient.connect();
 
-    console.log(query);
+    //console.log(query);
 
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
@@ -49,7 +49,7 @@ async function executeQueryFirst(query, collectionName) {
   try {
     await thisClient.connect();
 
-    console.log(query);
+    //console.log(query);
 
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
@@ -95,19 +95,24 @@ async function executeInsert(document, thisCollectionName, forceID) {
 }
 
 async function executeUpdate(query, updateData, collectionName) {
-  thisClient = new MongoClient(dbUrl);
+  const thisClient = new MongoClient(dbUrl);
 
   try {
     await thisClient.connect();
 
-    console.log(query);
-
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
 
-    const result = await collection.updateOne(query, { $set: updateData });
+    // Update a single document that matches the query
+    const result = await collection.updateMany(query, { $set: updateData });
 
-    return result.modifiedCount; // Return the number of modified documents (0 or 1)
+    // Use this for updating multiple documents
+    // const result = await collection.updateMany(query, { $set: updateData });
+
+    console.log(`${result.modifiedCount} document(s) updated`);
+
+    return result.modifiedCount; // Returns the number of documents updated
+
   } catch (error) {
     console.error('Error:', error);
     throw error;

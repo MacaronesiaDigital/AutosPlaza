@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <title>Booking Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form {
+      background-color: #f4f4f4;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .form-group {
+      margin-bottom: 20px; /* Add margin between form groups */
+    }
+
+    label {
+      font-weight: bold;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 5px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    button[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Booking Details</h1>
+    <form method="POST" action="/updateBooking" enctype="multipart/form-data">
+      <h2>Booking: <%= item.codBook %></h2>
+
+      <div class="form-group">
+        <label for="accessories">Accessories:</label>
+        <div class="input-field">
+          <input type="checkbox" name="accessories" value="1"> Silla bebe x 1
+          <input type="checkbox" name="accessories" value="2"> Silla bebe x 2
+          <input type="checkbox" name="accessories" value="3"> Option 3
+          <!-- Add more options as needed -->
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="carImages">Car Images:</label>
+        <div class="input-field">
+          <input type="file" name="carImages" accept="image/*" multiple>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="parking">Parking:</label>
+        <div class="input-field">
+          <input type="text" name="parking">
+        </div>
+      </div>
+
+      <div class="input-container" >
+        <label for="" style="padding-bottom:1%">Mapa</label>
+           <input type="text" name="txtDireccion" id="txtDireccion" class="input" placeholder="DirecciÃ³n"/>
+         <div id="map_canvas" style="height:35vh; margin-top:1%">
+
+       </div>
+       <input type="hidden" name="latitude" id="latitude" class="input" />
+       <input type="hidden" name="longitude" id="longitude" class="input" />
+     </div>
+
+      <div class="form-group">
+        <label for="notes">Notes:</label>
+        <div class="input-field">
+          <textarea name="notes" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div>
+        <input type="hidden" name="encodedImages" id="encodedImagesInput">
+        <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
+        <input type="hidden" class="objectId" value="<%= item._id %>"> 
+        <button type="submit" class="save-booking" data-id="<%= item._id %>">Save</button>
+        <button type="button" onclick="getUserLocation()">Get My Location</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const detailsButtons = document.querySelector('.save-booking');
+    button.addEventListener('click', async () => {
+      const objectId = button.getAttribute('data-id');
+      const formData = await new FormData(document.querySelector('form'));
+      console.log(objectId);
+      console.log('formData');
+      /*try {
+        const response = await axios.post(`/updateBooking?id=${objectId}`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          // Handle success or redirect if needed
+          console.log('Booking updated successfully.');
+          // You can redirect here if needed
+        } else {
+          console.error('Failed to update booking.');
+        }
+      } catch (error) {
+        console.error('Error while updating booking:', error);
+      }*/
+    });
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMRqbRbXVlqA3jKqpI7oefyJnirxvOwB0"></script>
+  <script>
+    var vMarker
+    var map
+        map = new google.maps.Map(document.getElementById('map_canvas'), {
+            zoom: 14,
+            center: new google.maps.LatLng(28.0705332, -15.4522202),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+        vMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(27.8502279, -15.6108612),
+            draggable: true
+        });
+        document.querySelector("#txtDireccion").value = "";
+        google.maps.event.addListener(vMarker, 'dragend', function (evt) {
+            $("#latitude").val(evt.latLng.lat().toFixed(6));
+            $("#longitude").val(evt.latLng.lng().toFixed(6));
+        
+            map.panTo(evt.latLng);
+            
+            getAddress(evt.latLng.lat(), evt.latLng.lng(), function(address) {
+              document.querySelector("#txtDireccion").value = address;
+            });
+        });
+        map.setCenter(vMarker.position);
+        vMarker.setMap(map);
+        $("#txtDireccion, #txtDireccion, #txtDireccion").change(function () {
+            movePin();
+        });
+        
+        document.querySelector("#latitude").value = 28.0705332;
+        document.querySelector("#longitude").value = -15.4522202;
+        function movePin() {
+        var geocoder = new google.maps.Geocoder();
+        var textSelectM = $("#txtDireccion").text();
+        var textSelectE = $("#txtDireccion").val();
+        var inputAddress = $("#txtDireccion").val() + ' ' + textSelectM + ' ' + textSelectE;
+        geocoder.geocode({
+            "address": inputAddress
+        }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                vMarker.setPosition(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+                map.panTo(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+                $("#latitude").val(results[0].geometry.location.lat());
+                $("#longitude").val(results[0].geometry.location.lng());
+            }
+        });
+    }
+  </script>
+    
+  <script>
+    function getUserLocation() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const userLatLng = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          centerMap(userLatLng);
+        });
+      } else {
+        console.log("Geolocation is not available in this browser.");
+      }
+    }
+
+    function centerMap(location) {
+      map.setCenter(location);
+      vMarker.setPosition(location);
+      getAddress(location.lat, location.lng, function(address) {
+        document.querySelector("#txtDireccion").value = address;
+      });
+      $("#latitude").val(location.lat);
+      $("#longitude").val(location.lng);
+    }
+
+    function getAddress(latitude, longitude, callback) {
+      var geocoder = new google.maps.Geocoder();
+      var latlng = {lat: latitude, lng: longitude};
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === 'OK') {
+          if (results[0]) {
+            callback(results[0].formatted_address);
+          } else {
+            callback('No results found');
+          }
+        } else {
+          callback('Geocoder failed due to: ' + status);
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

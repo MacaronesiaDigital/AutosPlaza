@@ -126,8 +126,8 @@
                   <div class="returnDate">Return Date: <%= item.returnDate %></div>
                 </div>
               </div>
-              <input type="hidden" class="objectId" value="<%= item._id %>">
-              <button class="details-button" data-id="<%= item._id %>">View Details</button>
+              <input type="hidden" class="objectId" value="<%= item._id %>"> 
+              <button class="details-button" data-id="<%= item._id %>" data-type="Booking">View Details</button>
             </div>
           <% }); %>
         </div>
@@ -145,20 +145,60 @@
                   <div class="color">Color: <%= item.color %></div>
                 </div>
               </div>
-              <button class="details-button">View Details</button>
+              <input type="hidden" class="objectId" value="<%= item._id %>"> 
+              <button class="details-button" data-id="<%= item._id %>" data-type="Car">View Details</button>
             </div>
           <% }); %>
         </div>
       </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+      const searchInput = document.getElementById('searchInput');
+      const objectBoxes = document.querySelectorAll('.object-box');
+      searchInput.addEventListener('input', () => {
+        const searchText = searchInput.value.toLowerCase();
+        var shouldShow = "";
+        objectBoxes.forEach((box) => {
+          const element = box.querySelector('.codBook');
+          if(element){
+            const codBook = box.querySelector('.codBook').textContent.toLowerCase();
+            const license = box.querySelector('.license').textContent.toLowerCase();
+            const name = box.querySelector('.name').textContent.toLowerCase();
+            const email = box.querySelector('.email').textContent.toLowerCase();
+            const phones = Array.from(box.querySelectorAll('.indented-phone'))
+              .map((phone) => phone.textContent.toLowerCase())
+              .join('');
+            shouldShow =
+              codBook.includes(searchText) ||
+              license.includes(searchText) ||
+              name.includes(searchText) ||
+              email.includes(searchText) ||
+              phones.includes(searchText);
+          } else{
+            const license2 = box.querySelector('.license2').textContent.toLowerCase();
+            const model = box.querySelector('.model').textContent.toLowerCase();
+            const group = box.querySelector('.group').textContent.toLowerCase();
+            const color = box.querySelector('.color').textContent.toLowerCase();
+          
+            shouldShow =
+              license2.includes(searchText) || 
+              model.includes(searchText) || 
+              group.includes(searchText) || 
+              color.includes(searchText);
+          }
+          box.style.display = shouldShow ? 'flex' : 'none';
+        });
+      });
+    </script>
+
     <script>
       const detailsButtons = document.querySelectorAll('.details-button');
-    
       detailsButtons.forEach((button) => {
         button.addEventListener('click', () => {
           const objectId = button.getAttribute('data-id');
-          window.location.href = `/details-page?id=${objectId}`;
+          const objectType = button.getAttribute('data-type');
+          window.location.href = `/details-page?id=${objectId}&type=${objectType}`;
         });
       });
     </script>
