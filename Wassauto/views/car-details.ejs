@@ -53,10 +53,28 @@
     <form method="post" action="/updateCar">
       <h2>Car: <%= item.license %></h2>
       <div class="form-group">
-        <label for="deposit">Deposit Side:</label>
+        <label for="depType">Deposit Type:</label>
         <div class="input-field">
-          <input type="checkbox" name="deposit" value="Left"> Left
-          <input type="checkbox" name="deposit" value="Right"> Right
+          <input type="checkbox" name="depType" value="1"> Type1
+          <input type="checkbox" name="depType" value="2"> Type2
+          <!-- Add more options as needed -->
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="trunkType">Trunk Type:</label>
+        <div class="input-field">
+          <input type="checkbox" name="trunkType" value="1"> Type1
+          <input type="checkbox" name="trunkType" value="2"> Type2
+          <!-- Add more options as needed -->
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="revType">Reverse Type:</label>
+        <div class="input-field">
+          <input type="checkbox" name="revType" value="1"> Type1
+          <input type="checkbox" name="revType" value="2"> Type2
           <!-- Add more options as needed -->
         </div>
       </div>
@@ -65,13 +83,6 @@
         <label for="carImages">Car Images:</label>
         <div class="input-field">
           <input type="file" name="carImages" accept="image/*" multiple>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="combustible">Combustible:</label>
-        <div class="input-field">
-          <input type="text" name="combustible">
         </div>
       </div>
 
@@ -99,22 +110,6 @@
   
         console.log(formData)
 
-        /*try {
-          const response = await fetch(`/updateCar?id=${objectId}`, {
-            method: 'POST',
-            body: formData,
-          });
-  
-          if (response.ok) {
-            // Handle success or redirect if needed
-            console.log('Car updated successfully.');
-            // You can redirect here if needed
-          } else {
-            console.error('Failed to update booking.');
-          }
-        } catch (error) {
-          console.error('Error while updating booking:', error);
-        }*/
       });
     });
   </script>

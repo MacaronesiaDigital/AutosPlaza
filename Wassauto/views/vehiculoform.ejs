@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>Booking Details</title>
+    <!-- Agregar enlace a Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        margin-bottom: 20px;
+        color:white;
+      }
+      form {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+      }
+
+      .form-group {
+        margin-bottom: 20px; /* Add margin between form groups */
+      }
+
+      label {
+        font-weight: bold;
+      }
+      input[type="checkbox"] {
+        margin-right: 10px;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 5px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      button[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      
+      
+    </style>
+    <script
+      src="https://kit.fontawesome.com/64d58efce2.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <section class="vh-100" style="background-color: #508bfc;">
+    <div class="container">
+      <h1 class="mt-4">Detalles de vehículo</h1>
+      <form method="post" action="/updateCar">
+        <div class="form-group">
+          <label for="depType">Deposit Type:</label>
+          <div class="input-field">
+            <input type="checkbox" name="depType" value="Type1"> Type1
+            <input type="checkbox" name="depType" value="Type2"> Type2
+            <!-- Add more options as needed -->
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="trunkType">Trunk Type:</label>
+          <div class="input-field">
+            <input type="checkbox" name="trunkType" value="Type1"> Type1
+            <input type="checkbox" name="trunkType" value="Type2"> Type2
+            <!-- Add more options as needed -->
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="revType">Reverse Type:</label>
+          <div class="input-field">
+            <input type="checkbox" name="revType" value="Type1"> Type1
+            <input type="checkbox" name="revType" value="Type2"> Type2
+            <!-- Add more options as needed -->
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="carImages">Car Images:</label>
+          <div class="input-field">
+            <input type="file" name="carImages" accept="image/*" multiple>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="notes">Notes:</label>
+          <div class="input-field">
+            <textarea name="notes" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div>
+          <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
+          <input type="hidden" class="objectId" value="<%= item._id %>"> 
+          <button type="submit" name="save-car" data-id="<%= item._id %>">Save</button>
+        </div>
+      </form>
+      
+    </div>
+
+    <script>
+      const detailsButtons = document.querySelectorAll('[name="save-car"]');
+    
+      detailsButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const objectId = button.getAttribute('data-id');
+          const formData = new FormData(document.querySelector('form'));
+    
+          console.log(formData)
+  
+        });
+      });
+    </script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMRqbRbXVlqA3jKqpI7oefyJnirxvOwB0"
+    ></script>
+    
+    </section>
+  </body>
+</html>

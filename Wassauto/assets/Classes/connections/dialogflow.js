@@ -38,10 +38,7 @@ async function sendToDialogFlow(msg, session, params) {
       },
       parameters: [
         {
-          sessionId: session,
-          payload: {
-            platform: "whatsapp",
-          },
+          sessionId: session
         },
       ],
     };

@@ -1,12 +1,14 @@
 const accountSid = "ACfa420b901227e9bf34ec87688215215e";
 const authToken = "989048549b1c89772061396432438616";
 const client = require("twilio")(accountSid, authToken);
+const config = require("../../../config");
 
 function sendTextMessage(recipient, message) {
+  console.log(message);
   return new Promise((resolve, reject) => {
     client.messages
       .create({
-        from: 'whatsapp:+14155238886',
+        from: 'whatsapp:'+ config.PHONENUMBER,
         body: message,
         to: 'whatsapp:+' + recipient,
       })
@@ -15,29 +17,11 @@ function sendTextMessage(recipient, message) {
   });
 }
 
-function sendButtonsToWhatsApp(recipient, buttons) {
-  const message = {
-    body: 'Please select an option:',
-    from: 'whatsapp:+14155238886',
-    to: 'whatsapp:+' + recipient,
-    provideFeedback: true,
-    provideFeedbackForDelivered: true,  
-    statusCallback: 'https://example.com/callback',
-    mediaUrl: ['https://example.com/image.jpg'],
-    buttons: buttons
-  };
-
-  client.messages
-    .create(message)
-    .then(message => console.log(message.sid))
-    .catch(err => console.error(err));
-}
-
 function sendLocationMessage(recipient, latitude, longitude) {
   const message = {
     body: 'Ubicación',
-    from: 'whatsapp:+14155238886',
-    to: 'whatsapp:' + recipient,
+    from: 'whatsapp:'+ config.PHONENUMBER,
+    to: 'whatsapp:+' + recipient,
     persistentAction: ['geo:' + latitude + ',' + longitude]
   };
 
@@ -51,13 +35,15 @@ function sendLocationMessage(recipient, latitude, longitude) {
     });
 }
 
-function sendImageMessage(recipient, imageUrl) {
+function sendMediaMessage(recipient, imageUrl) {
   const message = {
     body: '',
-    from: 'whatsapp:+14155238886',
+    from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:' + recipient,
     mediaUrl: imageUrl
   };
+
+  console.log(message);
 
   client.messages
     .create(message)
@@ -70,5 +56,5 @@ function sendImageMessage(recipient, imageUrl) {
 }
 
 module.exports = {
-  sendTextMessage, sendButtonsToWhatsApp, sendLocationMessage, sendImageMessage,
+  sendTextMessage, sendLocationMessage, sendMediaMessage,
 };
