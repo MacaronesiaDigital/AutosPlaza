@@ -534,7 +534,7 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
-            await sleep(5000);
+            await sleep(1000);
             payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
         }
         

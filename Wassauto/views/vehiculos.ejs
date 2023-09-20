@@ -100,7 +100,9 @@
                   <% cars.forEach(function(car) { %>
                       <li data-license="<%= car.license %>" data-model="<%= car.model %>">
                           <%= car.license %> | <%= car.model %> <%= car.group %>
-                          <button class="btn btn-primary btn-lg" type="submit" onclick="openGoogleMaps(<%= car.locationCoords[0] %>, <%= car.locationCoords[1] %>)">Ubicación</button>
+                          <%if(car.locationCoords){%>
+                            <button class="btn btn-primary btn-lg" type="submit" onclick="openGoogleMaps(<%= car.locationCoords[0] %>, <%= car.locationCoords[1] %>)">Ubicación</button>
+                          <%}%>
                           <input type="hidden" class="objectId" value="<%= car._id %>"> 
                           <button class="btn btn-primary btn-lg" name="details-button" data-id="<%= car._id %>" data-type="Car">Editar</button>
                       </li>
