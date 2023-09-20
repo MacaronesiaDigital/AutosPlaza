@@ -35,11 +35,15 @@ async function processBookings(){
         console.log(pastDate);
         if(pastDate){
             console.log("true");
-            let query = { _id: new ObjectId(element.codClient) }
+            const codClient = element.codClient;
+            let query = { _id: new ObjectId(codClient) }
             let user = await MongoHandler.executeQueryFirst(query, "Users");
-            console.log(user.phones[0]);
-            //firstMessage(user.phones[0]);
-            MessageHandler.languageSelector(user.phones[0]);
+            console.log(user);
+            if(user){
+                console.log(user.phones[0]);
+                //firstMessage(user.phones[0]);
+                MessageHandler.languageSelector(user.phones[0]);
+            }
         } else{
             console.log("false");
         }
