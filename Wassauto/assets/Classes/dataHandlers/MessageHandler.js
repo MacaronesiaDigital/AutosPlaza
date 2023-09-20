@@ -10,6 +10,8 @@ const { query } = require('express');
 
 const ngrokUrl = config.NGROKURL;
 
+var testCounter = 0;
+
 async function languageSelector(phoneNumber){
     payload = await dialogflow.sendToDialogFlow("langChose", phoneNumber);
 }

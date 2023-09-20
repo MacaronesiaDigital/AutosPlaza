@@ -14,6 +14,8 @@ const uBookingJSON = require('../../JSONs/UnformattedBooking.json');
 const vehicleJSON = require.resolve('../../JSONs/VehicleData.json');
 const bookingJSON = require.resolve('../../JSONs/BookingData.json');
 
+var testCounter = 0;
+
 async function processBookings(){
     var uFile = uBookingJSON;
     const inputDate = new Date();
@@ -45,7 +47,7 @@ async function processBookings(){
 }
 
 async function processVehicles(){
-    var uFile = fixJson(uVehicleJSON);
+    var uFile = uVehicleJSON;
     uFile = JSON.parse(JSON.stringify(uFile));
     JSONFormatter.vehicleJSON(uFile, vehicleJSON);
     const FVehicleJSON = require(vehicleJSON);
@@ -63,31 +65,6 @@ function convertExcelToJson(filePath) {
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
     return jsonData;
-}
-
-async function fixJson(file){
-    fs.readFile(file, 'utf8', (err, data) => {
-        if (err) {
-          console.error('Error reading the file:', err);
-          return;
-        }
-
-        console.log(data);
-      
-        // Call the removeByteOrderMark function to remove the BOM
-        const jsonDataWithoutBOM = removeByteOrderMark(data);
-      
-        try {
-          // Parse the JSON data
-          const jsonData = JSON.parse(jsonDataWithoutBOM);
-          console.log(jsonData)
-          return jsonData;
-        } catch (error) {
-          console.error('Error parsing JSON data:', error);
-        }
-      });
-
-    let removeByteOrderMark = a => a[0] === "\ufeff" ? a.slice(1) : a;
 }
 
 module.exports = {
