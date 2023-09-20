@@ -133,6 +133,7 @@ async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker) {
 
     allItems = await executeQuery({}, collection);
     allItems.forEach(element => {
+      console.log(element[dupChecker]);
       if(Array.isArray(element[dupChecker])) {
         element[dupChecker].forEach(element2 => {
           dupArray.push(element2);
