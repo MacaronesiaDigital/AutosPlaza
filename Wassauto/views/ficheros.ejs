@@ -133,7 +133,7 @@
                         <input id='files' type="file" required>
                     </div>
                     <br>
-                    <button type='submit' class="btn btn-primary">Actualizar</button>
+                    <button type='submit' name="send" class="btn btn-primary">Actualizar</button>
                     
                   </form>
                 </div>
@@ -146,9 +146,17 @@
   </body>
   <script>
     const form = document.getElementById("form");
+    const button = document.querySelector('[name="send"]');
     form.addEventListener("submit", submitForm);
+
+    showAlert = function(mss) {
+      confirm(mss);
+      button.removeAttribute("disabled")
+    }
+
     function submitForm(e) {
         e.preventDefault();
+        button.setAttribute('disabled', '');
         const dataType = document.getElementById("dataType");
         const files = document.getElementById("files");
         const formData = new FormData();
@@ -159,7 +167,7 @@
             method: 'POST',
             body: formData,
         })
-            .then((res) => console.log(res))
+            .then((res) => showAlert("Envíado con éxito"))
             .catch((err) => ("Error occured", err));
     }
   </script>

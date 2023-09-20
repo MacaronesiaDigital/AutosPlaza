@@ -19,6 +19,9 @@ const dialogflow = require('./assets/Classes/connections/dialogflow');
 const multer = require('multer');
 const upload = multer({ dest: __dirname + '/assets/uploads' });
 
+var cors = require('cors');
+app.use(cors());
+
 const { ObjectId, Long } = require('mongodb');
 
 const path = require('path');
@@ -146,6 +149,8 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             await DataProcessor.processBookings();
             break;
     }
+    
+    res.sendStatus(200);
 });
 
 //app.use(express.static(path.join(__dirname, 'assets/BookingDetails')));
