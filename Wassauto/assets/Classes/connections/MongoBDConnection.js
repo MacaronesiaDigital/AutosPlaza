@@ -2,7 +2,8 @@ const { json } = require('express');
 
 const MongoClient = require('mongodb').MongoClient;
 // Connection URL
-const dbUrl = 'mongodb://127.0.0.1:27017';
+//const dbUrl = 'mongodb://127.0.0.1:27017';
+const dbUrl = 'mongodb://autosplaza:autosplaza1234@autosplaza.macaronesiadigital.com:27017/test';
 // Database Name
 const dbName = 'AutosPlazaBBDD';
 // Collection Name

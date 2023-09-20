@@ -340,7 +340,7 @@ async function userJSON(unformattedJSON, filePath) {
     return jsonString;
 }
 
-async function userJSON(unformattedJSON, filePath, bookCod) {
+async function userJSON2(unformattedJSON, filePath, bookCod) {
     var clientPhoneArray = [];
     var jsonString = "[\n";
   
@@ -464,7 +464,7 @@ async function checkForUser(unformattedJSON, phoneNumbers, index, codBook){
         } else {
           console.log("NEW USER");
           var newJSON = await JSON.parse(await JSON.stringify([unformattedJSON[index], unformattedJSON[index+1]]));
-          FUserJSON = await userJSON(newJSON, thisUserJSON, codBook);
+          FUserJSON = await userJSON2(newJSON, thisUserJSON, codBook);
           FUserJSON = await JSON.parse(FUserJSON);
           result = await MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
           const query = { phones: phoneNumber };
