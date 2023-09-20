@@ -145,10 +145,6 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
         case 'booking':
             await DataProcessor.processBookings();
             break;
-        
-        case 'return':
-            await DataProcessor.processReturns();
-            break;
     }
 });
 

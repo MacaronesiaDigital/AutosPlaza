@@ -6,6 +6,7 @@ const twilio = require('../connections/twilio');
 const dialogflow = require('../connections/dialogflow');
 
 const MongoHandler = require('../connections/MongoBDConnection') ;
+const { query } = require('express');
 
 const ngrokUrl = config.NGROKURL;
 
@@ -297,7 +298,6 @@ async function scheduleMessage(timeToSend, phoneNumber, message){
     try{
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const job = schedule.scheduleJob(timeToSend, async function(){
-            //console.log("Tiempo");
             sendAnswer(phoneNumber, message);
         });
     }catch (error){
@@ -310,10 +310,14 @@ async function scheduleConfirmationMessage(userId, timeToSend, phoneNumber){
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "confirm"}';
         const json = await JSON.parse(jsonString);
-        MongoHandler.executeInsert(json, "ProgrammedMessages", true)
-        /*const job = schedule.scheduleJob(timeToSend, async function(){
-            askConfirmationMessage(phoneNumber);
-        });*/
+        /*const query = { userID: userId, type: "confirm" }
+        const pMesagge = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        if(pMesagge.length > 0){
+            result = await MongoHandler.executeUpdate(query, json, "ProgrammedMessages");
+        } else{
+            MongoHandler.executeInsert(json, "ProgrammedMessages", true)
+        }*/
+        MongoHandler.executeInsert(json, "ProgrammedMessages", true);
     }catch (error){
         console.error('An error occurred:', error);
     }
@@ -324,10 +328,14 @@ async function scheduleReturnMessage(userId, timeToSend, phoneNumber){
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "return"}';
         const json = await JSON.parse(jsonString);
-        MongoHandler.executeInsert(json, "ProgrammedMessages", true)
-        /*const job = schedule.scheduleJob(timeToSend, async function(){
-            returnMessage(phoneNumber);
-        });*/
+        /*const query = { userID: userId, type: "return" }
+        const pMesagge = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        if(pMesagge.length > 0){
+            result = await MongoHandler.executeUpdate(query, json, "ProgrammedMessages");
+        } else{
+            MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+        }*/
+        MongoHandler.executeInsert(json, "ProgrammedMessages", true);
     }catch (error){
         console.error('An error occurred:', error);
     }
@@ -338,10 +346,14 @@ async function scheduleRatingMessage(userId, timeToSend, phoneNumber){
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "rate"}';
         const json = await JSON.parse(jsonString);
-        MongoHandler.executeInsert(json, "ProgrammedMessages", true)
-        /*const job = schedule.scheduleJob(timeToSend, function(){
-            startRating(phoneNumber);
-        });*/
+        /*const query = { userID: userId, type: "rate" }
+        const pMesagge = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        if(pMesagge.length > 0){
+            result = await MongoHandler.executeUpdate(query, json, "ProgrammedMessages");
+        } else{
+            MongoHandler.executeInsert(json, "ProgrammedMessages", true)
+        }*/
+        MongoHandler.executeInsert(json, "ProgrammedMessages", true);
     }catch (error){
         console.error('An error occurred:', error);
     }

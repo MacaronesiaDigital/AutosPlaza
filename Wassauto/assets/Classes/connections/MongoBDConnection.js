@@ -77,7 +77,8 @@ async function executeInsert(document, thisCollectionName, forceID) {
     const existingDoc = await collection.findOne({ _id: document._id });
     if (existingDoc) {
       console.log('Document already exists:', existingDoc);
-      await executeUpdate(document);
+      const query = { id: new ObjectId(existingDoc._id)}
+      await executeUpdate(query, document, thisCollectionName);
       return;
     } else{
       await collection.insertOne(document);
@@ -87,7 +88,9 @@ async function executeInsert(document, thisCollectionName, forceID) {
   } catch (error) {
     if (error.code === 11000) {
       console.log('Document with duplicate _id already exists');
-      await executeUpdate(document);
+      const existingDoc = await collection.findOne({ _id: document._id });
+      const query = { id: new ObjectId(existingDoc._id)}
+      await executeUpdate(query, document, thisCollectionName);
     } else {
       console.error('Failed to insert document', error);
     }
