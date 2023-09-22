@@ -77,7 +77,7 @@
     <section class="vh-200" style="background-color: #508bfc;">
     <div class="container">
       <h1 class="mt-4">Detalles de reserva</h1>
-      <form method="POST" action="/updateBooking" enctype="multipart/form-data">
+      <form id='form' method="POST" action="/updateBooking" enctype="multipart/form-data">
         <div class="form-group">
           <label for="accessories">Accessorios:</label>
           <div class="input-field">
@@ -161,27 +161,85 @@
             <textarea name="notes" rows="4"></textarea>
           </div>
         </div>
-
-        <div>
-          <input type="hidden" name="encodedImages" id="encodedImagesInput" />
-        </div>
         <br>
           <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
           <input type="hidden" class="objectId" value="<%= item._id %>"> 
-          <button type="submit" class="save-booking" data-id="<%= item._id %>">Save</button>
+          <button type="submit" name="save-booking" data-id="<%= item._id %>">Save</button>
           <button type="button" class="btn btn-primary mt-3" onclick="getUserLocation()">Enviar datos</button>
         <br>
       </form>
     </div>
 
     <script>
+      /*
+      const detailsButtons = document.querySelector('[name="save-booking"]');
+      const form = document.getElementById("form");
+
+      document.getElementById("form").addEventListener("submit", formSubmit);
+
+      let formData;
+
+      showAlert = function(mss) {
+        confirm(mss);
+        detailsButtons.removeAttribute("disabled");
+        window.location.href = "/reservas";
+      }
+
+      function formSubmit(event) {
+        var url = "/updateBooking";
+        var request = new XMLHttpRequest();
+        request.open('POST', url, true);
+        request.onload = function() { // request successful
+        // we can use server response to our request now
+          console.log(request.responseText);
+          showAlert("Envíado con éxito");
+        };
+      
+        request.onerror = function() {
+          showAlert("An error occurred while updating booking.");
+          // request failed
+        };
+      
+        request.send(new FormData(event.target)).then((res) => showAlert("Envíado con éxito"))
+        event.preventDefault();
+      }
+      
+    </script>
+
+    <script>
+
       const detailsButtons = document.querySelector(".save-booking");
-      button.addEventListener("click", async () => {
+      
+      detailsButtons.addEventListener("click", async () => {
         const objectId = button.getAttribute("data-id");
         const formData = await new FormData(document.querySelector("form"));
-        console.log(objectId);
-        console.log("formData");
+        
+        event.preventDefault();
       });
+
+      function formSubmit(event) {
+        var url = "/updateBooking";
+        var request = new XMLHttpRequest();
+        request.open('POST', url, true);
+        request.onload = function() { // request successful
+        // we can use server response to our request now
+          showAlert("Envíado con éxito");
+        };
+      
+        request.onerror = function() {
+          showAlert("An error occurred while updating the car.");
+          // request failed
+        };
+      
+        request.send(new FormData(event.target)).then((res) => showAlert("Envíado con éxito"))
+        event.preventDefault();
+      }
+
+      showAlert = function(mss) {
+        confirm(mss);
+        detailsButtons.removeAttribute("disabled");
+        window.location.href = "/vehiculos";
+      }
 
       function changeMapLocation(selectedRadioButton) {
         const location = selectedRadioButton.value;
@@ -228,6 +286,7 @@
       type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMRqbRbXVlqA3jKqpI7oefyJnirxvOwB0"
     ></script>
+    
     <script>
       var vMarker;
       var map;

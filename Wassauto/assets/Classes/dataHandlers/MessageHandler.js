@@ -84,12 +84,14 @@ async function confirmationMessage(phoneNumber){
             "Lugar de recogida: " + booking.returnLocation + "\n"+ 
             "Accesorios: " + booking.accesories + "\n" +
             "Parking: " + booking.parking + "\n";
+            
+            if(booking.parking != "None"){
+                message += "Parking: " + booking.parking + "\n";
+            }
 
             if(booking.notes != "None"){
                 message += "Nota: " + booking.notes + "\n";
             }
-
-            message += "Ubicación: ";
 
         break;
 
@@ -99,12 +101,14 @@ async function confirmationMessage(phoneNumber){
             "Lugar de recogida: " + booking.returnLocation + "\n"+ 
             "Accesorios: " + booking.accesories + "\n" +
             "Parking: " + booking.parking + "\n";
+            
+            if(booking.parking != "None"){
+                message += "Parking: " + booking.parking + "\n";
+            }
 
             if(booking.notes != "None"){
                 message += "Nota: " + booking.notes + "\n";
             }
-
-            message += "Ubicación: ";
 
         break;
 
@@ -112,8 +116,11 @@ async function confirmationMessage(phoneNumber){
             message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
             "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
             "Lugar de recogida: " + booking.returnLocation + "\n"+ 
-            "Accesorios: " + booking.accesories + "\n" +
-            "Parking: " + booking.parking + "\n";
+            "Accesorios: " + booking.accesories + "\n";
+
+            if(booking.parking != "None"){
+                message += "Parking: " + booking.parking + "\n";
+            }
 
             if(booking.notes != "None"){
                 message += "Nota: " + booking.notes + "\n";

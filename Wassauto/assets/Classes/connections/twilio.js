@@ -1,5 +1,7 @@
-const accountSid = "ACfa420b901227e9bf34ec87688215215e";
-const authToken = "8c03962561d86cd815c207ea1855797d";
+//const accountSid = "ACfa420b901227e9bf34ec87688215215e";
+//const authToken = "8c03962561d86cd815c207ea1855797d";
+const accountSid = "AC23958dcfacc84b3405fa3016a8e382ab";
+const authToken = "3ff6a86242062850f6d2cdd7c35d7e85";
 const client = require("twilio")(accountSid, authToken);
 const config = require("../../../config");
 
@@ -39,7 +41,7 @@ function sendMediaMessage(recipient, imageUrl) {
   const message = {
     body: '',
     from: 'whatsapp:'+ config.PHONENUMBER,
-    to: 'whatsapp:' + recipient,
+    to: 'whatsapp:+' + recipient,
     mediaUrl: imageUrl
   };
 

@@ -163,7 +163,7 @@
         var dataTypeText = dataType.value;
         formData.append('dataType', dataTypeText);
         formData.append('files', files.files[0])
-        fetch("https://autosplaza.macaronesiadigital.com/upload_files", {
+        fetch("/upload_files", {
             method: 'POST',
             body: formData,
         })

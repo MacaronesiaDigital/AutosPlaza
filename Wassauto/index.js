@@ -386,29 +386,34 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             let booking = await MongoHandler.executeQueryFirst( { _id: new ObjectId(objectId) } , "Bookings");
             let user = await MongoHandler.executeQueryFirst( { _id: new ObjectId(booking.codClient) }, "Users" ); 
 
-            MessageHandler.confirmationMessage(user.phones[0]);
+            //await MessageHandler.confirmationMessage(user.phones[0]);
 
-            res.status(200).send('Booking updated successfully.');
+            res.status(200);
         }
         
     } catch (error) {
         console.log(error);
       console.error('Error while updating booking:', error);
-      res.status(500).send('An error occurred while updating booking.');
+      res.status(500);
     }
 });
 
 app.post('/updateCar', async (req, res) => {
     try {
-        const query = { _id: new ObjectId(objectId) };
-        car = await MongoHandler.executeQueryFirst(query, "Flota");
-
+        
         console.log(req.body);
         const objectId = req.body['id'];  
+        
+        const query = { _id: new ObjectId(objectId) };
+        car = await MongoHandler.executeQueryFirst(query, 'Flota');
+        
         let thisDeposit = req.body['depType'];
         let thisTrunk = req.body['trunkType'];
         let thisReverse = req.body['revType'];
-        let thisNotes = req.body['notes']; 
+        let thisNotes = req.body['notes'];
+
+        console.log(car);
+
         if(!thisDeposit){
             thisDeposit = car.depositType;
         }
@@ -432,10 +437,10 @@ app.post('/updateCar', async (req, res) => {
         console.log(updateData);
 
         await MongoHandler.executeUpdate(query, updateData, "Flota");    
-        res.status(200).send('Car updated successfully.');
+        res.status(200);
     } catch (error) {
       console.error('Error while updating the car:', error);
-      res.status(500).send('An error occurred while updating the car.');
+      res.status(500);
     }
 });
 
