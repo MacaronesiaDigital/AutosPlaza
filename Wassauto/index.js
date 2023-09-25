@@ -13,6 +13,7 @@ const copyFilePromise = util.promisify(fs.copyFile);
 const unlinkPromise = util.promisify(fs.unlink);
 const mkdirPromise = util.promisify(fs.mkdir);
 const rmPromise = util.promisify(fs.rm);
+const existsPromise = util.promisify(fs.existsSync);
 const twilio = require('./assets/Classes/connections/twilio');
 const dialogflow = require('./assets/Classes/connections/dialogflow');
 
@@ -73,27 +74,23 @@ app.listen(process.env.PORT || 5000, function () {
 
 app.post("/twilio", express.json(), async function (req, res) {
     try{
-        await MongoHandler.connectToDatabase();
-
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
 
         const query = { phones: phone };
-        var user = await MongoHandler.executeQueryFirst(query, 'Users');
+        var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
         if(user == undefined){
             console.log("test");
             return;
         }
         userID = user._id;
         const query2 = { codClient: userID };
-        var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+        var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
 
         if(booking != undefined){
             console.log(userID);
             return;
         }
-
-        await MongoHandler.disconnectFromDatabase();
 
         console.log(req.body);
         if(req.body.Latitude && req.body.Longitude || req.body.MediaUrl0){
@@ -125,26 +122,15 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             filePath = uBookingJSON;
             break;
     }
+
     excelPath = './Wassauto/UploadedExcel/savedExcel.xls';
-    if (await fs.existsSync(excelPath)) {
-        await fs.unlink(excelPath, (err) => {
-            if (err) {
-                console.log(err);
-            }
-        });
+    if (fs.existsSync(excelPath)) {
+        await unlinkPromise(excelPath);
     }
-    // Wait for the file to be copied
-    await fs.copyFile(req.file['path'], excelPath, (err) => {
-        if (err) {
-            console.log(err);
-        } else{
-            fs.unlink(req.file['path'], (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
-        }
-    })
+
+    await copyFilePromise(req.file['path'], excelPath);
+    unlinkPromise(req.file['path']);
+
     // Wait for the JSON conversion
     await JSONFormatter.saveJsonToFile(DataProcessor.convertExcelToJson(req.file['path']), filePath);
     //res.json({ message: "Successfully uploaded files" })
@@ -156,6 +142,8 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             await DataProcessor.processBookings();
             break;
     }
+
+    await unlinkPromise(excelPath);
     
     res.sendStatus(200);
 });
@@ -387,7 +375,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
 
             const imagePath = imagesDir + '/' + thisBooking.license + '/worker';
-            if(await fs.existsSync(imagePath)) {
+            if(fs.existsSync(imagePath)) {
                 await rmPromise(imagePath, {recursive: true});
             }
 
@@ -549,20 +537,16 @@ app.post("/webhook", express.json(), async function (req, res) {
         
         async function GetDialogAnswerBBDD(agent){
 
-            await MongoHandler.connectToDatabase();
-
             const query = { phones: phoneNumber };
-            var user = await MongoHandler.executeQueryFirst(query, 'Users');
+            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
             
             const query2 = { intent: currentIntent }
-            intentResponse = await MongoHandler.executeQueryFirst(query2, 'Responses');
+            intentResponse = await MongoHandler.executeQueryFirstNC(query2, 'Responses');
             let thisLang = "es";
             if(user){
                 thisLang = user.language;
             }
             message = await intentResponse["text"+thisLang];
-
-            await MongoHandler.disconnectFromDatabase();
 
             sendAnswer(phoneNumber, message);
         }
@@ -573,7 +557,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         async function userLanguage(){
             try{
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 setUserLanguage(userId, lang);
             }catch (error){
@@ -596,13 +580,12 @@ app.post("/webhook", express.json(), async function (req, res) {
         async function GetReturnTime(){
             var returnDate = "";
             try{
-                await MongoHandler.connectToDatabase();
 
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 const query2 = { codClient: userID };
-                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 returnDate = booking.returnDate;
 
                 switch(user.language){
@@ -620,8 +603,6 @@ app.post("/webhook", express.json(), async function (req, res) {
                     break;
                 }
 
-            await MongoHandler.disconnectFromDatabase();
-
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -630,16 +611,14 @@ app.post("/webhook", express.json(), async function (req, res) {
         async function GetVehicleInfo(){
             try{
 
-                await MongoHandler.connectToDatabase();
-
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 const query2 = { codClient: userID };
-                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 const thisLicense = booking.license;
                 const query3 = { license: thisLicense};
-                const car = await MongoHandler.executeQueryFirst(query3, 'Flota');
+                const car = await MongoHandler.executeQueryFirstNC(query3, 'Flota');
 
                 console.log(booking);
 
@@ -667,8 +646,6 @@ app.post("/webhook", express.json(), async function (req, res) {
                             "\nColor: " + car.color;
                     break;
                 }
-
-                await MongoHandler.disconnectFromDatabase();
                 
                 sendAnswer(phoneNumber, message);
             }catch (error){
@@ -680,17 +657,13 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 await GetDialogAnswerBBDD();
 
-                await MongoHandler.connectToDatabase();
-
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 const query2 = { codClient: userID };
-                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 const query3 = { license: booking.license };
-                const car = await MongoHandler.executeQueryFirst(query3, 'Flota');
-
-                await MongoHandler.disconnectFromDatabase();
+                const car = await MongoHandler.executeQueryFirstNC(query3, 'Flota');
 
                 const videoDir = path.join(__dirname, 'assets/Videos/Details/Deposit/' + car.depositType);
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
@@ -708,23 +681,19 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 await GetDialogAnswerBBDD();
 
-                await MongoHandler.connectToDatabase();
-
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 const query2 = { codClient: userID };
-                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 const query3 = { license: booking.license };
-                const car = await MongoHandler.executeQueryFirst(query3, 'Flota');
+                const car = await MongoHandler.executeQueryFirstNC(query3, 'Flota');
 
                 const videoDir = path.join(__dirname, 'assets/Videos/Details/Trunk/' + car.trunkType);
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Trunk/${car.trunkType}/${file}`);
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
-                
-                await MongoHandler.disconnectFromDatabase();
 
                 //sendAnswer(phoneNumber, message);
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
@@ -738,27 +707,26 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 await await GetDialogAnswerBBDD();
 
-                await MongoHandler.connectToDatabase();
-
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 const query2 = { codClient: userID };
-                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 const query3 = { license: booking.license };
-                const car = await MongoHandler.executeQueryFirst(query3, 'Flota');
+                const car = await MongoHandler.executeQueryFirstNC(query3, 'Flota');
 
-                const videoDir = path.join(__dirname, 'assets/Videos/Details/Reverse' + car.trunkType);
+                const videoDir = path.join(__dirname, 'assets/Videos/Details/Reverse/' + car.reverseType);
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Reverse/${car.trunkType}/${file}`);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Reverse/${car.reverseType}/${file}`);
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
 
-                await MongoHandler.disconnectFromDatabase();
-
                 //sendAnswer(phoneNumber, message);
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                try{
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                } catch(error){
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                }
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -766,18 +734,14 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetReturnUbication(){
             try{
-                
-                await MongoHandler.connectToDatabase();
 
                 const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirst(query, 'Users');
+                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
                 userID = user._id.toString();
                 const query2 = { codClient: userID };
-                var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+                var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 latitude = booking.locationCoords[0];
                 longitude = booking.locationCoords[1];
-
-                await MongoHandler.disconnectFromDatabase();
 
                 twilio.sendLocationMessage(phoneNumber, latitude, longitude);
             }catch (error){
@@ -811,28 +775,20 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetGeneralGaraje(){
 
-            await MongoHandler.connectToDatabase();
-
             const query = { location: "Garaje" };
-            const locationData = await MongoHandler.executeQueryFirst(query, 'Locations');
+            const locationData = await MongoHandler.executeQueryFirstNC(query, 'Locations');
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
-
-            await MongoHandler.disconnectFromDatabase();
             
             await await GetDialogAnswerBBDD();
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
         }
         
         async function GetGeneralParking(){
-            await MongoHandler.connectToDatabase();
-
             const query = { location: "Parking" };
-            const locationData = await MongoHandler.executeQueryFirst(query, 'Locations');
+            const locationData = await MongoHandler.executeQueryFirstNC(query, 'Locations');
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
-
-            await MongoHandler.disconnectFromDatabase();
             
             await await GetDialogAnswerBBDD();
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
@@ -1019,8 +975,11 @@ app.post("/webhook", express.json(), async function (req, res) {
             const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
             videoUrls.forEach(element => {
                 const modifiedString = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                try{
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                } catch(error){
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                }
             });
         }
 
@@ -1033,30 +992,27 @@ app.post("/webhook", express.json(), async function (req, res) {
             const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
             videoUrls.forEach(element => {
                 const modifiedString = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                try{
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                } catch(error){
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                }
             });
         }
 
         async function SetSpanishLang(){
-            await MongoHandler.connectToDatabase();
 
             const query = { phones: phoneNumber };
-            var user = await MongoHandler.executeQueryFirst(query, 'Users');
-
-            await MongoHandler.disconnectFromDatabase();
+            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
             
             await setUserLanguage(user._id, "es");
             await MessageHandler.firstMessage(phoneNumber, "es");
         }
         
         async function SetEnglishLang(){
-            await MongoHandler.connectToDatabase();
 
             const query = { phones: phoneNumber };
-            var user = await MongoHandler.executeQueryFirst(query, 'Users');
-
-            await MongoHandler.disconnectFromDatabase();
+            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
 
             await setUserLanguage(user._id, "en");
             await MessageHandler.firstMessage(phoneNumber, "en");
@@ -1064,12 +1020,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         
         async function SetDeutschLang(){
 
-            await MongoHandler.connectToDatabase();
-
             const query = { phones: phoneNumber };
-            var user = await MongoHandler.executeQueryFirst(query, 'Users');
-
-            await MongoHandler.disconnectFromDatabase();
+            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
 
             await setUserLanguage(user._id, "de");
             MessageHandler.firstMessage(phoneNumber, "de");
@@ -1086,7 +1038,6 @@ app.post("/webhook", express.json(), async function (req, res) {
         //console.log(req.body.queryResult);
 
         var intentMap = new Map();
-
         
         intentMap.set('Language-Chooser', GetDialogAnswer);
             intentMap.set('Language-Chooser-1', SetSpanishLang);
@@ -1354,9 +1305,6 @@ function GetLangFromExt(userId, phoneNumber){
 
 async function setUserLanguage(userId, lang){
     try{
-
-        await MongoHandler.connectToDatabase();
-
         switch(lang){
 
             case "es":
@@ -1375,9 +1323,7 @@ async function setUserLanguage(userId, lang){
 
         const query = { _id: new ObjectId(userId) };
         const updateData = { language: lang };
-        await MongoHandler.executeUpdate(query, updateData, "Users");
-
-        await MongoHandler.disconnectFromDatabase();
+        await MongoHandler.executeUpdateNC(query, updateData, "Users");
     } catch (error){
         console.error('An error occurred:', error);
     }

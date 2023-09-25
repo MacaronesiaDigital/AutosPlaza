@@ -22,7 +22,7 @@ const thisClient = new MongoClient(dbUrl, {
   }
 });
 
-const thisClient2 = new MongoClient(dbUrl, {
+const ClientTemplate = new MongoClient(dbUrl, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -30,19 +30,34 @@ const thisClient2 = new MongoClient(dbUrl, {
   }
 });
 
-const thisClient3 = new MongoClient(dbUrl, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
+async function newClient(){
+  const newClient = ClientTemplate;
+  return newClient;
+}
+
+async function connectNewClient(client){
+  try {
+    await client.connect();
+    console.log('Connected to the database');
+  } catch (error) {
+    console.error('Failed to connect to the database', error);
   }
-});
+}
+
+async function disconnectNewClient(client){
+  try {
+    client.close(); 
+    console.log('Disconnected from the database');
+  } catch (error) {
+    console.error('Failed to disconnect from the database', error);
+  }
+}
 
 async function connectToDatabase() {
   console.log("client start");
   try {
-      await thisClient.connect(); 
-      console.log('Connected to the database');
+    await thisClient.connect(); 
+    console.log('Connected to the database');
   } catch (error) {
     console.error('Failed to connect to the database', error);
   }
@@ -84,6 +99,24 @@ async function executeQuery(query, collectionName) {
   }
 }
 
+async function executeQueryNC(query, collectionName) {
+  const nClient = await newClient();
+  try {
+
+    await connectNewClient(nClient);
+
+    const db = nClient.db(dbName);
+    const collection = db.collection(collectionName);
+
+    return await collection.find(query).toArray();
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  } finally {
+    disconnectNewClient(nClient);
+  }
+}
+
 async function executeQueryFirst(query, collectionName) {
   let wasDiscon = false;
   try {
@@ -91,7 +124,6 @@ async function executeQueryFirst(query, collectionName) {
       await connectToDatabase();
       wasDiscon = true;
     }
-    //await connectToDatabase();
 
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
@@ -104,7 +136,24 @@ async function executeQueryFirst(query, collectionName) {
     if(wasDiscon){
       await disconnectFromDatabase();
     }
-    //await disconnectFromDatabase();
+  }
+}
+
+async function executeQueryFirstNC(query, collectionName) {
+  const nClient = await newClient();
+  try {
+    
+    await connectNewClient(nClient);
+
+    const db = nClient.db(dbName);
+    const collection = db.collection(collectionName);
+
+    return await collection.findOne(query);
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  } finally {
+    disconnectNewClient(nClient);
   }
 }
 
@@ -150,6 +199,42 @@ async function executeInsert(document, thisCollectionName, forceID) {
   }
 }
 
+async function executeInsertNC(document, thisCollectionName, forceID) {
+  const nClient = await newClient();
+  try {
+    
+    await connectNewClient(nClient);
+
+    const db = nClient.db(dbName);
+    const collection = db.collection(thisCollectionName);
+
+    forceServerObjectId = forceID;
+  
+    const existingDoc = await collection.findOne({ _id: document._id });
+    if (existingDoc) {
+      console.log('Document already exists:', existingDoc);
+      const query = { id: new ObjectId(existingDoc._id)}
+      await executeUpdate(query, document, thisCollectionName);
+      return;
+    } else{
+      await collection.insertOne(document);
+      console.log('Document inserted successfully');
+    }
+
+  } catch (error) {
+    if (error.code === 11000) {
+      console.log('Document with duplicate _id already exists');
+      const existingDoc = await collection.findOne({ _id: document._id });
+      const query = { id: new ObjectId(existingDoc._id)}
+      await executeUpdate(query, document, thisCollectionName);
+    } else {
+      console.error('Failed to insert document', error);
+    }
+  } finally {
+    disconnectNewClient(nClient);
+  }
+}
+
 async function executeUpdate(query, updateData, collectionName) {
   let wasDiscon = false;
   try {
@@ -158,8 +243,38 @@ async function executeUpdate(query, updateData, collectionName) {
       wasDiscon = true;
     }
     //await connectToDatabase();
-
+    
     const db = thisClient.db(dbName);
+    const collection = db.collection(collectionName);
+    
+    // Update a single document that matches the query
+    const result = await collection.updateMany(query, { $set: updateData });
+    
+    // Use this for updating multiple documents
+    // const result = await collection.updateMany(query, { $set: updateData });
+    
+    console.log(`${result.modifiedCount} document(s) updated`);
+    
+    return result.modifiedCount; // Returns the number of documents updated
+    
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  } finally {
+    if(wasDiscon){
+      await disconnectFromDatabase();
+    }
+    //await disconnectFromDatabase();
+  }
+}
+
+async function executeUpdateNC(query, updateData, collectionName) {
+  const nClient = await newClient();
+  try {
+    
+    await connectNewClient(nClient);
+
+    const db = nClient.db(dbName);
     const collection = db.collection(collectionName);
 
     // Update a single document that matches the query
@@ -176,10 +291,7 @@ async function executeUpdate(query, updateData, collectionName) {
     console.error('Error:', error);
     throw error;
   } finally {
-    if(wasDiscon){
-      await disconnectFromDatabase();
-    }
-    //await disconnectFromDatabase();
+    disconnectNewClient(nClient);
   }
 }
 
@@ -202,6 +314,24 @@ async function executeDelete(query, collectionName) {
     if(wasDiscon){
       await disconnectFromDatabase();
     }
+  }
+}
+
+async function executeDeleteNC(query, collectionName) {
+  const nClient = await newClient();
+  try {
+    
+    await connectNewClient(nClient);
+
+    const db = nClient.db(dbName);
+    const collection = db.collection(collectionName);
+
+    return await collection.deleteOne(query);
+  } catch (error) {
+      console.error('Error:', error);
+      throw error;
+  } finally {
+    disconnectNewClient(nClient);
   }
 }
 
@@ -344,5 +474,8 @@ function isConnected() {
 }
 
 module.exports = {
-  isConnected, connectToDatabase, disconnectFromDatabase, executeQuery, executeQueryFirst, executeInsert, executeUpdate, executeDelete, saveJsonToMongo,
+  isConnected, connectToDatabase, disconnectFromDatabase,
+  executeQuery, executeQueryFirst, executeInsert, executeUpdate, executeDelete, 
+  executeQueryNC, executeQueryFirstNC, executeInsertNC, executeUpdateNC, executeDeleteNC, 
+  saveJsonToMongo,
 };

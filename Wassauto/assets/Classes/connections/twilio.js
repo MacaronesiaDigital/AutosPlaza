@@ -27,14 +27,12 @@ function sendLocationMessage(recipient, latitude, longitude) {
     persistentAction: ['geo:' + latitude + ',' + longitude]
   };
 
-  client.messages
-    .create(message)
-    .then((response) => {
-      console.log('Location message sent:', response.sid);
-    })
-    .catch((error) => {
-      console.error('Error sending location message:', error);
-    });
+  return new Promise((resolve, reject) => {
+    client.messages
+      .create(message)
+      .then((message) => resolve())
+      .catch((err) => reject(err));
+  });
 }
 
 function sendMediaMessage(recipient, imageUrl) {
@@ -46,15 +44,12 @@ function sendMediaMessage(recipient, imageUrl) {
   };
 
   console.log(message);
-
-  client.messages
-    .create(message)
-    .then((response) => {
-      console.log('Image message sent:', response.sid);
-    })
-    .catch((error) => {
-      console.error('Error sending image message:', error);
-    });
+  return new Promise((resolve, reject) => {
+    client.messages
+      .create(message)
+      .then((message) => resolve())
+      .catch((err) => reject(err));
+  });
 }
 
 module.exports = {
