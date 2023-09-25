@@ -1,9 +1,12 @@
 const { json } = require('express');
 
 const MongoClient = require('mongodb').MongoClient;
+const ServerApiVersion = require('mongodb').ServerApiVersion;
 // Connection URL
-const dbUrl = 'mongodb://127.0.0.1:27017';
+//const dbUrl = 'mongodb://127.0.0.1:27017';
+//const dbUrl = 'mongodb://https://dff2-206-204-150-110.ngrok-free.app:27017';
 //const dbUrl = 'mongodb://autosplaza:autosplaza1234@autosplaza.macaronesiadigital.com:27017/test';
+const dbUrl = 'mongodb+srv://autosplaza:Emiymv9mqFMSl3DQ@cluster0.yszwom4.mongodb.net/?retryWrites=true&w=majority';
 // Database Name
 const dbName = 'AutosPlazaBBDD';
 // Collection Name
@@ -11,24 +14,58 @@ const dbName = 'AutosPlazaBBDD';
 
 const { ObjectId } = require('mongodb');
 
-const client = new MongoClient(dbUrl);
+const thisClient = new MongoClient(dbUrl, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+const thisClient2 = new MongoClient(dbUrl, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+const thisClient3 = new MongoClient(dbUrl, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 
 async function connectToDatabase() {
   console.log("client start");
   try {
-    await client.connect(); 
-    console.log('Connected to the database');
+      await thisClient.connect(); 
+      console.log('Connected to the database');
   } catch (error) {
     console.error('Failed to connect to the database', error);
   }
 }
 
-async function executeQuery(query, collectionName) {
-
-  thisClient = new MongoClient(dbUrl);
-
+async function disconnectFromDatabase() {
+  console.log("client closing");
   try {
-    await thisClient.connect();
+      await thisClient.close(); 
+      console.log('Disconnected from the database');
+  } catch (error) {
+    console.error('Failed to disconnect from the database', error);
+  }
+}
+
+async function executeQuery(query, collectionName) {
+  let wasDiscon = false;
+  try {
+    if(!isConnected){
+      await connectToDatabase();
+      wasDiscon = true;
+    }
+    //await connectToDatabase();
 
     //console.log(query);
 
@@ -40,17 +77,21 @@ async function executeQuery(query, collectionName) {
     console.error('Error:', error);
     throw error;
   } finally {
-    thisClient.close();
+    if(wasDiscon){
+      await disconnectFromDatabase();
+    }
+    //await disconnectFromDatabase();
   }
 }
 
 async function executeQueryFirst(query, collectionName) {
-  thisClient = new MongoClient(dbUrl);
-
+  let wasDiscon = false;
   try {
-    await thisClient.connect();
-
-    //console.log(query);
+    if(!isConnected){
+      await connectToDatabase();
+      wasDiscon = true;
+    }
+    //await connectToDatabase();
 
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
@@ -60,17 +101,23 @@ async function executeQueryFirst(query, collectionName) {
     console.error('Error:', error);
     throw error;
   } finally {
-    thisClient.close();
+    if(wasDiscon){
+      await disconnectFromDatabase();
+    }
+    //await disconnectFromDatabase();
   }
 }
 
 async function executeInsert(document, thisCollectionName, forceID) {
-  thisClient = new MongoClient(dbUrl);
-
+  let wasDiscon = false;
   try {
-    await connectToDatabase();
+    if(!isConnected){
+      await connectToDatabase();
+      wasDiscon = true;
+    }
+    //await connectToDatabase();
   
-    const db = client.db(dbName);
+    const db = thisClient.db(dbName);
     const collection = db.collection(thisCollectionName);
 
     forceServerObjectId = forceID;
@@ -96,15 +143,21 @@ async function executeInsert(document, thisCollectionName, forceID) {
       console.error('Failed to insert document', error);
     }
   } finally {
-    thisClient.close();
+    if(wasDiscon){
+      await disconnectFromDatabase();
+    }
+    //await disconnectFromDatabase();
   }
 }
 
 async function executeUpdate(query, updateData, collectionName) {
-  const thisClient = new MongoClient(dbUrl);
-
+  let wasDiscon = false;
   try {
-    await thisClient.connect();
+    if(!isConnected){
+      await connectToDatabase();
+      wasDiscon = true;
+    }
+    //await connectToDatabase();
 
     const db = thisClient.db(dbName);
     const collection = db.collection(collectionName);
@@ -123,7 +176,32 @@ async function executeUpdate(query, updateData, collectionName) {
     console.error('Error:', error);
     throw error;
   } finally {
-    thisClient.close();
+    if(wasDiscon){
+      await disconnectFromDatabase();
+    }
+    //await disconnectFromDatabase();
+  }
+}
+
+async function executeDelete(query, collectionName) {
+  let wasDiscon = false;
+  try {
+    if(!isConnected){
+      await connectToDatabase();
+      wasDiscon = true;
+    }
+
+      const db = thisClient.db(dbName);
+      const collection = db.collection(collectionName);
+
+      return await collection.deleteOne(query);
+  } catch (error) {
+      console.error('Error:', error);
+      throw error;
+  } finally {
+    if(wasDiscon){
+      await disconnectFromDatabase();
+    }
   }
 }
 
@@ -261,6 +339,10 @@ async function saveJsonToMongo2(jsonToSave, collection, checkDup, dupChecker){
   }
 }
 
+function isConnected() {
+  return !!thisClient && !!thisClient.topology && thisClient.topology.isConnected()
+}
+
 module.exports = {
-    executeQuery, executeQueryFirst, executeInsert, executeUpdate, saveJsonToMongo,
+  isConnected, connectToDatabase, disconnectFromDatabase, executeQuery, executeQueryFirst, executeInsert, executeUpdate, executeDelete, saveJsonToMongo,
 };

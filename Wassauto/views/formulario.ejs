@@ -164,8 +164,7 @@
         <br>
           <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
           <input type="hidden" class="objectId" value="<%= item._id %>"> 
-          <button type="submit" name="save-booking" data-id="<%= item._id %>">Save</button>
-          <button type="button" class="btn btn-primary mt-3" onclick="getUserLocation()">Enviar datos</button>
+          <button type="submit" class="btn btn-primary mt-3" name="save-booking" data-id="<%= item._id %>">Save</button>
         <br>
       </form>
     </div>
@@ -210,14 +209,61 @@
 
       const detailsButtons = document.querySelector(".save-booking");
       
-      detailsButtons.addEventListener("click", async () => {
+      /*detailsButtons.addEventListener("click", async () => {
         const objectId = button.getAttribute("data-id");
         const formData = await new FormData(document.querySelector("form"));
         
         event.preventDefault();
-      });
+      });*/
 
-      function formSubmit(event) {
+
+      //document.getElementById("form").addEventListener("submit", formSubmit);
+      //document.getElementById("form").addEventListener("submit", submitForm);
+
+      /*async function formSubmit(e){
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const res = await fetch(
+          "/updateBooking",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        console.log("test log");
+        
+        if (!res.ok) {
+          throw new Error(`${res.status}: ${await res.text()}`);
+        } else{
+          showAlert("Envíado con éxito");
+        }
+      }*/
+
+    const form = document.getElementById("form");
+    const button = document.querySelector('[name="save-booking"]');
+
+    form.addEventListener("submit", submitForm);
+
+    showAlert = function(mss) {
+      confirm(mss);
+      button.removeAttribute("disabled");
+      window.location.href = "/reservas";
+    }
+
+    function submitForm(e) {
+        button.setAttribute('disabled', '');
+        const formData = new FormData(e.target);
+        fetch("/updateBooking", {
+            method: 'POST',
+            body: formData,
+        })
+            .then((res) => showAlert("Envíado con éxito"))
+            .catch((err) => ("Error occured", err));
+    }
+
+      /*function formSubmit(event) {
         var url = "/updateBooking";
         var request = new XMLHttpRequest();
         request.open('POST', url, true);
@@ -233,13 +279,13 @@
       
         request.send(new FormData(event.target)).then((res) => showAlert("Envíado con éxito"))
         event.preventDefault();
-      }
+      }*/
 
-      showAlert = function(mss) {
+      /*showAlert = function(mss) {
         confirm(mss);
         detailsButtons.removeAttribute("disabled");
-        window.location.href = "/vehiculos";
-      }
+        window.location.href = "/reservas";
+      }*/
 
       function changeMapLocation(selectedRadioButton) {
         const location = selectedRadioButton.value;

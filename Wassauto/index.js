@@ -73,13 +73,15 @@ app.listen(process.env.PORT || 5000, function () {
 
 app.post("/twilio", express.json(), async function (req, res) {
     try{
+        await MongoHandler.connectToDatabase();
+
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
 
         const query = { phones: phone };
         var user = await MongoHandler.executeQueryFirst(query, 'Users');
         if(user == undefined){
-            console.log("test")
+            console.log("test");
             return;
         }
         userID = user._id;
@@ -91,15 +93,20 @@ app.post("/twilio", express.json(), async function (req, res) {
             return;
         }
 
+        await MongoHandler.disconnectFromDatabase();
+
         console.log(req.body);
-        if(req.body.Latitude && req.body.Longitude) {
-            MediaHandler.saveUserLocation(req.body.Latitude, req.body.Longitude);
-        }
-        if(req.body.MediaUrl0){
-            MediaHandler.saveUserPhoto(req.body.MediaUrl0, phone);
-        } else{
+        if(req.body.Latitude && req.body.Longitude || req.body.MediaUrl0){
+            if(req.body.Latitude && req.body.Longitude) {
+                await MediaHandler.saveUserLocation(phone, req.body.Latitude, req.body.Longitude);
+            }
+            if(req.body.MediaUrl0){
+                await MediaHandler.saveUserPhoto(req.body.MediaUrl0, phone);
+            }
+        }else{
             payload = await dialogflow.sendToDialogFlow(receivedMessage, phone);
         }
+
     }catch (error){
         console.error('An error occurred:', error);
         res.sendStatus(500);
@@ -158,15 +165,15 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     res.redirect('/login');
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
     res.render('login');
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   fs.readFile('./Wassauto/users.json', (err, data) => {
     if (err) {
@@ -185,7 +192,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-app.get('/logout', (req, res) => {
+app.get('/logout', async (req, res) => {
     req.session.user = {}
     res.redirect('/login');
 });
@@ -199,7 +206,7 @@ app.get('/inicio', async (req, res) => {
   }
 });
 
-app.get('/ficheros', (req, res) => {
+app.get('/ficheros', async (req, res) => {
     if (req.session.user && req.session.user.username.includes("ventas")) {
       // Aquí obtienes los datos del usuario autenticado desde la sesión
       const user = req.session.user;
@@ -215,9 +222,10 @@ app.get('/reservas', async (req, res) => {
       // Aquí obtienes los datos del usuario autenticado desde la sesión
       const user = req.session.user;
       try {
+        await MongoHandler.connectToDatabase();
         const query = {}
         const objects = await MongoHandler.executeQuery(query, 'Bookings');
-  
+        /*
         const objectsWithDetails = [];
         for (const object of objects) {
           const query2 = { _id: new ObjectId(object.codClient) }
@@ -229,8 +237,8 @@ app.get('/reservas', async (req, res) => {
             object.email = details.email;
             objectsWithDetails.push(object);
           }
-        }
-  
+        }*/
+        await MongoHandler.disconnectFromDatabase();
         res.render('reservas.ejs', { user: user,  reservations: objects }); 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -247,14 +255,17 @@ app.get('/vehiculos', async (req, res) => {
         // Aquí obtienes los datos del usuario autenticado desde la sesión
         const user = req.session.user;
         try {
-          const query = {}
-          const objects = await MongoHandler.executeQuery(query, 'Flota');
-    
-          res.render('vehiculos.ejs', { user: user,  cars: objects }); 
+            await MongoHandler.connectToDatabase();
+            const query = {}
+            const objects = await MongoHandler.executeQuery(query, 'Flota');
+            
+            await MongoHandler.disconnectFromDatabase();
+
+            res.render('vehiculos.ejs', { user: user,  cars: objects }); 
         } catch (error) {
-          console.error('Error fetching data:', error);
-          res.status(500).send('Internal server error');
-          return res.redirect('/inicio');
+            console.error('Error fetching data:', error);
+            res.status(500).send('Internal server error');
+            return res.redirect('/inicio');
         }
       } else {
         res.redirect('/login');
@@ -262,36 +273,52 @@ app.get('/vehiculos', async (req, res) => {
 });
 
 app.get('/details-page', async (req, res) => {
-  const objectId = req.query.id;
-  const query = { _id: new ObjectId(objectId) };
-  const objectType = req.query.type;
-  let item;
-
-  if (objectType === 'Booking') {
-    // Fetch the booking item from the Booking table based on the objectId
-    item = await MongoHandler.executeQueryFirst(query, "Bookings");
-    //console.log(item)
-    res.render('formulario', { item });
-  } else if (objectType === 'Car') {
-    // Fetch the car item from the Car table based on the objectId
-    item = await MongoHandler.executeQueryFirst(query, "Flota");
-    res.render('vehiculoform', { item });
-  } else {
-    // Handle other cases
-    res.send('Invalid object type');
-  }
+    const objectId = req.query.id;
+    const query = { _id: new ObjectId(objectId) };
+    const objectType = req.query.type;
+    let item;
+    try {
+        await MongoHandler.connectToDatabase();
+        
+        if (objectType === 'Booking') {
+          // Fetch the booking item from the Booking table based on the objectId
+          item = await MongoHandler.executeQueryFirst(query, "Bookings");
+          //console.log(item)
+          res.render('formulario', { item });
+        } else if (objectType === 'Car') {
+          // Fetch the car item from the Car table based on the objectId
+          item = await MongoHandler.executeQueryFirst(query, "Flota");
+          res.render('vehiculoform', { item });
+        } else {
+          // Handle other cases
+          res.send('Invalid object type');
+        }
+        await MongoHandler.disconnectFromDatabase();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Internal server error');
+        return res.redirect('/inicio');
+    }
 });
 
-app.get('/formulario', (req, res) => {
+app.get('/formulario', async (req, res) => {
     res.render('formulario');
 });
 
-app.get('/vehiculoform', (req, res) => {
+app.get('/vehiculoform', async (req, res) => {
     res.render('vehiculoform');
 });
 
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
+    if(testCounter == 1){
+        testCounter = 0; 
+        return;
+    } else{
+        testCounter++;
+    }
     try {
+        await MongoHandler.connectToDatabase();
+
         const objectId = req.body['id'];  
         console.log('this id: ' + objectId);
         
@@ -359,13 +386,12 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
         
             result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
 
+            const imagePath = imagesDir + '/' + thisBooking.license + '/worker';
+            if(await fs.existsSync(imagePath)) {
+                await rmPromise(imagePath, {recursive: true});
+            }
+
             if (req.files.length > 0) {
-                const imagePath = imagesDir + '/' + thisBooking.license + '/worker';
-
-                if(await fs.existsSync(imagePath)) {
-                    await rmPromise(imagePath, {recursive: true});
-                }
-
                 const files = req.files;
                 for (let i = 0; i < files.length; i++) {
                     const element = files[i];
@@ -386,20 +412,23 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             let booking = await MongoHandler.executeQueryFirst( { _id: new ObjectId(objectId) } , "Bookings");
             let user = await MongoHandler.executeQueryFirst( { _id: new ObjectId(booking.codClient) }, "Users" ); 
 
-            //await MessageHandler.confirmationMessage(user.phones[0]);
-
-            res.status(200);
+            await MessageHandler.confirmationMessage(user.phones[0]);
         }
         
+        await MongoHandler.disconnectFromDatabase();
+
     } catch (error) {
-        console.log(error);
       console.error('Error while updating booking:', error);
       res.status(500);
     }
+
+    res.sendStatus(200);
 });
 
 app.post('/updateCar', async (req, res) => {
     try {
+        
+        await MongoHandler.connectToDatabase();
         
         console.log(req.body);
         const objectId = req.body['id'];  
@@ -438,10 +467,14 @@ app.post('/updateCar', async (req, res) => {
 
         await MongoHandler.executeUpdate(query, updateData, "Flota");    
         res.status(200);
+        
+        await MongoHandler.disconnectFromDatabase();
     } catch (error) {
       console.error('Error while updating the car:', error);
       res.status(500);
     }
+
+    res.sendStatus(200);
 });
 
 /*
@@ -482,6 +515,7 @@ app.get('/', async (req, res) => {
 
 //Cada intent apunta al método en la clase de la entidad que le corresponde 
 app.post("/webhook", express.json(), async function (req, res) {
+
     //console.log(res);
     const immediateResponse = {
         fulfillmentMessages: [{ text: { text: ["Processing your request..."] } }],
@@ -514,6 +548,9 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
         
         async function GetDialogAnswerBBDD(agent){
+
+            await MongoHandler.connectToDatabase();
+
             const query = { phones: phoneNumber };
             var user = await MongoHandler.executeQueryFirst(query, 'Users');
             
@@ -524,6 +561,8 @@ app.post("/webhook", express.json(), async function (req, res) {
                 thisLang = user.language;
             }
             message = await intentResponse["text"+thisLang];
+
+            await MongoHandler.disconnectFromDatabase();
 
             sendAnswer(phoneNumber, message);
         }
@@ -544,19 +583,21 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
-            await sleep(1000);
+            await sleep(500);
             payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
         }
         
         async function failConfirmation(){
             await GetDialogAnswerBBDD();
-            await sleep(5000);
+            await sleep(500);
             payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
         }
 
         async function GetReturnTime(){
             var returnDate = "";
             try{
+                await MongoHandler.connectToDatabase();
+
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirst(query, 'Users');
                 userID = user._id.toString();
@@ -579,6 +620,8 @@ app.post("/webhook", express.json(), async function (req, res) {
                     break;
                 }
 
+            await MongoHandler.disconnectFromDatabase();
+
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -586,6 +629,9 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetVehicleInfo(){
             try{
+
+                await MongoHandler.connectToDatabase();
+
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirst(query, 'Users');
                 userID = user._id.toString();
@@ -622,6 +668,8 @@ app.post("/webhook", express.json(), async function (req, res) {
                     break;
                 }
 
+                await MongoHandler.disconnectFromDatabase();
+                
                 sendAnswer(phoneNumber, message);
             }catch (error){
                 console.error('An error occurred:', error);
@@ -630,7 +678,9 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetDepositVideo(){
             try{
-                await await GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+
+                await MongoHandler.connectToDatabase();
 
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirst(query, 'Users');
@@ -640,12 +690,15 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const query3 = { license: booking.license };
                 const car = await MongoHandler.executeQueryFirst(query3, 'Flota');
 
+                await MongoHandler.disconnectFromDatabase();
+
                 const videoDir = path.join(__dirname, 'assets/Videos/Details/Deposit/' + car.depositType);
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Deposit/${car.depositType}/${file}`);
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -653,7 +706,9 @@ app.post("/webhook", express.json(), async function (req, res) {
         
         async function GetTrunkVideo(){
             try{
-                await await GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+
+                await MongoHandler.connectToDatabase();
 
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirst(query, 'Users');
@@ -666,11 +721,14 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoDir = path.join(__dirname, 'assets/Videos/Details/Trunk/' + car.trunkType);
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrl = await videoFiles.map(file => `${ngrokUrl}/Videos/Details/Trunk/${car.trunkType}/${file}`);
-                const modifiedString = await videoUrl[0].replace(/ /g, '%20');
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Trunk/${car.trunkType}/${file}`);
+                const modifiedString = videoUrl[0].replace(/ /g, '%20');
                 
-                sendAnswer(phoneNumber, message);
+                await MongoHandler.disconnectFromDatabase();
+
+                //sendAnswer(phoneNumber, message);
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -679,6 +737,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         async function GetReverseVideo(){
             try{
                 await await GetDialogAnswerBBDD();
+
+                await MongoHandler.connectToDatabase();
 
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirst(query, 'Users');
@@ -694,8 +754,11 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Reverse/${car.trunkType}/${file}`);
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
 
-                sendAnswer(phoneNumber, message);
+                await MongoHandler.disconnectFromDatabase();
+
+                //sendAnswer(phoneNumber, message);
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -703,6 +766,9 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetReturnUbication(){
             try{
+                
+                await MongoHandler.connectToDatabase();
+
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirst(query, 'Users');
                 userID = user._id.toString();
@@ -710,6 +776,9 @@ app.post("/webhook", express.json(), async function (req, res) {
                 var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
                 latitude = booking.locationCoords[0];
                 longitude = booking.locationCoords[1];
+
+                await MongoHandler.disconnectFromDatabase();
+
                 twilio.sendLocationMessage(phoneNumber, latitude, longitude);
             }catch (error){
                 console.error('An error occurred:', error);
@@ -741,20 +810,29 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function GetGeneralGaraje(){
+
+            await MongoHandler.connectToDatabase();
+
             const query = { location: "Garaje" };
             const locationData = await MongoHandler.executeQueryFirst(query, 'Locations');
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
+
+            await MongoHandler.disconnectFromDatabase();
             
             await await GetDialogAnswerBBDD();
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
         }
         
         async function GetGeneralParking(){
+            await MongoHandler.connectToDatabase();
+
             const query = { location: "Parking" };
             const locationData = await MongoHandler.executeQueryFirst(query, 'Locations');
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
+
+            await MongoHandler.disconnectFromDatabase();
             
             await await GetDialogAnswerBBDD();
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
@@ -783,11 +861,12 @@ app.post("/webhook", express.json(), async function (req, res) {
               .get(photoUrl, { responseType: 'arraybuffer' })
               .then((response) => {
                 // Save the photo using the desired filename
-                fs.writeFile('./Wassauto/assets/Images/'+bookingLicense+'/client/newFilename.jpg', response.data, (error) => {
+                const newFilePath = './Wassauto/assets/Images/'+bookingLicense+'/client/clientImage.jpg';
+                fs.writeFile(newFilePath, response.data, (error) => {
                   if (error) {
                     console.error('Failed to save photo:', error);
                   } else {
-                    console.log('Photo saved successfully:', newFilename);
+                    console.log('Photo saved successfully:', newFilePath);
                   }
                 });
               })
@@ -807,6 +886,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
             
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Airport/General');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
@@ -832,6 +912,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -846,6 +927,7 @@ app.post("/webhook", express.json(), async function (req, res) {
             const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Parking/Delivery/${file}`);
             const modifiedString = videoUrl[0].replace(/ /g, '%20');
             twilio.sendMediaMessage(phoneNumber, modifiedString);
+            twilio.sendTextMessage(phoneNumber, modifiedString);
         }
 
         function GetDeliveryAirport(){
@@ -867,6 +949,7 @@ app.post("/webhook", express.json(), async function (req, res) {
             const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Delivery/${file}`);
             const modifiedString = videoUrl[0].replace(/ /g, '%20');
             twilio.sendMediaMessage(phoneNumber, modifiedString);
+            twilio.sendTextMessage(phoneNumber, modifiedString);
 
             const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Delivery');
             const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
@@ -893,13 +976,14 @@ app.post("/webhook", express.json(), async function (req, res) {
         function GetReturnAirport(){
             GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Video/SetLocations/Airport/Return');
+            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Return');
             const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
             const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Return/${file}`);
             videoUrls.forEach(element => {
                 const modifiedString = element.replace(/ /g, '%20');
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             });
         }
         
@@ -922,54 +1006,77 @@ app.post("/webhook", express.json(), async function (req, res) {
             videoUrls.forEach(element => {
                 const modifiedString = element.replace(/ /g, '%20');
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             });
         }
 
         function GetPayAirport(){
-            GetDialogAnswerBBDD();
+            //GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Video/SetLocations/Airport/Pay');
+            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
             const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport2/Pay/${file}`);
+            const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
             videoUrls.forEach(element => {
                 const modifiedString = element.replace(/ /g, '%20');
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             });
         }
 
         function GetPayAirport2(){
-            GetDialogAnswerBBDD();
+            //GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Video/SetLocations/AirportNorth/Pay');
+            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
             const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
             const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
             videoUrls.forEach(element => {
                 const modifiedString = element.replace(/ /g, '%20');
                 twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             });
         }
 
         async function SetSpanishLang(){
+            await MongoHandler.connectToDatabase();
+
             const query = { phones: phoneNumber };
             var user = await MongoHandler.executeQueryFirst(query, 'Users');
-            setUserLanguage(user._id, "es");
-            MessageHandler.firstMessage(phoneNumber, "es");
+
+            await MongoHandler.disconnectFromDatabase();
+            
+            await setUserLanguage(user._id, "es");
+            await MessageHandler.firstMessage(phoneNumber, "es");
         }
         
         async function SetEnglishLang(){
+            await MongoHandler.connectToDatabase();
+
             const query = { phones: phoneNumber };
             var user = await MongoHandler.executeQueryFirst(query, 'Users');
-            setUserLanguage(user._id, "en");
-            MessageHandler.firstMessage(phoneNumber, "en");
+
+            await MongoHandler.disconnectFromDatabase();
+
+            await setUserLanguage(user._id, "en");
+            await MessageHandler.firstMessage(phoneNumber, "en");
         }
         
         async function SetDeutschLang(){
+
+            await MongoHandler.connectToDatabase();
+
             const query = { phones: phoneNumber };
             var user = await MongoHandler.executeQueryFirst(query, 'Users');
-            setUserLanguage(user._id, "de");
+
+            await MongoHandler.disconnectFromDatabase();
+
+            await setUserLanguage(user._id, "de");
             MessageHandler.firstMessage(phoneNumber, "de");
+        }
+
+        async function DefaultFallback(){
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
         }
         
         /*==============================================================================
@@ -1050,9 +1157,9 @@ app.post("/webhook", express.json(), async function (req, res) {
             intentMap.set('accidentDoubts-6-2', GetDialogAnswerBBDD);
 
 
-        //intentMap.set('rating-context', GetDialogAnswer);
-        intentMap.set('rating-positive', GetDialogAnswerBBDD);
+        //intentMap.set('rating-context', GetDialogAnswerBBDD);
         intentMap.set('rating-negative', GetDialogAnswerBBDD);
+        intentMap.set('rating-positive', GetDialogAnswerBBDD);
 
         /*
         intentMap.set('booking-questions', GetDialogAnswer);
@@ -1068,8 +1175,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('other-questions', GetDialogAnswer);
         */
 
-        intentMap.set('Default Fallback Intent', GetDialogAnswer)
-        intentMap.set('Default Welcome Intent', GetDialogAnswer)
+        intentMap.set('Default Fallback Intent', DefaultFallback);
+        intentMap.set('Default Welcome Intent', GetDialogAnswer);
 
         agent.handleRequest(intentMap);
 
@@ -1101,21 +1208,11 @@ async function uploadFiles(req, res) {
 
         excelPath = './Wassauto/UploadedExcel/savedExcel.xls';
         if (fs.existsSync(excelPath)) {
-            fs.unlink(excelPath, (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
+            await unlinkPromise(excelPath);
         }
 
         // Wait for the file to be copied
-        await new Promise((resolve, reject) => {
-            fs.copyFile(req.file['path'], excelPath, function (err) {
-                if (err) reject(err);
-                console.log('Saved!');
-                resolve();
-            });
-        });
+        await copyFilePromise(req.file['path'], excelPath);
 
         // Wait for the JSON conversion
         await JSONFormatter.saveJsonToFile(DataProcessor.convertExcelToJson(req.file['path']), filePath);
@@ -1256,25 +1353,34 @@ function GetLangFromExt(userId, phoneNumber){
 }
 
 async function setUserLanguage(userId, lang){
-    switch(lang){
+    try{
 
-        case "es":
+        await MongoHandler.connectToDatabase();
 
-        break;
+        switch(lang){
 
-        case "en":
+            case "es":
 
-        break;
+            break;
 
-        case "de":
+            case "en":
 
-        break;
+            break;
 
+            case "de":
+
+            break;
+
+        }
+
+        const query = { _id: new ObjectId(userId) };
+        const updateData = { language: lang };
+        await MongoHandler.executeUpdate(query, updateData, "Users");
+
+        await MongoHandler.disconnectFromDatabase();
+    } catch (error){
+        console.error('An error occurred:', error);
     }
-
-    const query = { _id: new ObjectId(userId) };
-    const updateData = { language: lang };
-    await MongoHandler.executeUpdate(query, updateData, "Users");
 }
 
 function sleep(ms) {

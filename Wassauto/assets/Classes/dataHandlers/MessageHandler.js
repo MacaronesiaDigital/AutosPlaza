@@ -6,7 +6,13 @@ const twilio = require('../connections/twilio');
 const dialogflow = require('../connections/dialogflow');
 
 const MongoHandler = require('../connections/MongoBDConnection') ;
+const { ObjectId } = require('mongodb');
+
 const { query } = require('express');
+
+const fs = require('fs');
+
+const path = require('path');
 
 const ngrokUrl = config.NGROKURL;
 
@@ -22,209 +28,241 @@ async function firstMessage(phoneNumber, language){
         return;
     }
 
-    const query = { phones: phoneNumber };
-    var user = await MongoHandler.executeQueryFirst(query, 'Users');
+    try{
+        await MongoHandler.connectToDatabase();
 
-    //GetLangFromExt(user._id, phoneNumber);
+        const query = { phones: phoneNumber };
+        var user = await MongoHandler.executeQueryFirst(query, 'Users');
 
-    var query2 = { intent: "firstMessage" }
-    var responses = await MongoHandler.executeQueryFirst(query2, "Responses");
+        //GetLangFromExt(user._id, phoneNumber);
 
-    var message = responses["text"+language];
+        var query2 = { intent: "firstMessage" }
+        var responses = await MongoHandler.executeQueryFirst(query2, "Responses");
 
-    console.log(message);
-    
-    sendAnswer(phoneNumber, message);
+        var message = responses["text"+language];
 
-    console.log("test")
+        console.log(message);
+        
+        sendAnswer(phoneNumber, message);
 
-    const inputDate = new Date();
-    const date = getDate(inputDate, 'm', 'sum', 1);
+        console.log("test")
 
-    //scheduleConfirmationMessage(user._id, date, phoneNumber);
+        const inputDate = new Date();
+        const date = getDate(inputDate, 'm', 'sum', 1);
 
-    bookingCode = user.lastBooking.toString();
-    const query3 = { codBook: bookingCode };
-    var booking = await MongoHandler.executeQueryFirst(query3, 'Bookings');
+        //scheduleConfirmationMessage(user._id, date, phoneNumber);
 
-    var inputDate2 = stringToDate(booking.returnDate);
-    const date2 = getDate(inputDate2, 'd', 'subs', 1);
+        bookingCode = user.lastBooking.toString();
+        const query3 = { codBook: bookingCode };
+        var booking = await MongoHandler.executeQueryFirst(query3, 'Bookings');
 
-    console.log(inputDate + " - " + inputDate2);
+        await MongoHandler.disconnectFromDatabase();
 
-    //scheduleReturnMessage(user._id, date2, phoneNumber);
+        var inputDate2 = stringToDate(booking.returnDate);
+        const date2 = getDate(inputDate2, 'd', 'subs', 1);
 
-    const date3 = getDate(inputDate2, 'm', 'sum', 30);
+        console.log(inputDate + " - " + inputDate2);
 
-    //scheduleRatingMessage(user._id, date3, phoneNumber);
-    
-    //await sleep(30000);
+        //scheduleReturnMessage(user._id, date2, phoneNumber);
 
-    //askConfirmationMessage();
+        const date3 = getDate(inputDate2, 'm', 'sum', 30);
+
+        //scheduleRatingMessage(user._id, date3, phoneNumber);
+        
+        //await sleep(30000);
+
+        //askConfirmationMessage();
+    } catch (error){
+        console.error('An error occurred:', error);
+    }
 }
 
 async function confirmationMessage(phoneNumber){
 
-    const query = { phones: phoneNumber };
-    var user = await MongoHandler.executeQueryFirst(query, 'Users');
-    bookingCode = user.lastBooking.toString();
-    const query2 = { codBook: bookingCode };
-    var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+    try{
+        await MongoHandler.connectToDatabase();
 
-    var date = stringToDate(booking.deliveryDate);
-    const formattedDate = formatDateToDayMonthYearHourMinute(date);
+        const query = { phones: phoneNumber };
+        var user = await MongoHandler.executeQueryFirst(query, 'Users');
+        bookingCode = user.lastBooking.toString();
+        const query2 = { codBook: bookingCode };
+        var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
 
-    var message = "";
+        var date = stringToDate(booking.deliveryDate);
+        const formattedDate = formatDateToDayMonthYearHourMinute(date);
 
-    switch(user.language){
+        var message = "";
 
-        case "es":
-            message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
-            "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
-            "Lugar de recogida: " + booking.returnLocation + "\n"+ 
-            "Accesorios: " + booking.accesories + "\n" +
-            "Parking: " + booking.parking + "\n";
-            
-            if(booking.parking != "None"){
-                message += "Parking: " + booking.parking + "\n";
-            }
+        switch(user.language){
 
-            if(booking.notes != "None"){
-                message += "Nota: " + booking.notes + "\n";
-            }
+            case "es":
+                message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
+                "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
+                "Lugar de recogida: " + booking.returnLocation + "\n"+ 
+                "Accesorios: " + booking.accesories + "\n";
 
-        break;
+                if(booking.parking != "None"){
+                    message += "Parking: " + booking.parking + "\n";
+                }
 
-        case "de":
-            message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
-            "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
-            "Lugar de recogida: " + booking.returnLocation + "\n"+ 
-            "Accesorios: " + booking.accesories + "\n" +
-            "Parking: " + booking.parking + "\n";
-            
-            if(booking.parking != "None"){
-                message += "Parking: " + booking.parking + "\n";
-            }
+                if(booking.notes != "None"){
+                    message += "Notas: " + booking.notes + "\n";
+                }
 
-            if(booking.notes != "None"){
-                message += "Nota: " + booking.notes + "\n";
-            }
+            break;
 
-        break;
+            case "de":
+                message = "ℹ️ Willkommen auf Teneriffa, hier sind die detaillierten Informationen zu Ihrem Mietwagen:\n\n" +
+                "Datum und Uhrzeit der Abholung: " + formattedDate.toString() + "\n "+ 
+                "Abholort: " + booking.returnLocation + "\n" + 
+                "Zubehör: " + booking.accessories + "\n";
 
-        default:
-            message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
-            "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
-            "Lugar de recogida: " + booking.returnLocation + "\n"+ 
-            "Accesorios: " + booking.accesories + "\n";
+                if(booking.parking != "None"){
+                    message += "Parken: " + booking.parking + "\n";
+                }
 
-            if(booking.parking != "None"){
-                message += "Parking: " + booking.parking + "\n";
-            }
+                if(booking.notes != "None"){
+                    message += "Notiz: " + booking.notes + "\n";
+                }
 
-            if(booking.notes != "None"){
-                message += "Nota: " + booking.notes + "\n";
-            }
+            break;
 
-        break;
+            default:
+                message = "ℹ️ Welcome to Tenerife, here is the detailed information about your rented car:\n\n" +
+                "Pick-up date and time: " + formattedDate.toString() + "\n "+ 
+                "Pickup location: " + booking.returnLocation + "\n" +
+                "Accessories: " + booking.accessories + "\n ";
+                
+                if(booking.parking != "None"){
+                    message += "Parking: " + booking.parking + "\n";
+                }
 
+                if(booking.notes != "None"){
+                    message += "Notes: " + booking.notes + "\n";
+                }
+
+            break;
+
+        }
+
+        sendAnswer(phoneNumber, message);
+
+        await sleep(1000);
+
+        twilio.sendLocationMessage(phoneNumber, booking.returnCoords[0], booking.returnCoords[1]);
+
+        await sleep(2000);
+
+        GetReturnCar(phoneNumber, booking.license);
+
+        const inputDate2 = stringToDate(booking.deliveryDate);
+        const date2 = getDate(inputDate2, 's', 'sum', 10);
+
+        await scheduleConfirmationMessage(user._id, date2, phoneNumber);
+
+        var inputDate3 = stringToDate(booking.returnDate);
+        const date3 = getDate(inputDate3, 'd', 'subs', 1);
+
+        console.log(inputDate2 + " - " + inputDate3);
+
+        await scheduleReturnMessage(user._id, date3, phoneNumber);
+
+        const date4 = getDate(inputDate3, 'm', 'sum', 30);
+
+        await scheduleRatingMessage(user._id, date4, phoneNumber);
+
+        await MongoHandler.disconnectFromDatabase();
+
+        //console.log(message);
+
+    } catch(error){
+        console.log(error);
     }
-    
-    sendAnswer(phoneNumber, message);
-
-    await sleep(1000);
-    
-    twilio.sendLocationMessage(phoneNumber, booking.returnCoords[0], booking.returnCoords[1]);
-
-    await sleep(2000);
-
-    GetReturnCar(phoneNumber, booking.license);
-
-    const inputDate2 = stringToDate(booking.deliveryDate);
-    const date2 = getDate(inputDate2, 's', 'sum', 10);
-
-    scheduleConfirmationMessage(user._id, date2, phoneNumber);
-
-    var inputDate3 = stringToDate(booking.returnDate);
-    const date3 = getDate(inputDate3, 'd', 'subs', 1);
-
-    console.log(inputDate2 + " - " + inputDate3);
-
-    scheduleReturnMessage(user._id, date3, phoneNumber);
-
-    const date4 = getDate(inputDate3, 'm', 'sum', 30);
-
-    scheduleRatingMessage(user._id, date4, phoneNumber);
-
-    //console.log(message);
 }
 
 async function askConfirmationMessage(phoneNumber){
-    const query = { phones: phoneNumber };
-    var user = await MongoHandler.executeQueryFirst(query, 'Users');
+    try{
+        await MongoHandler.connectToDatabase();
 
-    var query2 = { intent: "askConfirmation" }
-    var responses = await MongoHandler.executeQueryFirst(query2, "Responses");
+        const query = { phones: phoneNumber };
+        var user = await MongoHandler.executeQueryFirst(query, 'Users');
 
-    var message = responses["text"+user.language];
+        var query2 = { intent: "askConfirmation" }
+        var responses = await MongoHandler.executeQueryFirst(query2, "Responses");
 
-    payload = await dialogflow.sendToDialogFlow("confirmBooking", phoneNumber);
-    sendAnswer(phoneNumber, message);
+        await MongoHandler.disconnectFromDatabase();
+
+        var message = responses["text"+user.language];
+
+        payload = await dialogflow.sendToDialogFlow("confirmBooking", phoneNumber);
+        sendAnswer(phoneNumber, message);
+
+    } catch(error){
+        console.log(error);
+    }
 }
 
 async function returnMessage(phoneNumber){
 
-    const query = { phones: phoneNumber };
-    var user = await MongoHandler.executeQueryFirst(query, 'Users');
-    bookingCode = user.lastBooking.toString();
-    const query2 = { codBook: bookingCode };
-    var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
-    var date = stringToDate(booking.returnDate);
-    const formattedDate = formatDateToDayMonthYearHourMinute(date);
+    try{
+        MongoHandler.connectToDatabase();
 
-    var message = "";
-    var message3 = "";
+        const query = { phones: phoneNumber };
+        var user = await MongoHandler.executeQueryFirst(query, 'Users');
+        bookingCode = user.lastBooking.toString();
+        const query2 = { codBook: bookingCode };
+        var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+        var date = stringToDate(booking.returnDate);
+        const formattedDate = formatDateToDayMonthYearHourMinute(date);
 
-    switch(user.language){
+        var message = "";
+        var message3 = "";
 
-        case "es":
-            message = "Esperamos que haya disfrutado mucho en su viaje con Autosplaza. Recuerde que debe dejar el vehículo a el " + formattedDate.toString() + " en la siguiente ubicación.\n";
+        switch(user.language){
 
-            message3 = "Si necesita entregarlo en otro lugar, notifíquenoslo en el 922 383 433.";
-        break;
+            case "es":
+                message = "Esperamos que haya disfrutado mucho en su viaje con Autosplaza. Recuerde que debe dejar el vehículo a el " + formattedDate.toString() + " en la siguiente ubicación.\n";
 
-        case "de":
-            message = "Esperamos que haya disfrutado mucho en su viaje con Autosplaza. Recuerde que debe dejar el vehículo a el " + formattedDate.toString() + " en la siguiente ubicación.\n";
+                message3 = "Si necesita entregarlo en otro lugar, notifíquenoslo en el 922 383 433.";
+            break;
 
-            message3 = "Si necesita entregarlo en otro lugar, notifíquenoslo en el 922 383 433.";
-        break;
+            case "de":
+                message = "Wir hoffen, Sie haben Ihre Reise mit Autosplaza genossen. Vergessen Sie nicht, das Fahrzeug am " + formattedDate.toString() + " an folgendem Ort abzustellen. \n";
 
-        default:
-            message = "Esperamos que haya disfrutado mucho en su viaje con Autosplaza. Recuerde que debe dejar el vehículo a el " + formattedDate.toString() + " en la siguiente ubicación.\n";
+                message3 = "Wenn Sie eine andere Lieferung benötigen, informieren Sie uns bitte unter der Nummer 922 383 433.";
+            break;
 
-            message3 = "Si necesita entregarlo en otro lugar, notifíquenoslo en el 922 383 433.";
-        break;
+            default:
+                message = "We hope you enjoyed your trip with Autosplaza. Remember to leave the vehicle on " + formattedDate.toString() + " in the following location. \n";
 
+                message3 = "If you need it delivered elsewhere, please notify us at 922 383 433.";
+            break;
+
+        }
+
+        sendAnswer(phoneNumber, message);
+        await sleep(1000);
+        latitude = booking.returnCoords[0];
+        longitude = booking.returnCoords[1];
+        twilio.sendLocationMessage(phoneNumber, latitude, longitude);
+        await sleep(1000);
+        sendAnswer(phoneNumber, message3);
+
+        MongoHandler.disconnectFromDatabase();
+    } catch(error){
+        console.log(error);
     }
-
-    sendAnswer(phoneNumber, message);
-    await sleep(1000);
-    latitude = booking.returnCoords[0];
-    longitude = booking.returnCoords[1];
-    twilio.sendLocationMessage(phoneNumber, latitude, longitude);
-    await sleep(1000);
-    sendAnswer(phoneNumber, message3);
 
 }
 
 async function startRating(phoneNumber){
     payload = await dialogflow.sendToDialogFlow("startRating", phoneNumber);
-    sendAnswer(phoneNumber, "¿Ha ido todo bien durante su viaje con Autosplaza?\n Escriba *Sí* si todo ha ido, *No* en caso contrario.");
+    //sendAnswer(phoneNumber, "¿Ha ido todo bien durante su viaje con Autosplaza?\n Escriba *Sí* si todo ha ido, *No* en caso contrario.");
 }
 
 function GetReturnCar(phoneNumber, license){
     try{
-        const imageDir = path.join(__dirname, 'assets/Images/' + license + '/worker');
+        const imageDir = path.join(__dirname, '../../Images/' + license + '/worker');
         const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
         //const imageUrls = imageFiles.map(file => `${ngrokUrl}/images/${file}`);
         const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/${license}/worker/${file}`);
@@ -319,14 +357,21 @@ async function scheduleConfirmationMessage(userId, timeToSend, phoneNumber){
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "confirm"}';
         const json = await JSON.parse(jsonString);
-        /*const query = { userID: userId, type: "confirm" }
-        const pMesagge = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        if(pMesagge.length > 0){
-            result = await MongoHandler.executeUpdate(query, json, "ProgrammedMessages");
-        } else{
-            MongoHandler.executeInsert(json, "ProgrammedMessages", true)
-        }*/
-        MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+        
+        const query = { userID: userId.toString(), type: "confirm" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+            
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+
     }catch (error){
         console.error('An error occurred:', error);
     }
@@ -337,14 +382,20 @@ async function scheduleReturnMessage(userId, timeToSend, phoneNumber){
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "return"}';
         const json = await JSON.parse(jsonString);
-        /*const query = { userID: userId, type: "return" }
-        const pMesagge = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        if(pMesagge.length > 0){
-            result = await MongoHandler.executeUpdate(query, json, "ProgrammedMessages");
-        } else{
-            MongoHandler.executeInsert(json, "ProgrammedMessages", true);
-        }*/
-        MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+        
+        const query = { userID: userId.toString(), type: "return" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+            
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
     }catch (error){
         console.error('An error occurred:', error);
     }
@@ -355,14 +406,20 @@ async function scheduleRatingMessage(userId, timeToSend, phoneNumber){
         console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
         const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "rate"}';
         const json = await JSON.parse(jsonString);
-        /*const query = { userID: userId, type: "rate" }
-        const pMesagge = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        if(pMesagge.length > 0){
-            result = await MongoHandler.executeUpdate(query, json, "ProgrammedMessages");
-        } else{
-            MongoHandler.executeInsert(json, "ProgrammedMessages", true)
-        }*/
-        MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+      
+        const query = { userID: userId.toString(), type: "rate" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+            
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
     }catch (error){
         console.error('An error occurred:', error);
     }

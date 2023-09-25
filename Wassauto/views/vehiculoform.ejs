@@ -122,14 +122,14 @@
         <div>
           <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
           <input type="hidden" class="objectId" value="<%= item._id %>"> 
-          <button type="submit" name="save-car" data-id="<%= item._id %>">Save</button>
+          <button type="submit" class="btn btn-primary mt-3" name="save-car" data-id="<%= item._id %>">Save</button>
         </div>
       </form>
       
     </div>
 
     <script>
-      const detailsButtons = document.querySelector('[name="save-car"]');
+      /*const detailsButtons = document.querySelector('[name="save-car"]');
       const form = document.getElementById("form");
 
       document.getElementById("form").addEventListener("submit", formSubmit);
@@ -159,6 +159,28 @@
       
         request.send(new FormData(event.target)).then((res) => showAlert("Envíado con éxito"))
         event.preventDefault();
+      }*/
+
+      const form = document.getElementById("form");
+      const button = document.querySelector('[name="save-car"]');
+
+      form.addEventListener("submit", submitForm);
+
+      showAlert = function(mss) {
+        confirm(mss);
+        button.removeAttribute("disabled");
+        window.location.href = "/vehiculos";
+      }
+
+      function submitForm(e) {
+          button.setAttribute('disabled', '');
+          const formData = new FormData(e.target);
+          fetch("/updateCar", {
+              method: 'POST',
+              body: formData,
+          })
+              .then((res) => showAlert("Envíado con éxito"))
+              .catch((err) => ("Error occured", err));
       }
 
     </script>

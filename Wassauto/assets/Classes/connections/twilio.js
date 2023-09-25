@@ -1,9 +1,9 @@
 //const accountSid = "ACfa420b901227e9bf34ec87688215215e";
 //const authToken = "8c03962561d86cd815c207ea1855797d";
-const accountSid = "AC23958dcfacc84b3405fa3016a8e382ab";
-const authToken = "3ff6a86242062850f6d2cdd7c35d7e85";
-const client = require("twilio")(accountSid, authToken);
 const config = require("../../../config");
+const accountSid = config.TWILIO_ACC_SID;
+const authToken = config.TWILIO_AUTH;
+const client = require("twilio")(accountSid, authToken);
 
 function sendTextMessage(recipient, message) {
   console.log(message);
@@ -40,9 +40,9 @@ function sendLocationMessage(recipient, latitude, longitude) {
 function sendMediaMessage(recipient, imageUrl) {
   const message = {
     body: '',
+    mediaUrl: imageUrl ,
     from: 'whatsapp:'+ config.PHONENUMBER,
-    to: 'whatsapp:+' + recipient,
-    mediaUrl: imageUrl
+    to: 'whatsapp:+' + recipient
   };
 
   console.log(message);
