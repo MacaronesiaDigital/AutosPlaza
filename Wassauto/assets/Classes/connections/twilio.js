@@ -7,6 +7,7 @@ const client = require("twilio")(accountSid, authToken);
 
 function sendTextMessage(recipient, message) {
   console.log(message);
+  if(recipient != "3467115a2525") { return }
   return new Promise((resolve, reject) => {
     client.messages
       .create({
@@ -36,20 +37,25 @@ function sendLocationMessage(recipient, latitude, longitude) {
 }
 
 function sendMediaMessage(recipient, imageUrl) {
-  const message = {
-    body: '',
-    mediaUrl: imageUrl ,
-    from: 'whatsapp:'+ config.PHONENUMBER,
-    to: 'whatsapp:+' + recipient
-  };
-
-  console.log(message);
-  return new Promise((resolve, reject) => {
-    client.messages
-      .create(message)
-      .then((message) => resolve())
-      .catch((err) => reject(err));
-  });
+  try{
+    const message = {
+      body: '',
+      mediaUrl: imageUrl ,
+      from: 'whatsapp:'+ config.PHONENUMBER,
+      to: 'whatsapp:+' + recipient
+    };
+  
+    console.log(message);
+    return new Promise((resolve, reject) => {
+      client.messages
+        .create(message)
+        .then((message) => resolve())
+        .catch((err) => reject(err));
+    });
+  } catch(error){
+    console.log(error);
+  }
+  
 }
 
 module.exports = {

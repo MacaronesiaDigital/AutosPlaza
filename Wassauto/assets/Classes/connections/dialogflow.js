@@ -31,6 +31,7 @@ async function sendToDialogFlow(msg, session, params) {
     const request = {
       session: sessionPath,
       queryInput: {
+        params,
         text: {
           text: textToDialogFlow,
           languageCode: config.DF_LANGUAGE_CODE,

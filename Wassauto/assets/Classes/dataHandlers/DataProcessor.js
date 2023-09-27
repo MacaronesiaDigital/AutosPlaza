@@ -1,5 +1,9 @@
 
 const fs = require('fs');
+const util = require('util');
+const writeFilePromise = util.promisify(fs.writeFile);
+const rmFilePromise = util.promisify(fs.unlink);
+const readFilePromise = util.promisify(fs.readFile);
 const XLSX = require('xlsx');
 
 const { ObjectId, Long } = require('mongodb');
@@ -8,24 +12,26 @@ const MongoHandler = require('../connections/MongoBDConnection');
 const JSONFormatter = require('../dataHandlers/JSONFormatter');
 const MessageHandler = require('../dataHandlers/MessageHandler');
 
-const uVehicleJSON = require('../../JSONs/UnformattedVehicle.json');
-const uBookingJSON = require('../../JSONs/UnformattedBooking.json');
-
-const vehicleJSON = require.resolve('../../JSONs/VehicleData.json');
-const bookingJSON = require.resolve('../../JSONs/BookingData.json');
-
 var testCounter = 0;
 
-async function processBookings(){
-    try{
-        await MongoHandler.connectToDatabase();
+const uBookingJSONPath = '../../JSONs/UnformattedBooking.json';
+const BookingJSONPath = '../../JSONs/BookingData.json';
 
-        var uFile = uBookingJSON;
+async function processBookings(){
+
+    const uBookingJSON = JSON.parse(await readFilePromise(__dirname + '/' + uBookingJSONPath));
+
+    await writeFilePromise(__dirname + '/' + BookingJSONPath, "", { flag: 'wx' } );
+
+    try{
         const inputDate = new Date();
         const formattedDate = `${inputDate.getFullYear()}-${(inputDate.getMonth() + 1).toString().padStart(2, '0')}-${inputDate.getDate().toString().padStart(2, '0')} ${inputDate.getHours().toString().padStart(2, '0')}:${inputDate.getMinutes().toString().padStart(2, '0')}`;
 
-        await JSONFormatter.bookingJSON(uFile, bookingJSON);
-        const FBookingJSON = require(bookingJSON);
+        await JSONFormatter.bookingJSON(uBookingJSON, __dirname + '/' + BookingJSONPath);
+
+        await MongoHandler.connectToDatabase();
+
+        const FBookingJSON = JSON.parse(await readFilePromise(__dirname + '/' + BookingJSONPath));
         var bookingsArr = await MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');
         //await setDeliveryMessages(timesArr);
 
@@ -53,12 +59,17 @@ async function processBookings(){
         }
 
         await MongoHandler.disconnectFromDatabase();
+
+        rmFilePromise(__dirname + '/' + BookingJSONPath);
+
     }catch (error) {
         console.error('Error fetching data:', error);
     }
 }
 
 async function processVehicles(){
+    const uVehicleJSON = require('../../JSONs/UnformattedVehicle.json');
+    const vehicleJSON = require.resolve('../../JSONs/VehicleData.json');
     try{
         await MongoHandler.connectToDatabase();
 

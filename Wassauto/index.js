@@ -50,17 +50,18 @@ const { time } = require('console');
 const MessageHandler = require('./assets/Classes/dataHandlers/MessageHandler') ;
 const MediaHandler = require('./assets/Classes/dataHandlers/MediaHandler') ;
 const DataProcessor = require('./assets/Classes/dataHandlers/DataProcessor') ;
+
 /*==============================================================================
 ||Referencias a json                                                          ||
 ==============================================================================*/
 const unformattedJSON = __dirname + '/assets/JSONs/UnformattedData.json';
 const uVehicleJSON = __dirname + '/assets/JSONs/UnformattedVehicle.json';
 const uBookingJSON = __dirname + '/assets/JSONs/UnformattedBooking.json';
-const uReturnJSON = __dirname + '/assets/JSONs/UnformattedReturn.json';
 
 const imagesDir = __dirname + '/assets/Images';
 
 var testCounter = 0;
+var testCounter2 = 0;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -73,6 +74,8 @@ app.listen(process.env.PORT || 5000, function () {
 });
 
 app.post("/twilio", express.json(), async function (req, res) {
+    testCounter2++;
+    console.log("test: " + testCounter2);
     try{
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
@@ -129,10 +132,9 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
     }
 
     await copyFilePromise(req.file['path'], excelPath);
-    unlinkPromise(req.file['path']);
 
     // Wait for the JSON conversion
-    await JSONFormatter.saveJsonToFile(DataProcessor.convertExcelToJson(req.file['path']), filePath);
+    await JSONFormatter.saveJsonToFile(DataProcessor.convertExcelToJson(excelPath), filePath);
     //res.json({ message: "Successfully uploaded files" })
     switch (req.body['dataType']) {
         case 'vehicle':
@@ -143,9 +145,12 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             break;
     }
 
+    await unlinkPromise(req.file['path']);
     await unlinkPromise(excelPath);
+    await unlinkPromise(filePath);
     
     res.sendStatus(200);
+
 });
 
 //app.use(express.static(path.join(__dirname, 'assets/BookingDetails')));
@@ -550,6 +555,23 @@ app.post("/webhook", express.json(), async function (req, res) {
 
             sendAnswer(phoneNumber, message);
         }
+
+        async function GetDialogAnswerBBDD2(desiredIntent){
+
+            const query = { phones: phoneNumber };
+            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
+            
+            const query2 = { intent: desiredIntent }
+            intentResponse = await MongoHandler.executeQueryFirstNC(query2, 'Responses');
+            let thisLang = "es";
+            if(user){
+                thisLang = user.language;
+            }
+            message = await intentResponse["text"+thisLang];
+
+            sendAnswer(phoneNumber, message);
+        }
+
         /*==============================================================================
         ||Database querys                                                             ||
         ==============================================================================*/
@@ -567,14 +589,12 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
-            await sleep(500);
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber, "action: 'helpMenu.helpMenu-custom'");
         }
         
         async function failConfirmation(){
             await GetDialogAnswerBBDD();
-            await sleep(500);
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber, "action: 'helpMenu.helpMenu-custom'");
         }
 
         async function GetReturnTime(){
@@ -722,11 +742,8 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const modifiedString = videoUrl[0].replace(/ /g, '%20');
 
                 //sendAnswer(phoneNumber, message);
-                try{
-                    twilio.sendMediaMessage(phoneNumber, modifiedString);
-                } catch(error){
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
-                }
+                twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -758,7 +775,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/${license}/worker/${file}`);
                 imageUrls.forEach(element => {
                     console.log(element.toString())
-                    twilio.sendMediaMessage(phoneNumber, ngrokUrl + '/Images/6507%20GXJ/worker/1143311__safe_screencap_cute_animated_derpy+hooves_food_muffin_cropped_solo+focus_no+second+prances.gif');
+                    twilio.sendMediaMessage(phoneNumber, element);
                 });
             }catch (error){
                 console.error('An error occurred:', error);
@@ -875,129 +892,164 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         function GetDeliveryParking(){
-            GetDialogAnswerBBDD();
+            try{
+                GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Delivery');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Delivery');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Parking/Delivery/${file}`);
-            const modifiedString = videoUrl[0].replace(/ /g, '%20');
-            twilio.sendMediaMessage(phoneNumber, modifiedString);
-            twilio.sendTextMessage(phoneNumber, modifiedString);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Parking/Delivery/${file}`);
+                const modifiedString = videoUrl[0].replace(/ /g, '%20');
+                twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+            
         }
 
         function GetDeliveryAirport(){
-            GetDialogAnswerBBDD();
+            try{
+                GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Delivery');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Delivery');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Delivery/${file}`);
-            const modifiedString = videoUrl[0].replace(/ /g, '%20');
-            twilio.sendMediaMessage(phoneNumber, modifiedString);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Delivery/${file}`);
+                const modifiedString = videoUrl[0].replace(/ /g, '%20');
+                twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+            
         }
         
         function GetDeliveryGaraje(){
+            try{
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Garaje/Delivery');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Delivery/${file}`);
+                const modifiedString = videoUrl[0].replace(/ /g, '%20');
+                twilio.sendMediaMessage(phoneNumber, modifiedString);
+                twilio.sendTextMessage(phoneNumber, modifiedString);
+
+                const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Delivery');
+                const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
+                const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Garaje/Delivery/${file}`);
+                imageUrls.forEach(element => {
+                    const modifiedString2 = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString2);
+                });
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
             GetDialogAnswerBBDD();
             
-            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Garaje/Delivery');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
-            const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Delivery/${file}`);
-            const modifiedString = videoUrl[0].replace(/ /g, '%20');
-            twilio.sendMediaMessage(phoneNumber, modifiedString);
-            twilio.sendTextMessage(phoneNumber, modifiedString);
-
-            const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Delivery');
-            const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
-            const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Garaje/Delivery/${file}`);
-            imageUrls.forEach(element => {
-                const modifiedString2 = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString2);
-            });
+            
         }
 
         function GetReturnParking(){
-            GetDialogAnswerBBDD();
+            try{
+                GetDialogAnswerBBDD();
 
-            const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Return');
-            const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
+                const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Return');
+                const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
 
-            const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Parking/Return/${file}`);
-            imageUrls.forEach(element => {
-                const modifiedString = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-            });
+                const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Parking/Return/${file}`);
+                imageUrls.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                });
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+            
         }
 
         function GetReturnAirport(){
-            GetDialogAnswerBBDD();
+            try{
+                GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Return');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Return');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Return/${file}`);
-            videoUrls.forEach(element => {
-                const modifiedString = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
-            });
+                const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Return/${file}`);
+                videoUrls.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+            
         }
         
         function GetReturnGaraje(){
-            GetDialogAnswerBBDD();
+            try{
+                GetDialogAnswerBBDD();
 
-            const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Return');
-            const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
+                const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Return');
+                const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
 
-            const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Garaje/Return/${file}`);
-            imageUrls.forEach(element => {
-                const modifiedString = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-            });
+                const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Garaje/Return/${file}`);
+                imageUrls.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                });
 
-            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Garaje/Return');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Garaje/Return');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Return/${file}`);
-            videoUrls.forEach(element => {
-                const modifiedString = element.replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
-            });
+                const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Return/${file}`);
+                videoUrls.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+
         }
 
         function GetPayAirport(){
-            //GetDialogAnswerBBDD();
+            try{
+                //GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
-            videoUrls.forEach(element => {
-                const modifiedString = element.replace(/ /g, '%20');
-                try{
+                const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
+                videoUrls.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                } catch(error){
                     twilio.sendTextMessage(phoneNumber, modifiedString);
-                }
-            });
+                });
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+
         }
 
         function GetPayAirport2(){
-            //GetDialogAnswerBBDD();
+            try{
+                //GetDialogAnswerBBDD();
 
-            const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
-            const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
+                const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-            const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
-            videoUrls.forEach(element => {
-                const modifiedString = element.replace(/ /g, '%20');
-                try{
+                const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
+                videoUrls.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                } catch(error){
                     twilio.sendTextMessage(phoneNumber, modifiedString);
-                }
-            });
+                });
+            }catch (error){
+                console.error('An error occurred:', error);
+            }
+
         }
 
         async function SetSpanishLang(){
@@ -1028,14 +1080,14 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function DefaultFallback(){
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber);
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber, "action: 'helpMenu.helpMenu-custom'");
         }
         
         /*==============================================================================
         ||Intent map                                                                  ||
         ==============================================================================*/
 
-        //console.log(req.body.queryResult);
+        console.log(req.body.queryResult);
 
         var intentMap = new Map();
         
@@ -1138,55 +1190,6 @@ app.post("/webhook", express.json(), async function (req, res) {
         res.status(404).end();
     }
 });
-
-async function uploadFiles(req, res) {
-    try {
-        console.log(req.body['dataType']);
-        var filePath = unformattedJSON;
-        switch (req.body['dataType']) {
-            case 'vehicle':
-                filePath = uVehicleJSON;
-                break;
-
-            case 'booking':
-                filePath = uBookingJSON;
-                break;
-
-            case 'return':
-                filePath = uReturnJSON;
-                break;
-        }
-
-        excelPath = './Wassauto/UploadedExcel/savedExcel.xls';
-        if (fs.existsSync(excelPath)) {
-            await unlinkPromise(excelPath);
-        }
-
-        // Wait for the file to be copied
-        await copyFilePromise(req.file['path'], excelPath);
-
-        // Wait for the JSON conversion
-        await JSONFormatter.saveJsonToFile(DataProcessor.convertExcelToJson(req.file['path']), filePath);
-
-        //res.json({ message: "Successfully uploaded files" });
-        switch (req.body['dataType']) {
-            case 'vehicle':
-                DataProcessor.processVehicles();
-                break;
-
-            case 'booking':
-                DataProcessor.processBookings();
-                break;
-
-            case 'return':
-                DataProcessor.processReturns();
-                break;
-        }
-
-    } catch (error) {
-        console.error('An error occurred:', error);
-    }
-} 
 
 function GetNumber(session){
     parts = session.split('/');

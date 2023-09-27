@@ -3,12 +3,13 @@ const { promisify } = require('util');
 const sleep = promisify(setTimeout);
 
 const fs = require('fs');
+const util = require('util');
+const writeFilePromise = util.promisify(fs.writeFile);
 const XLSX = require('xlsx');
 
 const MongoHandler = require(__dirname + '../../connections/MongoBDConnection') ;
 
 const thisUserJSON = __dirname + '/../../JSONs/ThisUserData.json';
-
 
 async function vehicleJSON(unformattedJSON, filePath){
     var licenseArray = [];
@@ -65,181 +66,202 @@ async function vehicleJSON(unformattedJSON, filePath){
     });
     licensesString = await JSON.stringify(licenseArray);
     jsonString += '{\"usedLicenses\":' + licensesString + "}\n]";
-    await fs.writeFileSync(filePath, jsonString);
+    await writeFilePromise(filePath, jsonString, { overwrite: true });
 }
 
 async function bookingJSON(unformattedJSON, filePath) {
-    var codBookArray = [];
-    console.log("formatter:" + unformattedJSON);
-    /*const userJSONF = require('../../JSONs/UserData.json');
-    var phoneUsedArray = userJSONF[userJSONF.length - 1]['usedPhones'];
-    */
-    phoneUsedArray = [];
-   
-    allUsers = await MongoHandler.executeQuery({}, 'Users');
-    allUsers.forEach(element => {
-        element.phones.forEach(element2 => {
-            phoneUsedArray.push(element2);
-        });
-    });
+    try{
+      await MongoHandler.connectToDatabase();
 
-    var jsonString = "[\n";
-    var ii = 0;
-    var obj = new Object();
-    for (const element of unformattedJSON) {
-        //console.log(ii + ' - ' + unformattedJSON.length)
-        if (ii > unformattedJSON.length - 3) break;
-  
-        var codBook = '';
-  
-        if (ii % 2 === 0) {
+      var codBookArray = [];
+      console.log("formatter:" + unformattedJSON);
+      
+      phoneUsedArray = [];
+    
+      allUsers = await MongoHandler.executeQuery({}, 'Users');
+      allUsers.forEach(element => {
+          element.phones.forEach(element2 => {
+              phoneUsedArray.push(element2);
+          });
+      });
 
-            if (element['Fecha :']) {
-                codBook = element['Fecha :'].toString();
-            } else {
-                console.log("Error");
-                break;
-            }
-        
-            obj = new Object();
-        
-            if (codBook !== '') {
-                obj.codBook = codBook;
-                codBookArray.push(codBook);
-            } else {
-                obj.codBook = "";
-            }
-        
-            var phoneNumbers = [];
+      await MongoHandler.disconnectFromDatabase();
 
-            var formattedPhoneNumbers = [];
-        
-            if (element['__EMPTY_14']) {
-                const phoneNumberString = element['__EMPTY_14'];
-                const phoneNumberPattern = /(?:(?:\+|00)\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{6,10}/g;
-                phoneNumbers = phoneNumberString.match(phoneNumberPattern);
-                formattedPhoneNumbers = phoneNumbers.map(phoneNumber => {
-                  let formattedNumber = phoneNumber.replace(/^\+|00/, ""); // Remove "+" and "00" prefixes
-                  if (!/^\+|00/.test(phoneNumber)) {
-                    formattedNumber = "34" + formattedNumber; // Add "34" to numbers without "+" or "00" prefix
+      var jsonString = "[\n";
+      var ii = 0;
+      var obj = new Object();
+
+      await MongoHandler.connectToDatabase();
+
+      for (const element of unformattedJSON) {
+          //console.log(ii + ' - ' + unformattedJSON.length)
+          if (ii > unformattedJSON.length - 3) break;
+    
+          var codBook = '';
+    
+          if (ii % 2 === 0) {
+
+              if (element['Fecha :']) {
+                  codBook = element['Fecha :'].toString();
+              } else {
+                  console.log("Error");
+                  break;
+              }
+          
+              obj = new Object();
+          
+              if (codBook !== '') {
+                  obj.codBook = codBook;
+                  codBookArray.push(codBook);
+              } else {
+                  obj.codBook = "";
+              }
+          
+              var phoneNumbers = [];
+
+              var formattedPhoneNumbers = [];
+          
+              if (element['__EMPTY_14']) {
+                  const phoneNumberString = element['__EMPTY_14'];
+                  const phoneNumberPattern = /(?:(?:\+|00)\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{6,10}/g;
+                  phoneNumbers = phoneNumberString.match(phoneNumberPattern);
+                  formattedPhoneNumbers = phoneNumbers.map(phoneNumber => {
+                    let formattedNumber = phoneNumber.replace(/^\+|00/, ""); // Remove "+" and "00" prefixes
+                    if (!/^\+|00/.test(phoneNumber)) {
+                      formattedNumber = "34" + formattedNumber; // Add "34" to numbers without "+" or "00" prefix
+                    }
+                    return formattedNumber;
+                  });
+              }
+          
+              if (formattedPhoneNumbers) {
+                  obj.codClient = await checkForUser(unformattedJSON, formattedPhoneNumbers, ii, codBook);
+              } else{
+                console.log("just checking");
+              }
+          
+              if (element['__EMPTY_7']) {
+                  obj.license = element['__EMPTY_7'];
+              } else {
+                  obj.license = "";
+              }
+          
+              if (element['__EMPTY']) {
+                  const dateObject = XLSX.SSF.parse_date_code(element['__EMPTY']);
+                  var timeString = '00:00';
+                  if (element['__EMPTY_1']) {
+                    timeString = element['__EMPTY_1'];
                   }
-                  return formattedNumber;
-                });
-            }
-        
-            if (formattedPhoneNumbers) {
-                obj.codClient = await checkForUser(unformattedJSON, formattedPhoneNumbers, ii, codBook);
-            } else{
-              console.log("just checking");
-            }
-        
-            if (element['__EMPTY_7']) {
-                obj.license = element['__EMPTY_7'];
-            } else {
-                obj.license = "";
-            }
-        
-            if (element['__EMPTY']) {
-                const dateObject = XLSX.SSF.parse_date_code(element['__EMPTY']);
-                var timeString = '00:00';
-                if (element['__EMPTY_1']) {
-                  timeString = element['__EMPTY_1'];
-                }
-                obj.deliveryDate = formatDate(dateObject, timeString);
-            } else {
-                obj.deliveryDate = "";
-            }
-        
-            if (element['__EMPTY_2']) {
-                const dateObject = XLSX.SSF.parse_date_code(element['__EMPTY_2']);
-                var timeString = '00:00';
-                if (element['__EMPTY_3']) {
-                  timeString = element['__EMPTY_3'];
-                }
-                obj.returnDate = formatDate(dateObject, timeString);
-            } else {
-                obj.returnDate = "";
-            }
-        
-            obj.deliveryLocation = "";
-            
-        } else {
-            if (element['__EMPTY']) {
-                obj.returnLocation = element['__EMPTY'];
-            } else {
-                obj.returnLocation = "";
-            }
+                  obj.deliveryDate = formatDate(dateObject, timeString);
+              } else {
+                  obj.deliveryDate = "";
+              }
+          
+              if (element['__EMPTY_2']) {
+                  const dateObject = XLSX.SSF.parse_date_code(element['__EMPTY_2']);
+                  var timeString = '00:00';
+                  if (element['__EMPTY_3']) {
+                    timeString = element['__EMPTY_3'];
+                  }
+                  obj.returnDate = formatDate(dateObject, timeString);
+              } else {
+                  obj.returnDate = "";
+              }
+          
+              obj.deliveryLocation = "";
+              
+          } else {
+              if (element['__EMPTY']) {
+                  obj.returnLocation = element['__EMPTY'];
+              } else {
+                  obj.returnLocation = "";
+              }
 
-            obj.accesories = "";
-            obj.locationCoords = "";
-        
-            jsonString += JSON.stringify(obj);
-            jsonString += ",\n";
-        }  
-        ii++;
+              obj.accesories = "";
+              obj.locationCoords = "";
+          
+              jsonString += JSON.stringify(obj);
+              jsonString += ",\n";
+          }  
+          ii++;
+      }
+      await MongoHandler.disconnectFromDatabase();
+
+      codBookArray = JSON.stringify(codBookArray);
+      jsonString += '{\"usedBookings\":' + codBookArray + "}\n]";
+      await writeFilePromise(filePath, jsonString, { overwrite: true });
+    } catch(error){
+      console.log(error);
     }
-    codBookArray = await JSON.stringify(codBookArray);
-    jsonString += '{\"usedBookings\":' + codBookArray + "}\n]";
-    await fs.writeFileSync(filePath, jsonString);
+    
 }
 
 async function returnJSON(unformattedJSON, filePath) {
-  var codBookArray = [];
-  var ii = 0;
-  var jj = 0;
+  try{
+    await MongoHandler.connectToDatabase();
 
-  var obj = new Object();
-  for (const element of unformattedJSON) {
-    //console.log(ii + ' - ' + unformattedJSON.length
-    if(ii == 0){
-    } else{
-      const valuesArray = Object.values(element);
+    var codBookArray = [];
+    var ii = 0;
+    var jj = 0;
 
-      if (ii > unformattedJSON.length - 4) break;
-  
-      var accesories = [];
-      console.log(jj)
-      switch(jj){
-        case 0:
-          obj.codBook = valuesArray[0];
-          break;
-  
-        case 1:
-          
-          break;
-  
-        case 2:
-          if(valuesArray.length > 1){
-            accesories.push(valuesArray[2]);
-          }
-          break;
-  
-        default:
-          if(valuesArray[0] == 'Sig. Entr: '){
-            obj.accesories = accesories;
-          } else {
-            console.log("test2")
-            accesories.push(valuesArray[2]);
-          }
-          break;
-      }
-
-      if(valuesArray[0] == 'Fianzas'){
-        jj = 0;
+    var obj = new Object();
+    for (const element of unformattedJSON) {
+      //console.log(ii + ' - ' + unformattedJSON.length
+      if(ii == 0){
       } else{
-        jj++;
+        const valuesArray = Object.values(element);
+
+        if (ii > unformattedJSON.length - 4) break;
+    
+        var accesories = [];
+        console.log(jj)
+        switch(jj){
+          case 0:
+            obj.codBook = valuesArray[0];
+            break;
+    
+          case 1:
+            
+            break;
+    
+          case 2:
+            if(valuesArray.length > 1){
+              accesories.push(valuesArray[2]);
+            }
+            break;
+    
+          default:
+            if(valuesArray[0] == 'Sig. Entr: '){
+              obj.accesories = accesories;
+            } else {
+              console.log("test2")
+              accesories.push(valuesArray[2]);
+            }
+            break;
+        }
+
+        if(valuesArray[0] == 'Fianzas'){
+          jj = 0;
+        } else{
+          jj++;
+        }
+    
       }
-  
+
+      ii++;
+
+      const query = { codBook: obj.codBook };
+      const updateData = { returnLocation: obj.returnLocation, accesories: obj.accesories };
+
+      const result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
+      console.log(result);
+
+      await MongoHandler.disconnectFromDatabase();
     }
-
-    ii++;
-
-    const query = { codBook: obj.codBook };
-    const updateData = { returnLocation: obj.returnLocation, accesories: obj.accesories };
-
-    const result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
-    console.log(result);
+  } catch(error){
+    console.log(error);
   }
+
 }
 
 async function userJSON(unformattedJSON, filePath) {
@@ -483,7 +505,7 @@ async function checkForUser(unformattedJSON, phoneNumbers, index, codBook){
 
 async function saveJsonToFile(jsonData, filePath) {
   // Convert the JSON data to a string
-  const jsonString = await JSON.stringify(jsonData, null, 2);
+  const jsonString = JSON.stringify(jsonData, null, 2);
 
   // Write the JSON string to the file
   await new Promise((resolve, reject) => {
