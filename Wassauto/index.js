@@ -99,12 +99,15 @@ app.post("/twilio", express.json(), async function (req, res) {
         if(req.body.Latitude && req.body.Longitude || req.body.MediaUrl0){
             if(req.body.Latitude && req.body.Longitude) {
                 await MediaHandler.saveUserLocation(phone, req.body.Latitude, req.body.Longitude);
+                GetDialogAnswerBBDD2("userLocation", phone);
             }
             if(req.body.MediaUrl0){
                 await MediaHandler.saveUserPhoto(req.body.MediaUrl0, phone);
+                GetDialogAnswerBBDD2("userPhoto", phone);
             }
         }else{
             payload = await dialogflow.sendToDialogFlow(receivedMessage, phone);
+            console.log(payload);
         }
 
     }catch (error){
@@ -547,24 +550,8 @@ app.post("/webhook", express.json(), async function (req, res) {
             
             const query2 = { intent: currentIntent }
             intentResponse = await MongoHandler.executeQueryFirstNC(query2, 'Responses');
-            let thisLang = "es";
-            if(user){
-                thisLang = user.language;
-            }
-            message = await intentResponse["text"+thisLang];
-
-            sendAnswer(phoneNumber, message);
-        }
-
-        async function GetDialogAnswerBBDD2(desiredIntent){
-
-            const query = { phones: phoneNumber };
-            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
-            
-            const query2 = { intent: desiredIntent }
-            intentResponse = await MongoHandler.executeQueryFirstNC(query2, 'Responses');
-            let thisLang = "es";
-            if(user){
+            let thisLang = "en";
+            if(user.language){
                 thisLang = user.language;
             }
             message = await intentResponse["text"+thisLang];
@@ -589,12 +576,14 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber, "action: 'helpMenu.helpMenu-custom'");
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber,
+            "outputContexts: [ { name: 'projects/newagent-nuwa/agent/sessions/"+phoneNumber+"/contexts/helpmenu-followup', lifespanCount: 20, parameters: null } ], action: '',")
         }
         
         async function failConfirmation(){
             await GetDialogAnswerBBDD();
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber, "action: 'helpMenu.helpMenu-custom'");
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber,
+            "outputContexts: [ { name: 'projects/newagent-nuwa/agent/sessions/"+phoneNumber+"/contexts/helpmenu-followup', lifespanCount: 20, parameters: null } ], action: '',")
         }
 
         async function GetReturnTime(){
@@ -615,11 +604,13 @@ app.post("/webhook", express.json(), async function (req, res) {
                     break;
                     
                     case "de":
-                        message = "";
+                        message = "Ich hinterlasse hier das Lieferdatum des Fahrzeugs. "+ returnDate + 
+                        "\nWenn Sie die Zeit ändern müssen, kontaktieren Sie uns bitte. Kontaktieren Sie uns unter +34 922 38 32 40 oder schreiben Sie eine Whatsapp an +34 65618 0379.";
                     break;
                     
                     default:
-                        message = "";
+                        message = "I leave you over here the delivery date of the vehicle. " + returnDate + 
+                        "\nIf you need to change the time please contact us. Contact +34 922 38 32 40 or write a Whatsapp to +34 65618 0379.";
                     break;
                 }
 
@@ -679,7 +670,7 @@ app.post("/webhook", express.json(), async function (req, res) {
 
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
-                userID = user._id.toString();
+                const userID = user._id.toString();
                 const query2 = { codClient: userID };
                 var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
                 const query3 = { license: booking.license };
@@ -687,11 +678,15 @@ app.post("/webhook", express.json(), async function (req, res) {
 
                 const videoDir = path.join(__dirname, 'assets/Videos/Details/Deposit/' + car.depositType);
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
-
+                
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Deposit/${car.depositType}/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
+
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -713,11 +708,12 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Trunk/${car.trunkType}/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
 
-                //sendAnswer(phoneNumber, message);
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -739,11 +735,12 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/Details/Reverse/${car.reverseType}/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
 
-                //sendAnswer(phoneNumber, message);
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -856,10 +853,12 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
-            
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Airport/General');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
@@ -883,9 +882,11 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -899,9 +900,11 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Parking/Delivery/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -916,9 +919,11 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Delivery/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -930,9 +935,11 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Garaje/Delivery');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Delivery/${file}`);
-                const modifiedString = videoUrl[0].replace(/ /g, '%20');
-                twilio.sendMediaMessage(phoneNumber, modifiedString);
-                twilio.sendTextMessage(phoneNumber, modifiedString);
+                videoUrl.forEach(element => {
+                    const modifiedString = element.replace(/ /g, '%20');
+                    twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                });
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Delivery');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
@@ -1080,7 +1087,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function DefaultFallback(){
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber, "action: 'helpMenu.helpMenu-custom'");
+            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber,
+            "outputContexts: [ { name: 'projects/newagent-nuwa/agent/sessions/"+phoneNumber+"/contexts/helpmenu-followup', lifespanCount: 20, parameters: null } ], action: '',")
         }
         
         /*==============================================================================
@@ -1194,6 +1202,22 @@ app.post("/webhook", express.json(), async function (req, res) {
 function GetNumber(session){
     parts = session.split('/');
     return parts.pop();
+}
+
+async function GetDialogAnswerBBDD2(desiredIntent, phoneNumber){
+
+    const query = { phones: phoneNumber };
+    var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
+    
+    const query2 = { intent: desiredIntent }
+    intentResponse = await MongoHandler.executeQueryFirstNC(query2, 'Responses');
+    let thisLang = "en";
+    if(user.language){
+        thisLang = user.language;
+    }
+    message = await intentResponse["text"+thisLang];
+
+    sendAnswer(phoneNumber, message);
 }
 
 function sendAnswer(phoneNumber, message){

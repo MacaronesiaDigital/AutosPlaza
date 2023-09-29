@@ -5,8 +5,8 @@ const ServerApiVersion = require('mongodb').ServerApiVersion;
 // Connection URL
 //const dbUrl = 'mongodb://127.0.0.1:27017';
 //const dbUrl = 'mongodb://https://dff2-206-204-150-110.ngrok-free.app:27017';
-const dbUrl = 'mongodb://autosplaza:autosplaza1234@autosplaza.macaronesiadigital.com:27017/test';
-//const dbUrl = 'mongodb+srv://autosplaza:Emiymv9mqFMSl3DQ@cluster0.yszwom4.mongodb.net/?retryWrites=true&w=majority';
+//const dbUrl = 'mongodb://autosplaza:autosplaza1234@autosplaza.macaronesiadigital.com:27017/test';
+const dbUrl = 'mongodb+srv://autosplaza:Emiymv9mqFMSl3DQ@cluster0.yszwom4.mongodb.net/?retryWrites=true&w=majority';
 // Database Name
 const dbName = 'AutosPlazaBBDD';
 // Collection Name
@@ -368,17 +368,51 @@ async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker) {
       if (checkDup) {
         if (Array.isArray(element[dupChecker])) {
           for (const element2 of element[dupChecker]) {
-            dupCheck = element2;
+            const dupCheck = element2;
             if (dupArray.includes(dupCheck)) {
               console.log(dupCheck + ' already exists in MongoDB');
+              let query = {  }
+              switch(collection){
+                case "Bookings":
+                  query = { codBook: dupCheck };
+                break;
+
+                case "Users":
+                  query = { phones: dupCheck };
+                break;
+
+                case "Flota":
+                  query = { license: dupCheck };
+                break;
+              }
+              await executeUpdate(query, element, collection);
             } else {
               await executeInsert(element, collection, false);
             }
           }
         } else {
-          dupCheck = element[dupChecker];
+          const dupCheck = element[dupChecker];
           if (dupArray.includes(dupCheck)) {
             console.log(dupCheck + ' already exists in MongoDB ' + collection);
+            let query = {  }
+              switch(collection){
+                case "Bookings":
+                  console.log("This code: " + dupCheck);
+                  query = { codBook: dupCheck };
+                break;
+
+                case "Users":
+                  query = { phones: dupCheck };
+                break;
+
+                case "Flota":
+                  query = { license: dupCheck };
+                break;
+              }
+
+              console.log(element);
+
+              await executeUpdate(query, element, collection);
           } else {
             await executeInsert(element, collection, false);
           }

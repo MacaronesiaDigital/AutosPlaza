@@ -87,6 +87,9 @@ async function confirmationMessage(phoneNumber){
         bookingCode = user.lastBooking.toString();
         const query2 = { codBook: bookingCode };
         var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
+        bookingLicense = booking.license.toString();
+        const query3 = { license: bookingLicense };
+        var car = await MongoHandler.executeQueryFirst(query3, 'Flota');
 
         var date = stringToDate(booking.deliveryDate);
         const formattedDate = formatDateToDayMonthYearHourMinute(date);
@@ -99,7 +102,12 @@ async function confirmationMessage(phoneNumber){
                 message = "ℹ️ Le damos la bienvenida a Tenerife, aquí tiene la información detallada de su coche alquilado:\n\n" +
                 "Fecha y hora de recogida: " + formattedDate.toString() + "\n"+ 
                 "Lugar de recogida: " + booking.returnLocation + "\n"+ 
-                "Accesorios: " + booking.accesories + "\n";
+                "Modelo: " + car.model + "\n"+
+                "Licencia: " + car.license + "\n";
+
+                if(booking.accessories != "None"){
+                    "Accesorios: " + booking.accesories + "\n";
+                }
 
                 if(booking.parking != "None"){
                     message += "Parking: " + booking.parking + "\n";
@@ -115,7 +123,12 @@ async function confirmationMessage(phoneNumber){
                 message = "ℹ️ Willkommen auf Teneriffa, hier sind die detaillierten Informationen zu Ihrem Mietwagen:\n\n" +
                 "Datum und Uhrzeit der Abholung: " + formattedDate.toString() + "\n "+ 
                 "Abholort: " + booking.returnLocation + "\n" + 
-                "Zubehör: " + booking.accessories + "\n";
+                "Modell: " + car.model + "\n"+
+                "Lizenz: " + car.license + "\n";
+
+                if(booking.accessories != "None"){
+                    "Zubehör: " + booking.accessories + "\n";
+                }
 
                 if(booking.parking != "None"){
                     message += "Parken: " + booking.parking + "\n";
@@ -131,7 +144,12 @@ async function confirmationMessage(phoneNumber){
                 message = "ℹ️ Welcome to Tenerife, here is the detailed information about your rented car:\n\n" +
                 "Pick-up date and time: " + formattedDate.toString() + "\n "+ 
                 "Pickup location: " + booking.returnLocation + "\n" +
-                "Accessories: " + booking.accessories + "\n ";
+                "Model: " + car.model + "\n"+
+                "License: " + car.license + "\n";
+
+                if(booking.accessories != "None"){
+                    "Accessories: " + booking.accessories + "\n ";
+                }
                 
                 if(booking.parking != "None"){
                     message += "Parking: " + booking.parking + "\n";

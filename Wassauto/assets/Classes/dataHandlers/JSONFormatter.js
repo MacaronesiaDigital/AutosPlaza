@@ -482,11 +482,15 @@ async function checkForUser(unformattedJSON, phoneNumbers, index, codBook){
           //const itemId = await MongoHandler.getItemIdByPhone(phoneNumber, 'Users');
           const query = { phones: phoneNumber };
           const item = await MongoHandler.executeQueryFirst(query, 'Users');
-          codClient = await item._id; 
+          codClient = await item['_id']; 
+          var newJSON = await JSON.parse(JSON.stringify([unformattedJSON[index], unformattedJSON[index+1]]));
+          let FUserJSON = await userJSON2(newJSON, thisUserJSON, codBook);
+          FUserJSON = await JSON.parse(FUserJSON);
+          result = await MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
         } else {
           console.log("NEW USER");
-          var newJSON = await JSON.parse(await JSON.stringify([unformattedJSON[index], unformattedJSON[index+1]]));
-          FUserJSON = await userJSON2(newJSON, thisUserJSON, codBook);
+          var newJSON = await JSON.parse(JSON.stringify([unformattedJSON[index], unformattedJSON[index+1]]));
+          let FUserJSON = await userJSON2(newJSON, thisUserJSON, codBook);
           FUserJSON = await JSON.parse(FUserJSON);
           result = await MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
           const query = { phones: phoneNumber };
