@@ -382,7 +382,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
         
             result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
 
-            const imagePath = imagesDir + '/' + thisBooking.license + '/worker';
+            const imagePath = imagesDir + '/Cars/' + thisBooking.license + '/worker';
             if(fs.existsSync(imagePath)) {
                 await rmPromise(imagePath, {recursive: true});
             }
@@ -766,10 +766,10 @@ app.post("/webhook", express.json(), async function (req, res) {
         async function GetReturnCar(license){
             try{
 
-                const imageDir = path.join(__dirname, 'assets/Images/' + license + '/worker');
+                const imageDir = path.join(__dirname, 'assets/Images/Cars/' + license + '/worker');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
                 //const imageUrls = imageFiles.map(file => `${ngrokUrl}/images/${file}`);
-                const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/${license}/worker/${file}`);
+                const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/Cars/${license}/worker/${file}`);
                 imageUrls.forEach(element => {
                     console.log(element.toString())
                     twilio.sendMediaMessage(phoneNumber, element);
@@ -831,7 +831,7 @@ app.post("/webhook", express.json(), async function (req, res) {
               .get(photoUrl, { responseType: 'arraybuffer' })
               .then((response) => {
                 // Save the photo using the desired filename
-                const newFilePath = './Wassauto/assets/Images/'+bookingLicense+'/client/clientImage.jpg';
+                const newFilePath = './Wassauto/assets/Images/Cars/'+bookingLicense+'/client/clientImage.jpg';
                 fs.writeFile(newFilePath, response.data, (error) => {
                   if (error) {
                     console.error('Failed to save photo:', error);

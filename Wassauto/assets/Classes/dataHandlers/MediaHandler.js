@@ -28,14 +28,14 @@ async function saveUserPhoto(url, phoneNumber){
 
   await MongoHandler.disconnectFromDatabase();
 
-  await mkdirPromise('./Wassauto/assets/Images/'+bookingLicense+'/client', { recursive: true });
+  await mkdirPromise('./Wassauto/assets/Images/Cars/'+bookingLicense+'/client', { recursive: true });
 
   // Download the photo using Axios
   axios
     .get(photoUrl, { headers: { 'Authorization': authHeader,}, responseType: 'arraybuffer' })
     .then((response) => {
       // Save the photo using the desired filename
-      fs.writeFile('./Wassauto/assets/Images/'+bookingLicense+'/client/clientImage.jpg', response.data, (error) => {
+      fs.writeFile('./Wassauto/assets/Images/Cars/'+bookingLicense+'/client/clientImage.jpg', response.data, (error) => {
         if (error) {
           console.error('Failed to save photo:', error);
         } else {

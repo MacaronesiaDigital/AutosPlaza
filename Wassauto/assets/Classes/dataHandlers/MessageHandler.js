@@ -280,10 +280,10 @@ async function startRating(phoneNumber){
 
 function GetReturnCar(phoneNumber, license){
     try{
-        const imageDir = path.join(__dirname, '../../Images/' + license + '/worker');
+        const imageDir = path.join(__dirname, '../../Images/Cars/' + license + '/worker');
         const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
         //const imageUrls = imageFiles.map(file => `${ngrokUrl}/images/${file}`);
-        const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/${license}/worker/${file}`);
+        const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/Cars/${license}/worker/${file}`);
         imageUrls.forEach(element => {
             const modifiedString = element.replace(/ /g, '%20');
             console.log(modifiedString)
