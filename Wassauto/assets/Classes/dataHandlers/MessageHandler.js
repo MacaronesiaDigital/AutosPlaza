@@ -178,6 +178,10 @@ async function confirmationMessage(phoneNumber){
 
         await scheduleConfirmationMessage(user._id, date2, phoneNumber);
 
+        const date2_2 = getDate(inputDate2, 'm', 'sum', 30);
+
+        await scheduleNoConfirmationMessage(user._id, date2_2, phoneNumber);
+        
         var inputDate3 = stringToDate(booking.returnDate);
         const date3 = getDate(inputDate3, 'd', 'subs', 1);
 
@@ -377,6 +381,31 @@ async function scheduleConfirmationMessage(userId, timeToSend, phoneNumber){
         const json = await JSON.parse(jsonString);
         
         const query = { userID: userId.toString(), type: "confirm" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+            
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+
+    }catch (error){
+        console.error('An error occurred:', error);
+    }
+}
+
+async function scheduleNoConfirmationMessage(userId, timeToSend, phoneNumber){
+    try{
+        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
+        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "noconfirm"}';
+        const json = await JSON.parse(jsonString);
+        
+        const query = { userID: userId.toString(), type: "noconfirm" }
         const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
         console.log("Messages found: " + pMesagges.length);
         if(pMesagges.length > 0){

@@ -576,12 +576,24 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
+            await RemoveNoConfirm();
             DefaultFallback();
         }
         
         async function failConfirmation(){
             await GetDialogAnswerBBDD();
+            await RemoveNoConfirm();
             DefaultFallback();
+        }
+
+        async function RemoveNoConfirm(){
+            const query = { phones: phoneNumber };
+            var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
+            const thisUserID = user._id.toString();
+
+            const query2 = { userID: thisUserID, type: "noconfirm" };
+    
+            await MongoHandler.executeDeleteNC(query2, 'ProgrammedMessages');
         }
 
         async function GetReturnTime(){
