@@ -106,27 +106,32 @@
             >
             
             <div class="input-field">
-              <input
-                type="radio"
-                name="locationName"
-                value="Hotel"
-                onchange="changeMapLocation(this)"
-              />
-              Aeropuerto Norte
+              
+              
               <input
                 type="radio"
                 name="locationName"
                 value="Aeropuerto Norte"
                 onchange="changeMapLocation(this)"
               />
-              Aeropuerto Sur
+              Aeropuerto Norte
+              
               <input
                 type="radio"
                 name="locationName"
                 value="Aeropuerto Sur"
                 onchange="changeMapLocation(this)"
               />
+              Aeropuerto Sur
+
+              <input
+                type="radio"
+                name="locationName"
+                value="Hotel"
+                onchange="changeMapLocation(this)"
+              />
               Hotel
+              
               <input
                 type="radio"
                 name="locationName"
@@ -180,19 +185,19 @@
 
         switch (location) {
           case "location1":
-            newLatLng = { lat: 28.0705332, lng: -15.4522202 };
+            newLatLng = { lat: 28.485367325483523, lng: -16.34332886931585 };
             break;
           case "location2":
-            newLatLng = { lat: 27.8502279, lng: -15.6108612 };
+            newLatLng = { lat: -28.046164476795965, lng: -16.572509808558017 };
             break;
           case "location3":
-            newLatLng = { lat: 28.8502279, lng: -15.6108612 };
+            newLatLng = { lat: -28.463429397058395, lng: -16.25275418796535 };
             break;
           case "location4":
-            newLatLng = { lat: 27.8502279, lng: -15.6108612 };
+            newLatLng = { lat: -28.463429397058395, lng: -16.25275418796535 };
             break;
           default:
-            newLatLng = { lat: 29.0705332, lng: -15.4522202 }; // Default location
+            newLatLng = { lat: 29.0705332, lng: 16.25275418796535 }; // Default location
             break;
         }
 

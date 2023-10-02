@@ -1,14 +1,10 @@
 const config = require('../../../config');
 
-const schedule = require('node-schedule');
-
 const twilio = require('../connections/twilio');
 const dialogflow = require('../connections/dialogflow');
 
 const MongoHandler = require('../connections/MongoBDConnection') ;
 const { ObjectId } = require('mongodb');
-
-const { query } = require('express');
 
 const fs = require('fs');
 
@@ -34,8 +30,6 @@ async function firstMessage(phoneNumber, language){
         const query = { phones: phoneNumber };
         var user = await MongoHandler.executeQueryFirst(query, 'Users');
 
-        //GetLangFromExt(user._id, phoneNumber);
-
         var query2 = { intent: "firstMessage" }
         var responses = await MongoHandler.executeQueryFirst(query2, "Responses");
 
@@ -50,8 +44,6 @@ async function firstMessage(phoneNumber, language){
         const inputDate = new Date();
         const date = getDate(inputDate, 'm', 'sum', 1);
 
-        //scheduleConfirmationMessage(user._id, date, phoneNumber);
-
         bookingCode = user.lastBooking.toString();
         const query3 = { codBook: bookingCode };
         var booking = await MongoHandler.executeQueryFirst(query3, 'Bookings');
@@ -63,15 +55,8 @@ async function firstMessage(phoneNumber, language){
 
         console.log(inputDate + " - " + inputDate2);
 
-        //scheduleReturnMessage(user._id, date2, phoneNumber);
-
         const date3 = getDate(inputDate2, 'm', 'sum', 30);
-
-        //scheduleRatingMessage(user._id, date3, phoneNumber);
         
-        //await sleep(30000);
-
-        //askConfirmationMessage();
     } catch (error){
         console.error('An error occurred:', error);
     }
@@ -105,8 +90,26 @@ async function confirmationMessage(phoneNumber){
                 "Modelo: " + car.model + "\n"+
                 "Licencia: " + car.license + "\n";
 
-                if(booking.accessories != "None"){
-                    "Accesorios: " + booking.accesories + "\n";
+                if(booking.accesories != "None"){
+
+                    message += "Accesorios: \n";
+
+                    if(Array.isArray(booking.accesories)){
+                        for (let i = 0; i < booking.accesories.length; i++) {
+                            const element = booking.accesories[i];
+                        
+                            const accQuery = { accValue: element };
+                            accesory = await MongoHandler.executeQueryFirst(accQuery, "Accesories");
+                        
+                            message += "- " + accesory["text" + user.language] + "\n";
+                        }
+                    } else{
+                        const accQuery = { accValue : booking.accesories }
+                        accesory = await MongoHandler.executeQueryFirst(accQuery, "Accesories");
+
+                        message += "- " + accesory["text" + user.language] + "\n";
+                    }
+                
                 }
 
                 if(booking.parking != "None"){
@@ -126,8 +129,24 @@ async function confirmationMessage(phoneNumber){
                 "Modell: " + car.model + "\n"+
                 "Lizenz: " + car.license + "\n";
 
-                if(booking.accessories != "None"){
-                    "Zubehör: " + booking.accessories + "\n";
+                if(booking.accesories != "None"){
+                    message += "Zubehör: \n";
+
+                    if(Array.isArray(booking.accesories)){
+                        for (let i = 0; i < booking.accesories.length; i++) {
+                            const element = booking.accesories[i];
+                        
+                            const accQuery = { accValue: element };
+                            accesory = await MongoHandler.executeQueryFirst(accQuery, "Accesories");
+                        
+                            message += "- " + accesory["text" + user.language] + "\n";
+                        }
+                    } else{
+                        const accQuery = { accValue : booking.accesories }
+                        accesory = await MongoHandler.executeQueryFirst(accQuery, "Accesories");
+
+                        message += "- " + accesory["text" + user.language] + "\n";
+                    }
                 }
 
                 if(booking.parking != "None"){
@@ -147,8 +166,24 @@ async function confirmationMessage(phoneNumber){
                 "Model: " + car.model + "\n"+
                 "License: " + car.license + "\n";
 
-                if(booking.accessories != "None"){
-                    "Accessories: " + booking.accessories + "\n ";
+                if(booking.accesories != "None"){
+                    message += "Accessories: \n";
+
+                    if(Array.isArray(booking.accesories)){
+                        for (let i = 0; i < booking.accesories.length; i++) {
+                            const element = booking.accesories[i];
+                        
+                            const accQuery = { accValue: element };
+                            accesory = await MongoHandler.executeQueryFirst(accQuery, "Accesories");
+                        
+                            message += "- " + accesory["text" + user.language] + "\n";
+                        }
+                    } else{
+                        const accQuery = { accValue : booking.accesories }
+                        accesory = await MongoHandler.executeQueryFirst(accQuery, "Accesories");
+
+                        message += "- " + accesory["text" + user.language] + "\n";
+                    }
                 }
                 
                 if(booking.parking != "None"){
@@ -279,14 +314,12 @@ async function returnMessage(phoneNumber){
 
 async function startRating(phoneNumber){
     payload = await dialogflow.sendToDialogFlow("startRating", phoneNumber);
-    //sendAnswer(phoneNumber, "¿Ha ido todo bien durante su viaje con Autosplaza?\n Escriba *Sí* si todo ha ido, *No* en caso contrario.");
 }
 
 function GetReturnCar(phoneNumber, license){
     try{
         const imageDir = path.join(__dirname, '../../Images/Cars/' + license + '/worker');
         const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
-        //const imageUrls = imageFiles.map(file => `${ngrokUrl}/images/${file}`);
         const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/Cars/${license}/worker/${file}`);
         imageUrls.forEach(element => {
             const modifiedString = element.replace(/ /g, '%20');
@@ -295,6 +328,104 @@ function GetReturnCar(phoneNumber, license){
         });
 
     } catch (error){
+        console.error('An error occurred:', error);
+    }
+}
+
+async function scheduleConfirmationMessage(userId, timeToSend, phoneNumber){
+    try{
+        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
+        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "confirm"}';
+        const json = await JSON.parse(jsonString);
+        
+        const query = { userID: userId.toString(), type: "confirm" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+        
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+        
+    }catch (error){
+        console.error('An error occurred:', error);
+    }
+}
+
+async function scheduleNoConfirmationMessage(userId, timeToSend, phoneNumber){
+    try{
+        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
+        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "noconfirm"}';
+        const json = await JSON.parse(jsonString);
+        
+        const query = { userID: userId.toString(), type: "noconfirm" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+        
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+        
+    }catch (error){
+        console.error('An error occurred:', error);
+    }
+}
+
+async function scheduleReturnMessage(userId, timeToSend, phoneNumber){
+    try{
+        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
+        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "return"}';
+        const json = await JSON.parse(jsonString);
+        
+        const query = { userID: userId.toString(), type: "return" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+        
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+    }catch (error){
+        console.error('An error occurred:', error);
+    }
+}
+
+async function scheduleRatingMessage(userId, timeToSend, phoneNumber){
+    try{
+        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
+        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "rate"}';
+        const json = await JSON.parse(jsonString);
+        
+        const query = { userID: userId.toString(), type: "rate" }
+        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
+        console.log("Messages found: " + pMesagges.length);
+        if(pMesagges.length > 0){
+            for (let index = 0; index < pMesagges.length; index++) {
+                const element = pMesagges[index];
+                const messageID = element._id;
+                const query2 = { _id: new ObjectId(messageID) };
+                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
+            }
+        } 
+        
+        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
+    }catch (error){
         console.error('An error occurred:', error);
     }
 }
@@ -363,116 +494,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function scheduleMessage(timeToSend, phoneNumber, message){
-    try{
-        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
-        const job = schedule.scheduleJob(timeToSend, async function(){
-            sendAnswer(phoneNumber, message);
-        });
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-
-async function scheduleConfirmationMessage(userId, timeToSend, phoneNumber){
-    try{
-        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
-        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "confirm"}';
-        const json = await JSON.parse(jsonString);
-        
-        const query = { userID: userId.toString(), type: "confirm" }
-        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        console.log("Messages found: " + pMesagges.length);
-        if(pMesagges.length > 0){
-            for (let index = 0; index < pMesagges.length; index++) {
-                const element = pMesagges[index];
-                const messageID = element._id;
-                const query2 = { _id: new ObjectId(messageID) };
-                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
-            }
-        } 
-            
-        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
-
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-
-async function scheduleNoConfirmationMessage(userId, timeToSend, phoneNumber){
-    try{
-        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
-        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "noconfirm"}';
-        const json = await JSON.parse(jsonString);
-        
-        const query = { userID: userId.toString(), type: "noconfirm" }
-        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        console.log("Messages found: " + pMesagges.length);
-        if(pMesagges.length > 0){
-            for (let index = 0; index < pMesagges.length; index++) {
-                const element = pMesagges[index];
-                const messageID = element._id;
-                const query2 = { _id: new ObjectId(messageID) };
-                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
-            }
-        } 
-            
-        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
-
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-
-async function scheduleReturnMessage(userId, timeToSend, phoneNumber){
-    try{
-        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
-        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "return"}';
-        const json = await JSON.parse(jsonString);
-        
-        const query = { userID: userId.toString(), type: "return" }
-        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        console.log("Messages found: " + pMesagges.length);
-        if(pMesagges.length > 0){
-            for (let index = 0; index < pMesagges.length; index++) {
-                const element = pMesagges[index];
-                const messageID = element._id;
-                const query2 = { _id: new ObjectId(messageID) };
-                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
-            }
-        } 
-            
-        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-
-async function scheduleRatingMessage(userId, timeToSend, phoneNumber){
-    try{
-        console.log('Setting message for: ' + phoneNumber + ' at ' + timeToSend)
-        const jsonString ='{"userID": "' + userId + '","date": "' + timeToSend + '","type": "rate"}';
-        const json = await JSON.parse(jsonString);
-      
-        const query = { userID: userId.toString(), type: "rate" }
-        const pMesagges = await MongoHandler.executeQuery(query, "ProgrammedMessages");
-        console.log("Messages found: " + pMesagges.length);
-        if(pMesagges.length > 0){
-            for (let index = 0; index < pMesagges.length; index++) {
-                const element = pMesagges[index];
-                const messageID = element._id;
-                const query2 = { _id: new ObjectId(messageID) };
-                await MongoHandler.executeDelete(query2, 'ProgrammedMessages');
-            }
-        } 
-            
-        await MongoHandler.executeInsert(json, "ProgrammedMessages", true);
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-
 module.exports = {
     languageSelector, firstMessage, confirmationMessage, askConfirmationMessage, returnMessage, startRating, sendAnswer,
-    scheduleMessage, scheduleConfirmationMessage, scheduleReturnMessage, scheduleRatingMessage
+    scheduleConfirmationMessage, scheduleReturnMessage, scheduleRatingMessage
 };

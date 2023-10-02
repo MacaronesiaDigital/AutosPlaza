@@ -164,7 +164,6 @@ async function executeInsert(document, thisCollectionName, forceID) {
       await connectToDatabase();
       wasDiscon = true;
     }
-    //await connectToDatabase();
   
     const db = thisClient.db(dbName);
     const collection = db.collection(thisCollectionName);
@@ -195,7 +194,6 @@ async function executeInsert(document, thisCollectionName, forceID) {
     if(wasDiscon){
       await disconnectFromDatabase();
     }
-    //await disconnectFromDatabase();
   }
 }
 
@@ -279,9 +277,6 @@ async function executeUpdateNC(query, updateData, collectionName) {
 
     // Update a single document that matches the query
     const result = await collection.updateMany(query, { $set: updateData });
-
-    // Use this for updating multiple documents
-    // const result = await collection.updateMany(query, { $set: updateData });
 
     console.log(`${result.modifiedCount} document(s) updated`);
 
@@ -430,77 +425,6 @@ async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker) {
     console.error('Failed to insert document', error);
   }
   
-}
-
-async function saveJsonToMongo2(jsonToSave, collection, checkDup, dupChecker){
-  //var dupArray = jsonToSave[jsonToSave.length-1][arrayToCheck];
-
-  var timesArray = [];
-
-  var dupArray = [];
-   
-  allItems = await executeQuery({}, collection);
-  allItems.forEach(element => {
-    if(Array.isArray(element[dupChecker])) {
-      element[dupChecker].forEach(element2 => {
-        dupArray.push(element2);
-      });
-    }else{
-      dupArray.push(element[dupChecker]);
-    }
-  });
-
-  var jj = 0;
-
-  jsonToSave.forEach(element => {
-      jj+=1;
-      if(jj >= jsonToSave.length){
-          return;
-      }
-      console.log(jj + ' - ' + (jsonToSave.length-1));
-      if(checkDup){
-          if(Array.isArray(element[dupChecker])){
-              element[dupChecker].forEach(element2 => {
-                  dupCheck = element2;
-                  if(dupArray.includes(dupCheck)){
-                      console.log(dupCheck + " ya en mongo");
-                      return;
-                  }else{
-                      executeInsert(element, collection, false);
-                  }
-              });
-          } else{
-              dupCheck = element[dupChecker];
-              if(dupArray.includes(dupCheck)){
-                  console.log(dupCheck + " ya en mongo");
-                  return;
-              }else{
-                  executeInsert(element, collection, false);
-                  //console.log(element);
-                  if(collection === 'Bookings'){
-                    const query = { codClient: 'ObjectId(\'' + element.codClient + '\')'};
-                    var user = MongoHandler.executeQueryFirst(query, 'Users');
-                    var bookingPhone = user.phones[0];
-                    //console.log(bookingPhone);
-                    //var thisBooking = [element.deliveryDate, element.]
-                    timesArray.push(thisTime);
-                  }
-              }
-          }
-          
-      } else{
-          executeInsert(element, collection, false);
-          /*console.log(element);
-          if(collection === 'Bookings'){
-            //thisTime = 
-            timesArray.push(thisTime);
-          }*/
-      }
-  });
-
-  if(collection === 'Bookings'){
-    return timesArray;
-  }
 }
 
 function isConnected() {

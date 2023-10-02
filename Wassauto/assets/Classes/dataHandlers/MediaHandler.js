@@ -9,11 +9,9 @@ const authToken = config.TWILIO_AUTH;
 const authHeader = 'Basic ' + Buffer.from(accountSid+':'+authToken).toString('base64');
 
 const util = require('util');
-const copyFilePromise = util.promisify(fs.copyFile);
-const unlinkPromise = util.promisify(fs.unlink);
 const mkdirPromise = util.promisify(fs.mkdir);
-const rmPromise = util.promisify(fs.rm);
 
+//Saves the photo sent by the client.
 async function saveUserPhoto(url, phoneNumber){
   await MongoHandler.connectToDatabase();
 
@@ -48,6 +46,7 @@ async function saveUserPhoto(url, phoneNumber){
     });
 }
 
+//Saves the location sent by the client.
 async function saveUserLocation(phoneNumber, Latitude, Longitude) {
   await MongoHandler.connectToDatabase();
 

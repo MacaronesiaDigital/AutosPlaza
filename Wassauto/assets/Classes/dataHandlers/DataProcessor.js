@@ -6,7 +6,7 @@ const rmFilePromise = util.promisify(fs.unlink);
 const readFilePromise = util.promisify(fs.readFile);
 const XLSX = require('xlsx');
 
-const { ObjectId, Long } = require('mongodb');
+const { ObjectId } = require('mongodb');
 
 const MongoHandler = require('../connections/MongoBDConnection');
 const JSONFormatter = require('../dataHandlers/JSONFormatter');
@@ -17,6 +17,7 @@ var testCounter = 0;
 const uBookingJSONPath = '../../JSONs/UnformattedBooking.json';
 const BookingJSONPath = '../../JSONs/BookingData.json';
 
+//Processes all the booking data from the excel and saves it as a unformatted json.
 async function processBookings(){
 
     const uBookingJSON = JSON.parse(await readFilePromise(__dirname + '/' + uBookingJSONPath));
@@ -67,6 +68,7 @@ async function processBookings(){
     }
 }
 
+//Processes all the vehicle data from the excel and saves it as a unformatted json.
 async function processVehicles(){
     const uVehicleJSON = require('../../JSONs/UnformattedVehicle.json');
     const vehicleJSON = require.resolve('../../JSONs/VehicleData.json');
@@ -85,6 +87,7 @@ async function processVehicles(){
     }
 }
 
+//Returns the data from an excel file as a json.
 function convertExcelToJson(filePath) {
     // Load the Excel file
     const workbook = XLSX.readFile(filePath);

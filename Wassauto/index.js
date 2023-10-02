@@ -2,77 +2,90 @@ const config = require('./config');
 
 const express = require('express');
 const session = require('express-session');
-const bodyParser = require('body-parser'); // Import the body-parser library
+const bodyParser = require('body-parser');
 const app = express();
-const axios = require('axios');
+
+const twilio = require('./assets/Classes/connections/twilio');
+
 const dfff = require('dialogflow-fulfillment');
 'use strict';
+const dialogflow = require('./assets/Classes/connections/dialogflow');
+
 const fs = require('fs');
 const util = require('util');
 const copyFilePromise = util.promisify(fs.copyFile);
 const unlinkPromise = util.promisify(fs.unlink);
 const mkdirPromise = util.promisify(fs.mkdir);
 const rmPromise = util.promisify(fs.rm);
-const existsPromise = util.promisify(fs.existsSync);
-const twilio = require('./assets/Classes/connections/twilio');
-const dialogflow = require('./assets/Classes/connections/dialogflow');
+
+const { ObjectId } = require('mongodb');
 
 const multer = require('multer');
 const upload = multer({ dest: __dirname + '/assets/uploads' });
 
 var cors = require('cors');
-app.use(cors());
 
-const { ObjectId, Long } = require('mongodb');
-
+/*==============================================================================
+||Auxiliary constants and variables                                           ||
+==============================================================================*/
 const path = require('path');
 
 const ngrokUrl = config.NGROKURL;
 
+const imagesDir = __dirname + '/assets/Images';
+
+var testCounter = 0;
+var testCounter2 = 0;
+  
+/*==============================================================================
+||Settings for the server                                                      ||
+==============================================================================*/
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     session({
-      secret: 'secret-key',
-      resave: false,
-      saveUninitialized: true,
+        secret: 'secret-key',
+        resave: false,
+        saveUninitialized: true,
     })
-  );
-  
+);
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+app.use(cors());
+
+app.use('/Images', express.static(__dirname + '/assets/Images'));
+app.use('/Videos', express.static(__dirname + '/assets/Videos'));
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 /*==============================================================================
-||Referencias a las clases que manejan cada tipo de entidad                   ||
+||References to the classes managing each entity type                         ||
 ==============================================================================*/
 const MongoHandler = require('./assets/Classes/connections/MongoBDConnection') ;
 const JSONFormatter = require('./assets/Classes/dataHandlers/JSONFormatter') ;
-const { time } = require('console');
 
 const MessageHandler = require('./assets/Classes/dataHandlers/MessageHandler') ;
 const MediaHandler = require('./assets/Classes/dataHandlers/MediaHandler') ;
 const DataProcessor = require('./assets/Classes/dataHandlers/DataProcessor') ;
 
 /*==============================================================================
-||Referencias a json                                                          ||
+||References to jsons                                                         ||
 ==============================================================================*/
 const unformattedJSON = __dirname + '/assets/JSONs/UnformattedData.json';
 const uVehicleJSON = __dirname + '/assets/JSONs/UnformattedVehicle.json';
 const uBookingJSON = __dirname + '/assets/JSONs/UnformattedBooking.json';
 
-const imagesDir = __dirname + '/assets/Images';
-
-var testCounter = 0;
-var testCounter2 = 0;
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-app.use('/Images', express.static(__dirname + '/assets/Images'));
-app.use('/Videos', express.static(__dirname + '/assets/Videos'));
-
+/*==============================================================================
+||Endpoints                                                                   ||
+==============================================================================*/
 app.listen(process.env.PORT || 5000, function () {
     console.log("Server is live on port 5000");
 });
 
+//Manages what to do with all messages received by the twilio number.
 app.post("/twilio", express.json(), async function (req, res) {
     testCounter2++;
     console.log("test: " + testCounter2);
@@ -86,7 +99,7 @@ app.post("/twilio", express.json(), async function (req, res) {
             console.log("test");
             return;
         }
-        userID = user._id;
+        const userID = user._id;
         const query2 = { codClient: userID };
         var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
 
@@ -116,6 +129,61 @@ app.post("/twilio", express.json(), async function (req, res) {
     }
 });
 
+app.get('/', async (req, res) => {
+    res.redirect('/login');
+});
+
+app.get('/login', async (req, res) => {
+    res.render('login');
+});
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  fs.readFile('./Wassauto/users.json', (err, data) => {
+    if (err) {
+      console.error('Error al leer el archivo de usuarios:', err);
+      return res.redirect('/login');
+    }
+
+    const users = JSON.parse(data);
+    const user = users.find(u => u.username === username);
+    if (user.password == password) {
+      req.session.user = user;
+      res.redirect('/inicio');
+    } else {
+      res.redirect('/login');
+    }
+  });
+});
+
+app.get('/logout', async (req, res) => {
+    req.session.user = {}
+    res.redirect('/login');
+});
+
+//Loads the initial menu.
+app.get('/inicio', async (req, res) => {
+  if (req.session.user) {
+    const user = req.session.user;
+    res.render('inicio.ejs', { user: user});    
+  } else {
+    res.redirect('/login');
+  }
+});
+
+//Allows to upload the vehicles and bookings excels.
+app.get('/ficheros', async (req, res) => {
+    if (req.session.user && req.session.user.username.includes("ventas")) {
+      // Aquí obtienes los datos del usuario autenticado desde la sesión
+      const user = req.session.user;
+      res.render('ficheros.ejs', { user: user}); // Asegúrate de pasar user y cars a la plantilla
+    } else {
+      res.redirect('/reservas');
+      console.log("Solo los usuarios de ventas pueden acceder a este espacio")
+    }
+});
+
+//Collects and process the data from the excel sent from /ficheros.
 app.post('/upload_files', upload.single('files'), async (req, res) =>{
         
     console.log(req.body['dataType']);
@@ -156,63 +224,7 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
 
 });
 
-//app.use(express.static(path.join(__dirname, 'assets/BookingDetails')));
-
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-app.get('/', async (req, res) => {
-    res.redirect('/login');
-});
-
-app.get('/login', async (req, res) => {
-    res.render('login');
-});
-
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  fs.readFile('./Wassauto/users.json', (err, data) => {
-    if (err) {
-      console.error('Error al leer el archivo de usuarios:', err);
-      return res.redirect('/login');
-    }
-
-    const users = JSON.parse(data);
-    const user = users.find(u => u.username === username);
-    if (user.password == password) {
-      req.session.user = user;
-      res.redirect('/inicio');
-    } else {
-      res.redirect('/login');
-    }
-  });
-});
-
-app.get('/logout', async (req, res) => {
-    req.session.user = {}
-    res.redirect('/login');
-});
-
-app.get('/inicio', async (req, res) => {
-  if (req.session.user) {
-    const user = req.session.user;
-    res.render('inicio.ejs', { user: user});    
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/ficheros', async (req, res) => {
-    if (req.session.user && req.session.user.username.includes("ventas")) {
-      // Aquí obtienes los datos del usuario autenticado desde la sesión
-      const user = req.session.user;
-      res.render('ficheros.ejs', { user: user}); // Asegúrate de pasar user y cars a la plantilla
-    } else {
-      res.redirect('/reservas');
-      console.log("Solo los usuarios de ventas pueden acceder a este espacio")
-    }
-});
-
+//Booking list with edit buttons.
 app.get('/reservas', async (req, res) => {
     if (req.session.user) {
       // Aquí obtienes los datos del usuario autenticado desde la sesión
@@ -221,6 +233,7 @@ app.get('/reservas', async (req, res) => {
         await MongoHandler.connectToDatabase();
         const query = {}
         const objects = await MongoHandler.executeQuery(query, 'Bookings');
+
         /*
         const objectsWithDetails = [];
         for (const object of objects) {
@@ -234,6 +247,7 @@ app.get('/reservas', async (req, res) => {
             objectsWithDetails.push(object);
           }
         }*/
+
         await MongoHandler.disconnectFromDatabase();
         res.render('reservas.ejs', { user: user,  reservations: objects }); 
       } catch (error) {
@@ -246,6 +260,7 @@ app.get('/reservas', async (req, res) => {
     }
 });
 
+//Vehicle list with edit buttons.
 app.get('/vehiculos', async (req, res) => {
     if (req.session.user) {
         // Aquí obtienes los datos del usuario autenticado desde la sesión
@@ -268,6 +283,7 @@ app.get('/vehiculos', async (req, res) => {
       }
 });
 
+//Redirects to the vehicle or booking from depending on the type it receives.
 app.get('/details-page', async (req, res) => {
     const objectId = req.query.id;
     const query = { _id: new ObjectId(objectId) };
@@ -297,14 +313,17 @@ app.get('/details-page', async (req, res) => {
     }
 });
 
+//Booking details form.
 app.get('/formulario', async (req, res) => {
     res.render('formulario');
 });
 
+//Vehicle details form.
 app.get('/vehiculoform', async (req, res) => {
     res.render('vehiculoform');
 });
 
+//Updates the bookings on the database with the data received from /formulario.
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     if(testCounter == 1){
         testCounter = 0; 
@@ -327,7 +346,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
 
             let thisAccesories = "";
             if(!req.body['accessories']){
-                thisAccesories = thisBooking.accesories;
+                thisAccesories = "None";
             } else{
                 thisAccesories = req.body['accessories'];
             }
@@ -421,6 +440,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     res.sendStatus(200);
 });
 
+//Updates the vehicles on the database with the data received from /vehiculoform.
 app.post('/updateCar', async (req, res) => {
     try {
         
@@ -473,43 +493,7 @@ app.post('/updateCar', async (req, res) => {
     res.sendStatus(200);
 });
 
-/*
-app.get('/', async (req, res) => {
-    if(testCounter == 1){
-        testCounter = 0; 
-        return;
-    } else{
-        testCounter++;
-    }
-    try {
-      const query = {}
-      const objects = await MongoHandler.executeQuery(query, 'Bookings');
-
-      const objectsWithDetails = [];
-      for (const object of objects) {
-        const query2 = { _id: new ObjectId(object.codClient) }
-        const details = await MongoHandler.executeQueryFirst(query2, 'Users');
-        //console.log(details)
-        if (details) {
-          object.name = details.name + " " + details.surname;
-          object.phones = details.phones;
-          object.email = details.email;
-          objectsWithDetails.push(object);
-        }
-      }
-
-      //console.log(objectsWithDetails);
-
-      const objects2 = await MongoHandler.executeQuery(query, 'Flota');
-
-      res.render('index', { objects: objectsWithDetails, objects2: objects2 });
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      res.status(500).send('Internal server error');
-    }
-});*/
-
-//Cada intent apunta al método en la clase de la entidad que le corresponde 
+//Contains all the chatbot functionality.
 app.post("/webhook", express.json(), async function (req, res) {
 
     //console.log(res);
@@ -517,6 +501,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         fulfillmentMessages: [{ text: { text: ["Processing your request..."] } }],
       };
     //res.json(immediateResponse);
+
     try{
         // Extract the platform from the userAgent header
         let Platform = req.body.originalDetectIntentRequest.source;
@@ -562,17 +547,6 @@ app.post("/webhook", express.json(), async function (req, res) {
         /*==============================================================================
         ||Database querys                                                             ||
         ==============================================================================*/
-
-        async function userLanguage(){
-            try{
-                const query = { phones: phoneNumber };
-                var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
-                userID = user._id.toString();
-                setUserLanguage(userId, lang);
-            }catch (error){
-                console.error('An error occurred:', error);
-            }
-        }
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
@@ -767,31 +741,8 @@ app.post("/webhook", express.json(), async function (req, res) {
                 latitude = booking.locationCoords[0];
                 longitude = booking.locationCoords[1];
 
+                await sleep(500);
                 twilio.sendLocationMessage(phoneNumber, latitude, longitude);
-            }catch (error){
-                console.error('An error occurred:', error);
-            }
-        }
-
-        async function GetReturnCar(license){
-            try{
-
-                const imageDir = path.join(__dirname, 'assets/Images/Cars/' + license + '/worker');
-                const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
-                //const imageUrls = imageFiles.map(file => `${ngrokUrl}/images/${file}`);
-                const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/Cars/${license}/worker/${file}`);
-                imageUrls.forEach(element => {
-                    console.log(element.toString())
-                    twilio.sendMediaMessage(phoneNumber, element);
-                });
-            }catch (error){
-                console.error('An error occurred:', error);
-            }
-        }
-
-        async function GetCombustible(){
-            try{
-                await await GetDialogAnswerBBDD();
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -804,7 +755,8 @@ app.post("/webhook", express.json(), async function (req, res) {
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
             
-            await await GetDialogAnswerBBDD();
+            await GetDialogAnswerBBDD();
+            await sleep(500);
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
         }
         
@@ -814,7 +766,8 @@ app.post("/webhook", express.json(), async function (req, res) {
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
             
-            await await GetDialogAnswerBBDD();
+            await GetDialogAnswerBBDD();
+            await sleep(500);
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
         }
 
@@ -827,37 +780,10 @@ app.post("/webhook", express.json(), async function (req, res) {
         ||Functions                                                                   ||
         ==============================================================================*/
 
-        async function saveUserPhoto(url){
-            console.log(url)
-            const photoUrl = url;
-            const query = { phones: phoneNumber };
-            var user = await MongoHandler.executeQueryFirst(query, 'Users');
-            bookingCode = user.lastBooking.toString();
-            const query2 = { codBook: bookingCode };
-            var booking = await MongoHandler.executeQueryFirst(query2, 'Bookings');
-            bookingLicense = booking.license;
-            // Download the photo using Axios
-            axios
-              .get(photoUrl, { responseType: 'arraybuffer' })
-              .then((response) => {
-                // Save the photo using the desired filename
-                const newFilePath = './Wassauto/assets/Images/Cars/'+bookingLicense+'/client/clientImage.jpg';
-                fs.writeFile(newFilePath, response.data, (error) => {
-                  if (error) {
-                    console.error('Failed to save photo:', error);
-                  } else {
-                    console.log('Photo saved successfully:', newFilePath);
-                  }
-                });
-              })
-              .catch((error) => {
-                console.error('Failed to download photo:', error);
-              });
-        }
-
-        function GetGeneralAirport1(){
+        async function GetGeneralAirport1(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+                await sleep(500);
 
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
@@ -884,9 +810,10 @@ app.post("/webhook", express.json(), async function (req, res) {
             }
         }
 
-        function GetGeneralAirport2(){
+        async function GetGeneralAirport2(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+                await sleep(500);
 
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
@@ -902,9 +829,10 @@ app.post("/webhook", express.json(), async function (req, res) {
             }
         }
 
-        function GetDeliveryParking(){
+        async function GetDeliveryParking(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+                await sleep(500);
 
                 const videoDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Delivery');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
@@ -921,9 +849,10 @@ app.post("/webhook", express.json(), async function (req, res) {
             
         }
 
-        function GetDeliveryAirport(){
+        async function GetDeliveryAirport(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+                await sleep(500);
 
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Delivery');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
@@ -940,8 +869,11 @@ app.post("/webhook", express.json(), async function (req, res) {
             
         }
         
-        function GetDeliveryGaraje(){
+        async function GetDeliveryGaraje(){
             try{
+                await GetDialogAnswerBBDD();
+                await sleep(500);
+
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Garaje/Delivery');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Delivery/${file}`);
@@ -961,14 +893,11 @@ app.post("/webhook", express.json(), async function (req, res) {
             }catch (error){
                 console.error('An error occurred:', error);
             }
-            GetDialogAnswerBBDD();
-            
-            
         }
 
-        function GetReturnParking(){
+        async function GetReturnParking(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Return');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
@@ -984,28 +913,32 @@ app.post("/webhook", express.json(), async function (req, res) {
             
         }
 
-        function GetReturnAirport(){
+        async function GetReturnAirport(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+                await sleep(500);
 
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Return');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Return/${file}`);
-                videoUrls.forEach(element => {
+                for (let i = 0; i < videoUrls.length; i++) {
+                    const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    await sleep(500);
                     twilio.sendTextMessage(phoneNumber, modifiedString);
-                });
+                }
             }catch (error){
                 console.error('An error occurred:', error);
             }
             
         }
         
-        function GetReturnGaraje(){
+        async function GetReturnGaraje(){
             try{
-                GetDialogAnswerBBDD();
+                await GetDialogAnswerBBDD();
+                await sleep(500);
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Return');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
@@ -1020,18 +953,20 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Garaje/Return/${file}`);
-                videoUrls.forEach(element => {
+                for (let i = 0; i < videoUrls.length; i++) {
+                    const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    await sleep(500);
                     twilio.sendTextMessage(phoneNumber, modifiedString);
-                });
+                }
             }catch (error){
                 console.error('An error occurred:', error);
             }
 
         }
 
-        function GetPayAirport(){
+        async function GetPayAirport(){
             try{
                 //GetDialogAnswerBBDD();
 
@@ -1039,18 +974,20 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
-                videoUrls.forEach(element => {
+                for (let i = 0; i < videoUrls.length; i++) {
+                    const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    await sleep(500);
                     twilio.sendTextMessage(phoneNumber, modifiedString);
-                });
+                }
             }catch (error){
                 console.error('An error occurred:', error);
             }
 
         }
 
-        function GetPayAirport2(){
+        async function GetPayAirport2(){
             try{
                 //GetDialogAnswerBBDD();
 
@@ -1058,11 +995,13 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
-                videoUrls.forEach(element => {
+                for (let i = 0; i < videoUrls.length; i++) {
+                    const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
+                    await sleep(500);
                     twilio.sendTextMessage(phoneNumber, modifiedString);
-                });
+                }
             }catch (error){
                 console.error('An error occurred:', error);
             }
@@ -1115,7 +1054,6 @@ app.post("/webhook", express.json(), async function (req, res) {
             intentMap.set('Language-Chooser-3', SetDeutschLang);
 
 
-        //intentMap.set('confirmBooking', GetDialogAnswer);
         intentMap.set('booking-confirmation - yes', succesConfirmation);
         intentMap.set('booking-confirmation - no', failConfirmation);
 
@@ -1178,23 +1116,8 @@ app.post("/webhook", express.json(), async function (req, res) {
             intentMap.set('accidentDoubts-6-2', GetDialogAnswerBBDD);
 
 
-        //intentMap.set('rating-context', GetDialogAnswerBBDD);
         intentMap.set('rating-negative', GetDialogAnswerBBDD);
         intentMap.set('rating-positive', GetDialogAnswerBBDD);
-
-        /*
-        intentMap.set('booking-questions', GetDialogAnswer);
-        intentMap.set('unsolvable-questions', GetDialogAnswer);
-        intentMap.set('return-car-time', GetReturnTime);
-        intentMap.set('return-car-ubication', GetReturnUbication);
-        intentMap.set('return-key-location', GetDialogAnswer);
-        intentMap.set('tenerife-activities', GetDialogAnswer);
-        intentMap.set('question-combustible', GetCombustible);
-        intentMap.set('question-deposit', GetSide);
-        intentMap.set('question-startCar', GetDialogAnswer);
-        intentMap.set('find-key', GetDialogAnswer);
-        intentMap.set('other-questions', GetDialogAnswer);
-        */
 
         intentMap.set('Default Fallback Intent', DefaultFallback);
         intentMap.set('Default Welcome Intent', GetDialogAnswer);
@@ -1209,6 +1132,9 @@ app.post("/webhook", express.json(), async function (req, res) {
     }
 });
 
+/*==============================================================================
+||Auxiliary functions                                                         ||
+==============================================================================*/
 function GetNumber(session){
     parts = session.split('/');
     return parts.pop();
@@ -1228,116 +1154,6 @@ async function GetDialogAnswerBBDD2(desiredIntent, phoneNumber){
     message = await intentResponse["text"+thisLang];
 
     sendAnswer(phoneNumber, message);
-}
-
-function sendAnswer(phoneNumber, message){
-    twilio.sendTextMessage(phoneNumber, message);
-}
-
-/*==============================================================================
-||Database querys                                                             ||
-==============================================================================*/
-
-/*async function GetReturnTime(userID){
-    console.log(userID)
-    try{
-        result = await MongoHandler.executeQuery({_id: new ObjectId(userID)});
-        dateOfReturn = result[0]['dateOfReturn'];
-        twilio.sendTextMessage(GetNumber(session), dateFormatter(dateOfReturn));
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-
-async function GetReturnUbication(userID){
-    try{
-        console.log(await MongoHandler.executeQuery({_id: new ObjectId(userID)}));
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}*/
-
-/*==============================================================================
-||Scheduled tasks functions                                                   ||
-==============================================================================*/
-
-/*async function setDeliveryMessages(collectionArray){
-    const query = { };
-    userArray = await MongoHandler.executeQuery(query, 'Users');
-    console.log(userArray);
-    try{
-        console.log(collectionArray.length);
-        console.log(userArray.length);
-        //console.log(collectionArray)
-        for(ii = 0; ii < collectionArray.length; ii++) {
-            element = collectionArray[ii];
-            console.log(ii + ' - ' + (collectionArray.length-1));
-            console.log(element.codClient);
-            var user = '';
-            userArray.forEach(element2 => {
-                console.log(element2._id.toString())
-                if(element2._id.toString() === element.codClient){
-                    user = element2;
-                }
-            });
-
-            if(user != ''){
-                console.log(element);
-                console.log(user);
-                var bookingPhone = user.phones[0];
-                var date = stringToDate(element.deliveryDate);
-                date = getDate(date, 'h', 'subs', 24);
-                console.log(date + ' - ' + bookingPhone);
-                scheduleMessage(date, bookingPhone, "test");
-
-                var date2 = stringToDate(element.returnDate);
-                date2 = getDate(date2, 'h', 'subs', 24);
-                console.log(date2 + ' - ' + bookingPhone);
-                scheduleMessage(date2, bookingPhone, "test");
-            } else{
-                console.log('Usuario no encontrado');
-            }
-
-        }
-    }catch (error){
-        console.error('An error occurred:', error);
-    }
-}
-*/
-
-function dateFormatter(date){
-    const formatter = new Intl.DateTimeFormat('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        timeZone: 'UTC'
-    });
-    
-    return formatter.format(date);
-}
-
-function GetLangFromExt(userId, phoneNumber){
-    let extension = phoneNumber.toString().substring(0, 2);
-    console.log(phoneNumber + " - " + extension);
-    let lang = "";
-    switch(extension){
-        case "34" || "54" || "591" || "56" || "57" || "506" || "53" || "593" || "503" || "240" || "502" || "504" || "52" || "505" || "507" || "595" || "51" || "598" || "58":
-            lang = "es"
-        break;
-
-        case "49" || "32" || "43" || "423" || "352" || "41":
-            lang = "de"
-        break;
-
-        default:
-            lang = "en"
-        break;
-    }
-
-    setUserLanguage(userId, lang);
-    
 }
 
 async function setUserLanguage(userId, lang){
@@ -1364,6 +1180,10 @@ async function setUserLanguage(userId, lang){
     } catch (error){
         console.error('An error occurred:', error);
     }
+}
+
+function sendAnswer(phoneNumber, message){
+    twilio.sendTextMessage(phoneNumber, message);
 }
 
 function sleep(ms) {
