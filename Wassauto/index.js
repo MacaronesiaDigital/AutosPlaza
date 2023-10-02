@@ -576,14 +576,12 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function succesConfirmation(){
             await GetDialogAnswerBBDD();
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber,
-            "outputContexts: [ { name: 'projects/newagent-nuwa/agent/sessions/"+phoneNumber+"/contexts/helpmenu-followup', lifespanCount: 20, parameters: null } ], action: '',")
+            DefaultFallback();
         }
         
         async function failConfirmation(){
             await GetDialogAnswerBBDD();
-            payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber,
-            "outputContexts: [ { name: 'projects/newagent-nuwa/agent/sessions/"+phoneNumber+"/contexts/helpmenu-followup', lifespanCount: 20, parameters: null } ], action: '',")
+            DefaultFallback();
         }
 
         async function GetReturnTime(){

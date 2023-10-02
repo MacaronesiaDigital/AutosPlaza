@@ -7,7 +7,7 @@ const client = require("twilio")(accountSid, authToken);
 
 function sendTextMessage(recipient, message) {
   console.log(message);
-  //if(recipient != "3467115a2525") { return }
+  //if(recipient != "34671152525") { return }
   return new Promise((resolve, reject) => {
     client.messages
       .create({
