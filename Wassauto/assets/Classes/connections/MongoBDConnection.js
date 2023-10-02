@@ -5,8 +5,8 @@ const ServerApiVersion = require('mongodb').ServerApiVersion;
 // Connection URL
 //const dbUrl = 'mongodb://127.0.0.1:27017';
 //const dbUrl = 'mongodb://https://dff2-206-204-150-110.ngrok-free.app:27017';
-//const dbUrl = 'mongodb://autosplaza:autosplaza1234@autosplaza.macaronesiadigital.com:27017/test';
-const dbUrl = 'mongodb+srv://autosplaza:Emiymv9mqFMSl3DQ@cluster0.yszwom4.mongodb.net/?retryWrites=true&w=majority';
+const dbUrl = 'mongodb://autosplaza:autosplaza1234@autosplaza.macaronesiadigital.com:27017/test';
+//const dbUrl = 'mongodb+srv://autosplaza:Emiymv9mqFMSl3DQ@cluster0.yszwom4.mongodb.net/?retryWrites=true&w=majority';
 // Database Name
 const dbName = 'AutosPlazaBBDD';
 // Collection Name
