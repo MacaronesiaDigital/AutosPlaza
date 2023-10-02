@@ -2,21 +2,21 @@
   {
     "username": "ventas1",
     "name": "Carmen",
-    "password": "1234"
+    "password": "23Ventas1$ap34"
   },
   {
     "username": "ventas2",
     "name": "Fernando",
-    "password": "1234"
+    "password": "23Ventas2$ap56"
   },
   {
     "username": "rental1",
     "name": "Oliver",
-    "password": "1234"
+    "password": "23Rental1$ap43"
   },
   {
     "username": "rental2",
     "name": "Dani",
-    "password": "1234"
+    "password": "23Rental2$ap12"
   }
 ]
