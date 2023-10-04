@@ -70,6 +70,7 @@ const JSONFormatter = require('./assets/Classes/dataHandlers/JSONFormatter') ;
 const MessageHandler = require('./assets/Classes/dataHandlers/MessageHandler') ;
 const MediaHandler = require('./assets/Classes/dataHandlers/MediaHandler') ;
 const DataProcessor = require('./assets/Classes/dataHandlers/DataProcessor') ;
+const { send } = require('process');
 
 /*==============================================================================
 ||References to jsons                                                         ||
@@ -571,20 +572,19 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function GetReturnTime(){
-            var returnDate = "";
             try{
 
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
-                userID = user._id.toString();
+                const userID = user._id.toString();
                 const query2 = { codClient: userID };
                 var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
-                returnDate = booking.returnDate;
+                const returnDate = booking.returnDate;
 
                 switch(user.language){
                     case "es":
                         message = "Te dejo por aquí la fecha de entrega del vehículo. " + returnDate + 
-                        "\nSi necesita cambiar la hora póngase en contacto con nosotros. Contacte al +34 922 38 32 40 o escriba un Whatsapp al +34 65618 0379."
+                        "\nSi necesita cambiar la hora póngase en contacto con nosotros. Contacte al +34 922 38 32 40 o escriba un Whatsapp al +34 65618 0379.";
                     break;
                     
                     case "de":
@@ -597,6 +597,8 @@ app.post("/webhook", express.json(), async function (req, res) {
                         "\nIf you need to change the time please contact us. Contact +34 922 38 32 40 or write a Whatsapp to +34 65618 0379.";
                     break;
                 }
+
+                sendAnswer(phoneNumber, message);
 
             }catch (error){
                 console.error('An error occurred:', error);
@@ -732,14 +734,16 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetReturnUbication(){
             try{
-
                 const query = { phones: phoneNumber };
                 var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
-                userID = user._id.toString();
+                const userID = user._id.toString();
                 const query2 = { codClient: userID };
                 var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
-                latitude = booking.locationCoords[0];
-                longitude = booking.locationCoords[1];
+                const bookingLicense = booking.license.toString();
+                const query3 = { license: bookingLicense };
+                var car = await MongoHandler.executeQueryFirstNC(query3, 'Flota');
+                latitude = car.locationCoords[0];
+                longitude = car.locationCoords[1];
 
                 await sleep(500);
                 twilio.sendLocationMessage(phoneNumber, latitude, longitude);
@@ -772,7 +776,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function GetCarLocation(){
-            await await GetDialogAnswerBBDD();
+            await GetDialogAnswerBBDD();
             await GetReturnUbication();
         }
 
@@ -1120,7 +1124,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('rating-positive', GetDialogAnswerBBDD);
 
         intentMap.set('Default Fallback Intent', DefaultFallback);
-        intentMap.set('Default Welcome Intent', GetDialogAnswer);
+        intentMap.set('Default Welcome Intent', DefaultFallback);
 
         agent.handleRequest(intentMap);
 
