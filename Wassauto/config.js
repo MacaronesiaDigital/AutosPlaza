@@ -5,8 +5,8 @@ module.exports = {
     DF_LANGUAGE_CODE: "es",
     TWILIO_ACC_SID: "AC23958dcfacc84b3405fa3016a8e382ab",
     TWILIO_AUTH: "3ff6a86242062850f6d2cdd7c35d7e85",
-    NGROKURL: "https://d3cc-83-56-0-34.ngrok-free.app",
-    //NGROKURL: "https://autosplaza.macaronesiadigital.com",
+    //NGROKURL: "https://d3cc-83-56-0-34.ngrok-free.app",
+    NGROKURL: "https://autosplaza.macaronesiadigital.com",
     PHONENUMBER: "+14155238886",
   };
 
