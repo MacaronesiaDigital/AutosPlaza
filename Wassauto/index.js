@@ -668,7 +668,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
 
             }catch (error){
@@ -696,7 +696,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
             }catch (error){
                 console.error('An error occurred:', error);
@@ -723,7 +723,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
             }catch (error){
                 console.error('An error occurred:', error);
@@ -793,7 +793,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Airport/General');
@@ -822,7 +822,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
             }catch (error){
                 console.error('An error occurred:', error);
@@ -861,7 +861,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
             }catch (error){
                 console.error('An error occurred:', error);
@@ -880,7 +880,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
 
                 const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Garaje/Delivery');
