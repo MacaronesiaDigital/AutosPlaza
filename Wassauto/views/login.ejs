@@ -31,6 +31,7 @@
       width: 38vh;
       height: 6vh;
       font-size: 2vh;
+      background-color: #1464c3;
       
     }
     
@@ -60,7 +61,7 @@
 
     h3{
       font-size: 4vh;
-      color: #508bfc;
+      color: #1464c3;
     }
 
     .container{
@@ -80,38 +81,17 @@
       .center-container{
         margin-top: 2vh;
       }
+      .card-img-top{
+        width:35vh;
+        margin-bottom: 5vh;
+        border-radius: 0.5rem;
+      }
   </style>
 </head>
 <body>
 
-  
-<!--
-<section class="vh-100" style="background-color: #508bfc;">
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="card shadow-2-strong" style="border-radius: 1rem;">
-                    <div class="card-body p-5 text-center">
-                        <h3 class="mb-5">AutosPlaza</h3>
-                        <form action="/login" method="post">
-                            <div class="form-outline mb-4">
-                                <input type="text" id="typeUsernameX-2" class="form-control form-control-lg" name="username" placeholder="Nombre de usuario" />
-                            </div>
-                            <div class="form-outline mb-4">
-                                <input type="password" id="typePasswordX-2" class="form-control form-control-lg" name="password" placeholder="Contraseña" />
-                            </div>
-                            <button class="btn btn-primary btn-lg btn-block" type="submit">Iniciar Sesión</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-</section>
--->
-
-<section class="vh-100" style="background-color: #508bfc;">
+<section class="vh-100" style="background-color: #1464c3;">
   
   <br>
   <div class="center-container">
@@ -120,7 +100,8 @@
         <div class="col-12 col-md-11 col-lg-6 col-xl-4">
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-1 text-center">
-              <h3 class="mb-5">AutosPlaza</h3>
+              <img src="http://localhost:5000/Images/logo.jpg" class="card-img-top" alt="Car Image">
+              <!--<h3 class="mb-5">AutosPlaza</h3>-->
                         <form action="/login" method="post">
                             <div class="form-outline mb-4">
                                 <input type="text" id="typeUsernameX-2" class="form-control form-control-lg" name="username" placeholder="Nombre de usuario" />
