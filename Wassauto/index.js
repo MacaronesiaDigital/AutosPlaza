@@ -845,7 +845,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 });
             }catch (error){
                 console.error('An error occurred:', error);
