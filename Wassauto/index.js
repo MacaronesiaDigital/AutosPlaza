@@ -345,6 +345,9 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             const query = { _id: new ObjectId(objectId) };
             const thisBooking = await MongoHandler.executeQueryFirst(query, "Bookings");
 
+            const query2 = { license: thisBooking.license };
+            const thisCar = await MongoHandler.executeQueryFirst(query2, "Flota");
+
             let thisAccesories = "";
             if(!req.body['accessories']){
                 thisAccesories = "None";
@@ -376,8 +379,8 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
         
             let thisLatitude = "";
             if(!req.body['latitude']){
-                if(thisBooking.locationCoords[0]){
-                    thisLatitude = thisBooking.locationCoords[0];
+                if(thisCar.locationCoords[0]){
+                    thisLatitude = thisCar.locationCoords[0];
                 }else{
                     thisLatitude = 'None';
                 }
@@ -387,8 +390,8 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
         
             let thisLongitude = "";
             if(!req.body['longitude']){
-                if(thisBooking.locationCoords[1]){
-                    thisLongitude = thisBooking.locationCoords[1];
+                if(thisCar.locationCoords[1]){
+                    thisLongitude = thisCar.locationCoords[1];
                 }else{
                     thisLongitude = 'None';
                 }
@@ -396,11 +399,13 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
                 thisLongitude = req.body['longitude'];
             }
         
-            const updateData = { accesories: thisAccesories, parking:  thisParking, notes: thisNotes, returnCoords: [thisLatitude, thisLongitude] };
+            const updateData = { accesories: thisAccesories, parking:  thisParking, notes: thisNotes };
+            const updateData2 = { locationCoords: [thisLatitude, thisLongitude] };
         
             //console.log(updateData);
         
             result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
+            result = await MongoHandler.executeUpdate(query2, updateData2, "Flota");
 
             const imagePath = imagesDir + '/Cars/' + thisBooking.license + '/worker';
             if(fs.existsSync(imagePath)) {
@@ -1039,6 +1044,14 @@ app.post("/webhook", express.json(), async function (req, res) {
             MessageHandler.firstMessage(phoneNumber, "de");
         }
 
+        async function getTenerifeDoubt(){
+            await GetDialogAnswerBBDD2('generalDoubts-9', phoneNumber);
+        } 
+
+        function changeLanguage(){
+            MessageHandler.languageSelector(phoneNumber);
+        }
+
         async function DefaultFallback(){
             payload = await dialogflow.sendToDialogFlow("Dudas", phoneNumber,
             "outputContexts: [ { name: 'projects/newagent-nuwa/agent/sessions/"+phoneNumber+"/contexts/helpmenu-followup', lifespanCount: 20, parameters: null } ], action: '',")
@@ -1067,6 +1080,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('reservationDoubts', GetDialogAnswerBBDD);
         intentMap.set('generalDoubts', GetDialogAnswerBBDD);
         intentMap.set('accidentDoubts', GetDialogAnswerBBDD);
+        intentMap.set('tenerifeDoubts', getTenerifeDoubt);
+        intentMap.set('languageChanger', changeLanguage);
 
 
         intentMap.set('vehicleDoubts-1', GetVehicleInfo);
@@ -1104,8 +1119,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('generalDoubts-5', GetGeneralParking);
         intentMap.set('generalDoubts-6', GetDialogAnswerBBDD);
         intentMap.set('generalDoubts-7', GetDialogAnswerBBDD);
-            intentMap.set('generalDoubts-7-1', GetPayAirport);
-            intentMap.set('generalDoubts-7-2', GetPayAirport2);
+            intentMap.set('generalDoubts-7-1', GetPayAirport2);
+            intentMap.set('generalDoubts-7-2', GetPayAirport);
         intentMap.set('generalDoubts-8', GetDialogAnswerBBDD);
         intentMap.set('generalDoubts-9', GetDialogAnswerBBDD);
 
