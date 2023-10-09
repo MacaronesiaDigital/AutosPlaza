@@ -300,13 +300,13 @@
             newLatLng = { lat: 28.046164476795965, lng: -16.572509808558017 };
             break;
           case "Parking":
-            newLatLng = { lat: 28.463429397058395, lng: -16.25275418796535 };
+            newLatLng = { lat: 28.4165592, lng: -16.5455112 };
             break;
           case "Garaje":
-            newLatLng = { lat: 28.463429397058395, lng: -16.25275418796535 };
+            newLatLng = { lat: 28.4172502, lng: -16.55346 };
             break;
           default:
-            newLatLng = { lat: 29.0705332, lng: -15.4522202 }; // Default location
+            newLatLng = { lat: 28.4172502, lng: -16.55346 }; // Default location
             break;
         }
 
@@ -339,11 +339,11 @@
       var map;
       map = new google.maps.Map(document.getElementById("map_canvas"), {
         zoom: 14,
-        center: new google.maps.LatLng(28.0705332, -15.4522202),
+        center: new google.maps.LatLng(28.4165592, -16.5455112),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
       });
       vMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(27.8502279, -15.6108612),
+        position: new google.maps.LatLng(28.4165592, -16.5455112),
         draggable: true,
       });
       document.querySelector("#txtDireccion").value = "";
