@@ -510,7 +510,6 @@ app.post("/webhook", express.json(), async function (req, res) {
 
     try{
         // Extract the platform from the userAgent header
-        console.log(req.body)
         let Platform = req.body.originalDetectIntentRequest.source;
         
         var url = req.headers.host + '/' + req.url;
