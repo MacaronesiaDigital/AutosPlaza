@@ -3,7 +3,8 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <title>Booking Details</title>
+    <link rel="icon" href="/Images/logoAP.png" type="image/x-icon" />
+    <title>Detalles de vehículo</title>
     <!-- Agregar enlace a Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -54,6 +55,19 @@
         cursor: pointer;
       }
 
+      .back {
+      color: white;
+      text-align: right;
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 2.5vh;
+    }
+
+    .back a{
+      color: white;
+    }
+
       
       
     </style>
@@ -74,46 +88,68 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   </head>
   <body>
+    
     <section class="vh-100" style="background-color: #1464c3;">
+    <div class="back"> <a href="/inicio">Volver</a></div>
+    <br>
     <div class="container">
       <h1 class="mt-4">Detalles de vehículo</h1>
       <form id='form' method='POST' action='/updateCar'>
         <div class="form-group">
-          <label for="depType">Deposit Type:</label>
+          <label for="depType">Tipo de depósito:</label>
           <div class="input-field">
-            <input type="checkbox" name="depType" value="Type1"> Type1
-            <input type="checkbox" name="depType" value="Type2"> Type2
+            <input type="checkbox" name="depType" value="1"> Tipo 1 (TOYOTA AYGO)
+          <input type="checkbox" name="depType" value="2"> Tipo 2 (HYUNDAI I20)
+          <input type="checkbox" name="depType" value="3"> Tipo 3 (RENAULT CLIO 900)
+          <input type="checkbox" name="depType" value="4"> Tipo 4 (NISSAN JUKE)
+          <input type="checkbox" name="depType" value="5"> Tipo 5 (VOLKSWAGEN CADDY MAXI)
             <!-- Add more options as needed -->
           </div>
         </div>
         
         <div class="form-group">
-          <label for="trunkType">Trunk Type:</label>
+          <label for="trunkType">Tipo de maletero:</label>
           <div class="input-field">
-            <input type="checkbox" name="trunkType" value="Type1"> Type1
-            <input type="checkbox" name="trunkType" value="Type2"> Type2
+            <input type="checkbox" name="trunkType" value="1"> Tipo 1 (HYUNDAI I20)
+          <input type="checkbox" name="trunkType" value="2"> Tipo 2 (TOYOTA YARIS 1.3 A/A)
+          <input type="checkbox" name="trunkType" value="3"> Tipo 3 (VOLKSWAGEN POLO 1.4)
+          <input type="checkbox" name="trunkType" value="4"> Tipo 4 (SEAT IBIZA 1.4 A/A)
+          <input type="checkbox" name="trunkType" value="5"> Tipo 5 (OPEL CORSA ESSENTIA)
+          <input type="checkbox" name="trunkType" value="6"> Tipo 6 (RENAULT CLIO 900)
+          <input type="checkbox" name="trunkType" value="7"> Tipo 7 (RENAULT CLIO SPORT TOURER)
+          <input type="checkbox" name="trunkType" value="8"> Tipo 8 (RENAULT CAPTURE)
+          <input type="checkbox" name="trunkType" value="9"> Tipo 9 (NISSAN JUKE)
+          <input type="checkbox" name="trunkType" value="10"> Tipo 10 (RENAULT MEGANE SPORT TOURER)
+          <input type="checkbox" name="trunkType" value="11"> Tipo 11 (CITROEN BERLINGO)
+          <input type="checkbox" name="trunkType" value="12"> Tipo 12 (RENAULT CLIO HYBRIDO AUTOMATICO)
+          <input type="checkbox" name="trunkType" value="13"> Tipo 13 (BMW AUTOMATICO)
+          <input type="checkbox" name="trunkType" value="14"> Tipo 14 (VOLKSWAGEN CADDY MAXI)
+          <input type="checkbox" name="trunkType" value="15"> Tipo 15 (BMW X2 AUTOMATICO)
             <!-- Add more options as needed -->
           </div>
         </div>
         
         <div class="form-group">
-          <label for="revType">Reverse Type:</label>
+          <label for="revType">Tipo de marcha atrás:</label>
           <div class="input-field">
-            <input type="checkbox" name="revType" value="Type1"> Type1
-            <input type="checkbox" name="revType" value="Type2"> Type2
+            <input type="checkbox" name="revType" value="1"> Tipo 1 (HYUNDAI I20)
+          <input type="checkbox" name="revType" value="2"> Tipo 2 (NISSAN JUKE)
+          <input type="checkbox" name="revType" value="3"> Tipo 3 (SEAT IBIZA 1.4 A/A)
+          <input type="checkbox" name="revType" value="4"> Tipo 4 (RENAULT CLIO HYBRIDO AUTOMATICO)
+          <input type="checkbox" name="revType" value="5"> Tipo 5 (BMW BMW 218D ACTIVE TOURER)
             <!-- Add more options as needed -->
           </div>
         </div>
   
         <div class="form-group">
-          <label for="carImages">Car Images:</label>
+          <label for="carImages">Imágenes del coche:</label>
           <div class="input-field">
             <input type="file" name="carImages" accept="image/*" multiple>
           </div>
         </div>
   
         <div class="form-group">
-          <label for="notes">Notes:</label>
+          <label for="notes">Notas:</label>
           <div class="input-field">
             <textarea name="notes" rows="4"></textarea>
           </div>

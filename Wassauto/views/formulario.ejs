@@ -3,7 +3,8 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <title>Booking Details</title>
+    <title>Detalles de reserva</title>
+    <link rel="icon" href="/Images/logoAP.png" type="image/x-icon" />
     <!-- Agregar enlace a Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -53,6 +54,23 @@
         padding: 10px 20px;
         cursor: pointer;
       }
+      .back {
+      color: white;
+      text-align: right;
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 2.5vh;
+    }
+
+    .back a{
+      color: white;
+    }
+
+    .btn-primary{
+      background-color: #1464c3;
+    }
+
 
       
       
@@ -75,6 +93,7 @@
   </head>
   <body>
     <section class="vh-200" style="background-color: #1464c3;">
+      <div class="back"> <a href="/inicio">Volver</a></div>
     <div class="container">
       <h1 class="mt-4">Detalles de reserva</h1>
       <form id='form' method="POST" action="/updateBooking" enctype="multipart/form-data">
