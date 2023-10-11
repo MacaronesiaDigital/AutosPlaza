@@ -30,7 +30,9 @@ async function sendToDialogFlow(msg, session, params) {
 
     const request = {
       session: sessionPath,
-      params,
+      queryResult: {
+        params,
+      },
       queryInput: {
         text: {
           text: textToDialogFlow,
