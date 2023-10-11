@@ -515,7 +515,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         var url = req.headers.host + '/' + req.url;
         const agent = new dfff.WebhookClient({
         	request: req,   
-            response: res
+            response: res,
+            platform: "PLATFORM_UNSPECIFIED"
         });
 
         phoneNumber = GetNumber(req.body.session);
