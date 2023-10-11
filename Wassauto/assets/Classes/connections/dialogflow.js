@@ -29,20 +29,20 @@ async function sendToDialogFlow(msg, session, params) {
     );
 
     const request = {
-      session: sessionPath,
+      session: sessionPath, 
       queryInput: {
         text: {
           text: textToDialogFlow,
           languageCode: config.DF_LANGUAGE_CODE,
         },
       },
-      queryParams: {
-        payload: {
-          data: params,
+      params,
+      parameters: [
+        {
+          sessionId: session
         },
-      },
+      ],
     };
-    
     const responses = await sessionClient.detectIntent(request);
     const result = responses[0].queryResult;
           
