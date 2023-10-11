@@ -515,8 +515,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         var url = req.headers.host + '/' + req.url;
         const agent = new dfff.WebhookClient({
         	request: req,   
-            response: res,
-            platform: "WHATSAPP"
+            response: res
         });
 
         phoneNumber = GetNumber(req.body.session);
