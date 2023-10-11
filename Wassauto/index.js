@@ -510,13 +510,13 @@ app.post("/webhook", express.json(), async function (req, res) {
 
     try{
         // Extract the platform from the userAgent header
-        let Platform = req.body.originalDetectIntentRequest.source;
+        //let Platform = req.body.originalDetectIntentRequest.source;
         
         var url = req.headers.host + '/' + req.url;
         const agent = new dfff.WebhookClient({
         	request: req,   
             response: res,
-            platform: Platform
+            platform: "WHATSAPP"
         });
 
         phoneNumber = GetNumber(req.body.session);

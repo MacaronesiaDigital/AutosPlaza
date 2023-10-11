@@ -25,7 +25,7 @@ function sendLocationMessage(recipient, latitude, longitude) {
     body: 'Ubicación',
     from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:+' + recipient,
-    persistentAction: ['geo:' + latitude + ',' + longitude]
+    PersistentAction: 'geo:' + latitude + ',' + longitude
   };
 
   return new Promise((resolve, reject) => {
