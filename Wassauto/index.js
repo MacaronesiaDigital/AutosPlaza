@@ -515,8 +515,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         var url = req.headers.host + '/' + req.url;
         const agent = new dfff.WebhookClient({
         	request: req,   
-            response: res,
-            platform: "PLATFORM_UNSPECIFIED"
+            response: res
         });
 
         phoneNumber = GetNumber(req.body.session);
@@ -1142,8 +1141,6 @@ app.post("/webhook", express.json(), async function (req, res) {
         intentMap.set('Default Welcome Intent', DefaultFallback);
 
         agent.handleRequest(intentMap);
-
-        agent.end("");
 
     }catch (error){
         console.error('An error occurred:', error);
