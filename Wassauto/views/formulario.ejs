@@ -3,7 +3,8 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <title>Booking Details</title>
+    <title>Detalles de reserva</title>
+    <link rel="icon" href="/Images/logoAP.png" type="image/x-icon" />
     <!-- Agregar enlace a Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -53,6 +54,23 @@
         padding: 10px 20px;
         cursor: pointer;
       }
+      .back {
+      color: white;
+      text-align: right;
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 2.5vh;
+    }
+
+    .back a{
+      color: white;
+    }
+
+    .btn-primary{
+      background-color: #1464c3;
+    }
+
 
       
       
@@ -75,6 +93,7 @@
   </head>
   <body>
     <section class="vh-200" style="background-color: #1464c3;">
+      <div class="back"> <a href="/inicio">Volver</a></div>
     <div class="container">
       <h1 class="mt-4">Detalles de reserva</h1>
       <form id='form' method="POST" action="/updateBooking" enctype="multipart/form-data">
@@ -300,13 +319,13 @@
             newLatLng = { lat: 28.046164476795965, lng: -16.572509808558017 };
             break;
           case "Parking":
-            newLatLng = { lat: 28.463429397058395, lng: -16.25275418796535 };
+            newLatLng = { lat: 28.4165592, lng: -16.5455112 };
             break;
           case "Garaje":
-            newLatLng = { lat: 28.463429397058395, lng: -16.25275418796535 };
+            newLatLng = { lat: 28.4172502, lng: -16.55346 };
             break;
           default:
-            newLatLng = { lat: 29.0705332, lng: -15.4522202 }; // Default location
+            newLatLng = { lat: 28.4172502, lng: -16.55346 }; // Default location
             break;
         }
 
@@ -339,11 +358,11 @@
       var map;
       map = new google.maps.Map(document.getElementById("map_canvas"), {
         zoom: 14,
-        center: new google.maps.LatLng(28.0705332, -15.4522202),
+        center: new google.maps.LatLng(28.4165592, -16.5455112),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
       });
       vMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(27.8502279, -15.6108612),
+        position: new google.maps.LatLng(28.4165592, -16.5455112),
         draggable: true,
       });
       document.querySelector("#txtDireccion").value = "";
