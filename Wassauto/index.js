@@ -977,7 +977,7 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetPayAirport(){
             try{
-                //GetDialogAnswerBBDD();
+                GetDialogAnswerBBDD();
 
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
@@ -998,7 +998,7 @@ app.post("/webhook", express.json(), async function (req, res) {
 
         async function GetPayAirport2(){
             try{
-                //GetDialogAnswerBBDD();
+                GetDialogAnswerBBDD();
 
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
