@@ -202,7 +202,7 @@ async function confirmationMessage(phoneNumber){
 
         await sleep(1000);
 
-        twilio.sendLocationMessage(phoneNumber, booking.returnCoords[0], booking.returnCoords[1]);
+        twilio.sendLocationMessage(phoneNumber, car.locationCoords[0], car.locationCoords[1]);
 
         await sleep(2000);
 
@@ -299,8 +299,8 @@ async function returnMessage(phoneNumber){
 
         sendAnswer(phoneNumber, message);
         await sleep(1000);
-        latitude = booking.returnCoords[0];
-        longitude = booking.returnCoords[1];
+        latitude = car.locationCoords[0];
+        longitude = car.locationCoords[1];
         twilio.sendLocationMessage(phoneNumber, latitude, longitude);
         await sleep(1000);
         sendAnswer(phoneNumber, message3);
