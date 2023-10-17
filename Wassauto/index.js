@@ -988,7 +988,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
                     await sleep(500);
-                    //twilio.sendTextMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
                 }
             }catch (error){
                 console.error('An error occurred:', error);
@@ -1009,7 +1009,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
                     await sleep(500);
-                    //twilio.sendTextMessage(phoneNumber, modifiedString);
+                    twilio.sendTextMessage(phoneNumber, modifiedString);
                 }
             }catch (error){
                 console.error('An error occurred:', error);
