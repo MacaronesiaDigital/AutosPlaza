@@ -1110,6 +1110,10 @@ app.post("/webhook", express.json(), async function (req, res) {
             intentMap.set('generalDoubts-1-1', GetGeneralAirport1);
             intentMap.set('generalDoubts-1-2', GetGeneralAirport2);
         intentMap.set('generalDoubts-2', GetDialogAnswerBBDD);
+            intentMap.set('generalDoubts-2-1', GetDialogAnswerBBDD);
+            intentMap.set('generalDoubts-2-2', GetDialogAnswerBBDD);
+            intentMap.set('generalDoubts-2-3', GetDialogAnswerBBDD);
+            intentMap.set('generalDoubts-2-4', GetDialogAnswerBBDD);
         intentMap.set('generalDoubts-3', GetDialogAnswerBBDD); 
             intentMap.set('generalDoubts-3-1', GetDialogAnswerBBDD); 
             intentMap.set('generalDoubts-3-2', GetDeliveryParking);
