@@ -27,11 +27,12 @@ function sendLocationMessage(recipient, latitude, longitude) {
     to: 'whatsapp:+' + recipient,
     persistentAction: ['geo:' + latitude + ',' + longitude]
   };
+  console.log(message);
   return new Promise((resolve, reject) => {
     client.messages
       .create(message)
       .then((message) => resolve())
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err) );
   });
 }
 
