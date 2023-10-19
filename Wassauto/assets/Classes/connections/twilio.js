@@ -22,13 +22,11 @@ function sendTextMessage(recipient, message) {
 
 function sendLocationMessage(recipient, latitude, longitude) {
   const message = {
-    body: '',
+    body: 'Google Maps',
     from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:+' + recipient,
     persistentAction: ['geo:' + latitude + ',' + longitude]
   };
-  console.log(message)
-
   return new Promise((resolve, reject) => {
     client.messages
       .create(message)
