@@ -770,7 +770,8 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
         
         async function GetGeneralParking(){
-            const query = { location: "Parking" };
+            //const query = { location: "Parking" };
+            const query = { location: "Garaje" };
             const locationData = await MongoHandler.executeQueryFirstNC(query, 'Locations');
             var latitude = locationData.latitude;
             var longitude = locationData.longitude;
@@ -908,7 +909,7 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 await GetDialogAnswerBBDD();
 
-                const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Return');
+                const imageDir = path.join(__dirname, 'assets/Images/SetLocations/Parking/Buzon');
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
 
                 const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Parking/Return/${file}`);
@@ -987,7 +988,6 @@ app.post("/webhook", express.json(), async function (req, res) {
                     const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    console.log(modifiedString)
                     await sleep(500);
                     twilio.sendTextMessage(phoneNumber, modifiedString);
                 }
@@ -1009,7 +1009,6 @@ app.post("/webhook", express.json(), async function (req, res) {
                     const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
-                    console.log(modifiedString)
                     await sleep(500);
                     twilio.sendTextMessage(phoneNumber, modifiedString);
                 }
