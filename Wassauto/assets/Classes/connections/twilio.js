@@ -24,7 +24,8 @@ function sendLocationMessage(recipient, latitude, longitude) {
   const googleMapsLocationUrl = 'https://www.google.com/maps?q='+latitude+','+longitude; // Reemplaza con las coordenadas deseadas
   console.log(googleMapsLocationUrl)
   const message = {
-    body: 'Google Maps',
+    //body: 'Google Maps',
+    body: googleMapsLocationUrl,
     from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:+' + recipient,
     //persistentAction: ['geo:' + latitude + ',' + longitude]
