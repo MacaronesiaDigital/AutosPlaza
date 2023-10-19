@@ -778,6 +778,7 @@ app.post("/webhook", express.json(), async function (req, res) {
             
             await GetDialogAnswerBBDD();
             await sleep(500);
+            console.log(latitude, longitude, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             twilio.sendLocationMessage(phoneNumber, latitude, longitude);
         }
 
