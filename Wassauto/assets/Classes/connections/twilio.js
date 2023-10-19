@@ -22,17 +22,18 @@ function sendTextMessage(recipient, message) {
 
 function sendLocationMessage(recipient, latitude, longitude) {
   const message = {
-    body: 'Ubicación',
+    body: '',
     from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:+' + recipient,
     persistentAction: ['geo:' + latitude + ',' + longitude]
   };
+  console.log(message)
 
   return new Promise((resolve, reject) => {
     client.messages
       .create(message)
       .then((message) => resolve())
-      .catch((err) => reject(err));
+      .catch((err) => reject(err), console.log(err));
   });
 }
 
