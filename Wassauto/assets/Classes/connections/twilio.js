@@ -21,11 +21,14 @@ function sendTextMessage(recipient, message) {
 }
 
 function sendLocationMessage(recipient, latitude, longitude) {
+  const googleMapsLocationUrl = 'https://www.google.com/maps?q='+latitude+','+longitude; // Reemplaza con las coordenadas deseadas
+  console.log(googleMapsLocationUrl)
   const message = {
     body: 'Google Maps',
     from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:+' + recipient,
-    PersistentAction: ['geo:' + latitude + ',' + longitude]
+    //persistentAction: ['geo:' + latitude + ',' + longitude]
+    mediaUrl: googleMapsLocationUrl,
   };
   console.log(message);
   return new Promise((resolve, reject) => {
