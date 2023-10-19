@@ -37,7 +37,6 @@ async function processBookings(){
         //await setDeliveryMessages(timesArr);
 
         testCounter = 0;
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         for(ii = 0; ii < bookingsArr.length; ii++) {
             element = bookingsArr[ii];
             console.log(element.deliveryDate + " - " + formattedDate);

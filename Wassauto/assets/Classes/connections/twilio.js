@@ -25,7 +25,7 @@ function sendLocationMessage(recipient, latitude, longitude) {
     body: 'Google Maps',
     from: 'whatsapp:'+ config.PHONENUMBER,
     to: 'whatsapp:+' + recipient,
-    persistentAction: ['geo:' + latitude + ',' + longitude]
+    PersistentAction: ['geo:' + latitude + ',' + longitude]
   };
   console.log(message);
   return new Promise((resolve, reject) => {
