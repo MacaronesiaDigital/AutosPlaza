@@ -37,18 +37,16 @@ async function processBookings(){
         //await setDeliveryMessages(timesArr);
 
         testCounter = 0;
-
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         for(ii = 0; ii < bookingsArr.length; ii++) {
             element = bookingsArr[ii];
             console.log(element.deliveryDate + " - " + formattedDate);
             let pastDate = element.deliveryDate > formattedDate;
             console.log(pastDate);
             if(pastDate){
-                console.log("true");
                 const codClient = element.codClient;
                 let query = { _id: new ObjectId(codClient) }
                 let user = await MongoHandler.executeQueryFirst(query, "Users");
-                console.log(user);
                 if(user){
                     console.log(user.phones[0]);
                     //firstMessage(user.phones[0]);

@@ -186,8 +186,6 @@ app.get('/ficheros', async (req, res) => {
 
 //Collects and process the data from the excel sent from /ficheros.
 app.post('/upload_files', upload.single('files'), async (req, res) =>{
-        
-    console.log(req.body['dataType']);
     var filePath = unformattedJSON;
     switch (req.body['dataType']) {
         case 'vehicle':
@@ -433,6 +431,8 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             let booking = await MongoHandler.executeQueryFirst( { _id: new ObjectId(objectId) } , "Bookings");
             let user = await MongoHandler.executeQueryFirst( { _id: new ObjectId(booking.codClient) }, "Users" ); 
 
+            
+            
             await MessageHandler.confirmationMessage(user.phones[0]);
         }
         
