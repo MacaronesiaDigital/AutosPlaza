@@ -33,7 +33,7 @@ function sendLocationMessage(recipient, latitude, longitude) {
     client.messages
       .create(message)
       .then((message) => resolve())
-      .catch((err) => reject(err), console.log(err));
+      .catch((err) => console.log(err));
   });
 }
 
