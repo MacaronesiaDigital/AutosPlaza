@@ -22,9 +22,9 @@ function sendTextMessage(recipient, message) {
 
 function sendLocationMessage(recipient, latitude, longitude) {
   const message = {
-    body: 'Google Maps',
-    from: 'whatsapp:'+ config.PHONENUMBER,
-    to: 'whatsapp:+' + recipient,
+    Body: 'Google Maps',
+    From: 'whatsapp:'+ config.PHONENUMBER,
+    To: 'whatsapp:+' + recipient,
     PersistentAction: ['geo:' + latitude + ',' + longitude]
   };
   console.log(message);
@@ -32,7 +32,7 @@ function sendLocationMessage(recipient, latitude, longitude) {
     client.messages
       .create(message)
       .then((message) => resolve())
-      .catch((err) => console.log(err) );
+      .catch((err) => console.log(err));
   });
 }
 
