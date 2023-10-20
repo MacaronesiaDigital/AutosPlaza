@@ -15,7 +15,6 @@ const ngrokUrl = config.NGROKURL;
 var testCounter = 0;
 
 async function languageSelector(phoneNumber){
-    console.log("!!!!!!!!!!!!!!!!", phoneNumber)
     payload = await dialogflow.sendToDialogFlow("langChose", phoneNumber);
 }
 
@@ -279,19 +278,19 @@ async function returnMessage(phoneNumber){
         switch(user.language){
 
             case "es":
-                message = "Esperamos que haya disfrutado mucho en su viaje con Autosplaza. Recuerde que debe dejar el vehículo a el " + formattedDate.toString() + " en la siguiente ubicación.\n";
+                message = "Esperamos que haya disfrutado mucho en su viaje con Autosplaza. Recuerde que debe dejar el vehículo a el " + formattedDate.toString() + " en la ubicación indicada en el contrato.\n";
 
                 message3 = "Si necesita entregarlo en otro lugar, notifíquenoslo en el 922 383 433.";
             break;
 
             case "de":
-                message = "Wir hoffen, Sie haben Ihre Reise mit Autosplaza genossen. Vergessen Sie nicht, das Fahrzeug am " + formattedDate.toString() + " an folgendem Ort abzustellen. \n";
+                message = "Wir hoffen, Sie haben Ihre Reise mit Autosplaza genossen. Vergessen Sie nicht, das Fahrzeug am " + formattedDate.toString() + " an dem im Vertrag angegebenen Ort. \n";
 
                 message3 = "Wenn Sie eine andere Lieferung benötigen, informieren Sie uns bitte unter der Nummer 922 383 433.";
             break;
 
             default:
-                message = "We hope you enjoyed your trip with Autosplaza. Remember to leave the vehicle on " + formattedDate.toString() + " in the following location. \n";
+                message = "We hope you enjoyed your trip with Autosplaza. Remember to leave the vehicle on " + formattedDate.toString() + " at the location indicated in the contract. \n";
 
                 message3 = "If you need it delivered elsewhere, please notify us at 922 383 433.";
             break;
