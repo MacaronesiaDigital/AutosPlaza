@@ -979,6 +979,7 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function GetPayAirport(){
+            console.log("JJJJJJJJJJJJJJJJJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             try{
                 GetDialogAnswerBBDD();
 
