@@ -798,7 +798,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
                 console.log(videoUrl)
 
                 videoUrl.forEach(element => {
