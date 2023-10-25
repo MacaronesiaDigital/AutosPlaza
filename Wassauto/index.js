@@ -795,10 +795,11 @@ app.post("/webhook", express.json(), async function (req, res) {
                 await GetDialogAnswerBBDD();
                 await sleep(500);
 
-                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/General');
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
+                console.log(videoUrl)
 
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
@@ -810,10 +811,10 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
 
                 const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/SetLocations/Airport/General/${file}`);
-                imageUrls.forEach(element => {
-                    const modifiedString2 = element.replace(/ /g, '%20');
-                    twilio.sendMediaMessage(phoneNumber, modifiedString2);
-                });
+                //imageUrls.forEach(element => {
+                //    const modifiedString2 = element.replace(/ /g, '%20');
+                //    twilio.sendMediaMessage(phoneNumber, modifiedString2);
+                //});
 
             }catch (error){
                 console.error('An error occurred:', error);
@@ -829,6 +830,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
+                console.log(videoUrl)
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
