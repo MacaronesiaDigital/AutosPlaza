@@ -795,7 +795,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 await GetDialogAnswerBBDD();
                 await sleep(500);
 
-                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
@@ -828,7 +828,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
