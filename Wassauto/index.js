@@ -588,7 +588,7 @@ app.post("/webhook", express.json(), async function (req, res) {
 
                 switch(user.language){
                     case "es":
-                        message = "Te dejo por aquí la fecha de entrega del vehículo. " + returnDate + 
+                        message = "Te dejo por aquí la fecha de devolución del vehículo. " + returnDate + 
                         "\nSi necesita cambiar la hora póngase en contacto con nosotros. Contacte al +34 922 38 32 40 o escriba un Whatsapp al +34 65618 0379.";
                     break;
                     
@@ -598,7 +598,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                     break;
                     
                     default:
-                        message = "I leave you over here the delivery date of the vehicle. " + returnDate + 
+                        message = "I leave you over here the return date of the vehicle. " + returnDate + 
                         "\nIf you need to change the time please contact us. Contact +34 922 38 32 40 or write a Whatsapp to +34 65618 0379.";
                     break;
                 }
@@ -798,7 +798,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
+                const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
 
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
@@ -825,7 +825,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 await GetDialogAnswerBBDD();
                 await sleep(500);
 
-                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/General');
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/General');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/${file}`);
