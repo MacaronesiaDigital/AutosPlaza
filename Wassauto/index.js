@@ -979,7 +979,6 @@ app.post("/webhook", express.json(), async function (req, res) {
         }
 
         async function GetPayAirport(){
-            console.log("JJJJJJJJJJJJJJJJJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             try{
                 GetDialogAnswerBBDD();
 
@@ -1004,10 +1003,10 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 GetDialogAnswerBBDD();
 
-                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
-                const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
+                const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
                 for (let i = 0; i < videoUrls.length; i++) {
                     const element = videoUrls[i];
                     const modifiedString = element.replace(/ /g, '%20');
