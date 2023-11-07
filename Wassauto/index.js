@@ -982,7 +982,7 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 GetDialogAnswerBBDD();
 
-                //const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/Airport/Pay');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/Pay/${file}`);
@@ -991,7 +991,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
                     await sleep(500);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 }
             }catch (error){
                 console.error('An error occurred:', error);
@@ -1003,7 +1003,7 @@ app.post("/webhook", express.json(), async function (req, res) {
             try{
                 GetDialogAnswerBBDD();
 
-                //const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
+                const videoDir = path.join(__dirname, 'assets/Videos/SetLocations/AirportNorth/Pay');
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrls = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/Pay/${file}`);
@@ -1012,7 +1012,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
                     await sleep(500);
-                    twilio.sendTextMessage(phoneNumber, modifiedString);
+                    //twilio.sendTextMessage(phoneNumber, modifiedString);
                 }
             }catch (error){
                 console.error('An error occurred:', error);
