@@ -276,7 +276,7 @@ async function userJSON(unformattedJSON, filePath) {
             const phoneNumberString = element['__EMPTY_14'];
             //let testNumber = phoneNumberString.replace(" ", "");
             testNumber = phoneNumberString.replace("Telf.:", "");
-            const firstNumber = inputString.split(' ');
+            const firstNumber = testNumber.split(' ');
 
             if(firstNumber.length < 6) {
               ii++; 
