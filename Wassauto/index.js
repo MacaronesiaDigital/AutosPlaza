@@ -97,15 +97,16 @@ app.post("/twilio", express.json(), async function (req, res) {
         const query = { phones: phone };
         var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
         if(user == undefined){
-            console.log("test");
             return;
         }
+        
         const userID = user._id;
         const query2 = { codClient: userID };
         var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
 
-        if(booking != undefined){
+        if(booking == undefined){
             console.log(userID);
+            //console.log(result);
             return;
         }
 
@@ -206,20 +207,32 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
     // Wait for the JSON conversion
     await JSONFormatter.saveJsonToFile(DataProcessor.convertExcelToJson(excelPath), filePath);
     //res.json({ message: "Successfully uploaded files" })
+
+    let succesBook = false;
+
     switch (req.body['dataType']) {
         case 'vehicle':
             await DataProcessor.processVehicles();
             break;
         case 'booking':
-            await DataProcessor.processBookings();
+            succesBook = await DataProcessor.processBookings();
             break;
     }
 
     await unlinkPromise(req.file['path']);
     await unlinkPromise(excelPath);
     await unlinkPromise(filePath);
+
+    if(req.body['dataType'] === 'booking') {
+        if(succesBook) {
+            res.sendStatus(200);
+        } else{
+            res.sendStatus(400);
+        }
+    } else{
+        res.sendStatus(200);
+    }
     
-    res.sendStatus(200);
 
 });
 

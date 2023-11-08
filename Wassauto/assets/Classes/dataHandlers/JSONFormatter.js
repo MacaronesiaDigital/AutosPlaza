@@ -96,9 +96,12 @@ async function bookingJSON(unformattedJSON, filePath) {
 
           if (element['__EMPTY_14']) {
             const phoneNumberString = element['__EMPTY_14'];
-            let testNumber = phoneNumberString.replace(" ", "");
-            if(testNumber.length < 12) { 
-              ii++; 
+            //let testNumber = phoneNumberString.replace(" ", "");
+            testNumber = phoneNumberString.replace("Telf.:", "");
+            const firstNumber = inputString.split(' ');
+
+            if(firstNumber.length < 6) {
+              ii++;
               continue; 
             }
           }
@@ -271,8 +274,11 @@ async function userJSON(unformattedJSON, filePath) {
 
           if (element['__EMPTY_14']) {
             const phoneNumberString = element['__EMPTY_14'];
-            let testNumber = phoneNumberString.replace(" ", "");
-            if(testNumber.length < 12) { 
+            //let testNumber = phoneNumberString.replace(" ", "");
+            testNumber = phoneNumberString.replace("Telf.:", "");
+            const firstNumber = inputString.split(' ');
+
+            if(firstNumber.length < 6) {
               ii++; 
               continue; 
             }
@@ -379,13 +385,15 @@ async function userJSON2(unformattedJSON, filePath, bookCod) {
         if (ii % 2 === 0) {
           if (element['__EMPTY_14']) {
             const phoneNumberString = element['__EMPTY_14'];
-            let testNumber = phoneNumberString.replace(" ", "");
-            if(testNumber.length < 12) { 
+            //let testNumber = phoneNumberString.replace(" ", "");
+            testNumber = phoneNumberString.replace("Telf.:", "");
+            const firstNumber = inputString.split(' ');
+
+            if(firstNumber.length < 6) {
               ii++; 
               continue; 
             }
           }
-
           obj = new Object();
 
           if (element['30/06/2023']) {

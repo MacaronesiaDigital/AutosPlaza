@@ -46,10 +46,13 @@ async function processBookings(){
                 const codClient = element.codClient;
                 let query = { _id: new ObjectId(codClient) }
                 let user = await MongoHandler.executeQueryFirst(query, "Users");
-                if(user){
+                if(user.active == 0){
                     console.log(user.phones[0]);
                     //firstMessage(user.phones[0]);
                     MessageHandler.languageSelector(user.phones[0]);
+                    const updateData = { active: 1 };
+                    const result = await MongoHandler.executeUpdate(user, updateData, "Users");
+                    //console.log(result);
                 }
             } else{
                 console.log("false");
@@ -60,8 +63,11 @@ async function processBookings(){
 
         rmFilePromise(__dirname + '/' + BookingJSONPath);
 
+        return true;
+
     }catch (error) {
         console.error('Error fetching data:', error);
+        return false;
     }
 }
 

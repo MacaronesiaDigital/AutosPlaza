@@ -170,8 +170,16 @@
             method: 'POST',
             body: formData,
         })
-            .then((res) => showAlert("Envíado con éxito"))
-            .catch((err) => ("Error occured", err));
+        .then((res) => {
+            if (res.status === 200) {
+              showAlert("Envíado con éxito");
+            } else if (res.status === 400) {
+              showAlert("Error en el excel");
+            } else {
+              showAlert("Error desconocido");
+            }
+        })
+        .catch((err) => ("Error occured", err));
     }
   </script>
 </html>
