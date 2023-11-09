@@ -1,6 +1,7 @@
 
 const fs = require('fs');
 const util = require('util');
+const unlinkPromise = util.promisify(fs.unlink);
 const writeFilePromise = util.promisify(fs.writeFile);
 const rmFilePromise = util.promisify(fs.unlink);
 const readFilePromise = util.promisify(fs.readFile);
