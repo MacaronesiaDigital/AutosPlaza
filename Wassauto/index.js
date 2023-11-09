@@ -175,7 +175,7 @@ app.get('/inicio', async (req, res) => {
 
 //Allows to upload the vehicles and bookings excels.
 app.get('/ficheros', async (req, res) => {
-    if (req.session.user && req.session.user.type.includes("ventas")) {
+    if (req.session.user.type.includes("ventas")) {
       // Aquí obtienes los datos del usuario autenticado desde la sesión
       const user = req.session.user;
       res.render('ficheros.ejs', { user: user}); // Asegúrate de pasar user y cars a la plantilla
