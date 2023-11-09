@@ -113,7 +113,8 @@ async function bookingJSON(unformattedJSON, filePath) {
               codBook = element['Fecha :'].toString();
           } else {
               console.log("Error");
-              break;
+              ii++;
+              continue; 
           }
       
           obj = new Object();
