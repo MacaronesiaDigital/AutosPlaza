@@ -104,6 +104,9 @@ async function bookingJSON(unformattedJSON, filePath) {
               ii++;
               continue; 
             }
+          } else{
+            ii++;
+            continue; 
           }
 
           if (element['Fecha :']) {

@@ -20,6 +20,10 @@ const BookingJSONPath = '../../JSONs/BookingData.json';
 //Processes all the booking data from the excel and saves it as a unformatted json.
 async function processBookings(){
 
+    if (fs.existsSync(__dirname + '/' + BookingJSONPath)) {
+        await unlinkPromise(__dirname + '/' + BookingJSONPath);
+    }
+
     const uBookingJSON = JSON.parse(await readFilePromise(__dirname + '/' + uBookingJSONPath));
 
     await writeFilePromise(__dirname + '/' + BookingJSONPath, "", { flag: 'wx' } );
@@ -53,7 +57,7 @@ async function processBookings(){
                     const updateData = { active: 1 };
                     const result = await MongoHandler.executeUpdate(user, updateData, "Users");
                     //console.log(result);
-                }
+                } 
             } else{
                 console.log("false");
             }
