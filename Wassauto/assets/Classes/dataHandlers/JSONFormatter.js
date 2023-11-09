@@ -199,65 +199,6 @@ async function bookingJSON(unformattedJSON, filePath) {
     await fs.writeFileSync(filePath, jsonString);
 }
 
-async function returnJSON(unformattedJSON, filePath) {
-  var codBookArray = [];
-  var ii = 0;
-  var jj = 0;
-
-  var obj = new Object();
-  for (const element of unformattedJSON) {
-    //console.log(ii + ' - ' + unformattedJSON.length
-    if(ii == 0){
-    } else{
-      const valuesArray = Object.values(element);
-
-      if (ii > unformattedJSON.length - 4) break;
-  
-      var accesories = [];
-      console.log(jj)
-      switch(jj){
-        case 0:
-          obj.codBook = valuesArray[0];
-          break;
-  
-        case 1:
-          
-          break;
-  
-        case 2:
-          if(valuesArray.length > 1){
-            accesories.push(valuesArray[2]);
-          }
-          break;
-  
-        default:
-          if(valuesArray[0] == 'Sig. Entr: '){
-            obj.accesories = accesories;
-          } else {
-            console.log("test2")
-            accesories.push(valuesArray[2]);
-          }
-          break;
-      }
-
-      if(valuesArray[0] == 'Fianzas'){
-        jj = 0;
-      } else{
-        jj++;
-      }
-  
-    }
-
-    ii++;
-
-    const query = { codBook: obj.codBook };
-    const updateData = { returnLocation: obj.returnLocation, accesories: obj.accesories };
-
-    const result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
-    console.log(result);
-  }
-}
-
 async function userJSON(unformattedJSON, filePath) {
     var clientPhoneArray = [];
     var jsonString = "[\n";
@@ -537,5 +478,5 @@ async function saveJsonToFile(jsonData, filePath) {
 }
 
 module.exports = {
-    vehicleJSON, bookingJSON, userJSON, saveJsonToFile, returnJSON,
+    vehicleJSON, bookingJSON, userJSON, saveJsonToFile,
 };
