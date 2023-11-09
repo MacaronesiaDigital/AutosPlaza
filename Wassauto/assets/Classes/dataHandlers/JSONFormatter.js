@@ -199,119 +199,7 @@ async function bookingJSON(unformattedJSON, filePath) {
     await fs.writeFileSync(filePath, jsonString);
 }
 
-async function userJSON(unformattedJSON, filePath) {
-    var clientPhoneArray = [];
-    var jsonString = "[\n";
-  
-    var obj = new Object();
-  
-    for (let ii = 0; ii < unformattedJSON.length; ii++) {
-        
-        console.log(ii + ' - ' + unformattedJSON.length)
-        const element = unformattedJSON[ii];
-        if (unformattedJSON.length > 3) {
-          if (ii > unformattedJSON.length - 3) {
-            break;
-          }
-        }
-
-        if (ii % 2 === 0) {
-
-          if (element['__EMPTY_14']) {
-            const phoneNumberString = element['__EMPTY_14'];
-            //let testNumber = phoneNumberString.replace(" ", "");
-            testNumber = phoneNumberString.replace("Telf.:", "");
-            const firstNumber = testNumber.split(' ');
-
-            if(firstNumber.length < 6) {
-              ii++; 
-              continue; 
-            }
-          }
-
-          obj = new Object();
-
-          if (element['30/06/2023']) {
-            const fullName = element['30/06/2023'];
-            const names = fullName.split(' ');
-            var firstName = '';
-            var surnames = '';
-
-            if (names.length > 3) {
-              firstName = names[names.length - 2] + ' ' + names[names.length - 1];
-              surnames = fullName.slice(0, -firstName.length).trim();
-            } else {
-              firstName = names[names.length - 1];
-              surnames = fullName.slice(0, -firstName.length).trim();
-            }
-
-            obj.name = firstName;
-            obj.surname = surnames;
-          } else {
-            obj.name = "";
-            obj.surname = "";
-          }
-
-          if (element['__EMPTY_14']) {
-            const phoneNumberString = element['__EMPTY_14'];
-            const phoneNumberPattern = /(?:(?:\+|00)\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{6,10}/g;
-            //const phoneNumberPattern = /(?:(?:\+|00)\d{1,3}\s*)?(?:\(?\d{2,4}\)?\s*)?\d{6,10}/g;
-            const phoneNumbers = phoneNumberString.match(phoneNumberPattern);
-            const formattedPhoneNumbers = phoneNumbers.map(phoneNumber => {
-              let formattedNumber = phoneNumber.replace(/^(00|\+)/, ""); // Remove "+" and "00" prefixes
-              if (!/^(00|\+)/.test(phoneNumber)) {
-                formattedNumber = "34" + formattedNumber; // Add "34" to numbers without "+" or "00" prefix
-              }
-              return formattedNumber;
-            });
-
-            obj.phones = formattedPhoneNumbers;
-            formattedPhoneNumbers.forEach(element => {
-              clientPhoneArray.push(element);
-            });
-          } else {
-            obj.phones = "";
-          }
-
-          if (element['   F.Salida De 14/08/2017 a 15/08/2017   Ordenado por: Fec+Hora E.']) {
-            obj.address = element['__EMPTY_5'];
-          } else {
-            obj.address = "";
-          }
-        } else {
-          if (element['LISTADO DE ENTREGAS']) {
-            const inputString = element['LISTADO DE ENTREGAS'];
-            const modifiedString = inputString.replace('#', '@');
-            obj.email = modifiedString;
-          } else {
-            obj.email = "";
-          }
-
-          if (element['__EMPTY_5']) {
-            obj.bookingAmmount = 0;
-          } else {
-            obj.bookingAmmount = "";
-          }
-
-          if (element['__EMPTY_5']) {
-            obj.active = element['__EMPTY_5'];
-          } else {
-            obj.active = "";
-          }
-
-          jsonString += JSON.stringify(obj);
-          jsonString += ",\n";
-        }
-    }
-  
-    clientPhoneString = JSON.stringify(clientPhoneArray);
-    jsonString += '{\"usedPhones\":' + clientPhoneString + '}\n]';
-    //fs.writeFile(filePath, jsonString);
-    //fs.writeFileSync(filePath, jsonString);
-    return jsonString;
-}
-
-async function userJSON2(unformattedJSON, filePath, bookCod) {
+async function userJSON(unformattedJSON, filePath, bookCod) {
     var clientPhoneArray = [];
     var jsonString = "[\n";
   
@@ -446,7 +334,7 @@ async function checkForUser(unformattedJSON, phoneNumbers, index, codBook){
         } else {
           console.log("NEW USER");
           var newJSON = await JSON.parse(await JSON.stringify([unformattedJSON[index], unformattedJSON[index+1]]));
-          FUserJSON = await userJSON2(newJSON, thisUserJSON, codBook);
+          FUserJSON = await userJSON(newJSON, thisUserJSON, codBook);
           FUserJSON = await JSON.parse(FUserJSON);
           result = await MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
           const query = { phones: phoneNumber };
@@ -478,5 +366,5 @@ async function saveJsonToFile(jsonData, filePath) {
 }
 
 module.exports = {
-    vehicleJSON, bookingJSON, userJSON, saveJsonToFile,
+    vehicleJSON, bookingJSON, saveJsonToFile,
 };
