@@ -1,22 +1,56 @@
 [
   {
-    "username": "ventas1",
-    "name": "Carmen",
-    "password": "23Ventas1$ap34"
-  },
-  {
-    "username": "ventas2",
+    "username": "fernando",
     "name": "Fernando",
-    "password": "23Ventas2$ap56"
+    "password": "5632",
+    "type": "ventas"
   },
   {
-    "username": "rental1",
+    "username": "carmen",
+    "name": "Carmen",
+    "password": "0212",
+    "type": "ventas"
+  },
+  {
+    "username": "alejandro",
+    "name": "Alejandro",
+    "password": "0295",
+    "type": "ventas"
+  },
+  {
+    "username": "oscar",
+    "name": "Oscar",
+    "password": "3937",
+    "type": "ventas"
+  },
+  {
+    "username": "benjamin",
+    "name": "Benjamin",
+    "password": "4128",
+    "type": "ventas"
+  },
+  {
+    "username": "dania",
+    "name": "Dania",
+    "password": "1954",
+    "type": "ventas"
+  },
+  {
+    "username": "sergio",
+    "name": "Sergio",
+    "password": "3528",
+    "type": "rental"
+  },
+  {
+    "username": "picasso",
+    "name": "Picasso",
+    "password": "5219",
+    "type": "rental"
+  },
+  {
+    "username": "oliver",
     "name": "Oliver",
-    "password": "23Rental1$ap43"
-  },
-  {
-    "username": "rental2",
-    "name": "Dani",
-    "password": "23Rental2$ap12"
+    "password": "0047",
+    "type": "rental"
   }
 ]
