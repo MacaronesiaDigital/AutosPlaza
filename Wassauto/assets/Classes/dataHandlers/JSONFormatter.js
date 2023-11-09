@@ -95,8 +95,7 @@ async function bookingJSON(unformattedJSON, filePath) {
       if (ii % 2 === 0) {
         if (element['__EMPTY_14']) {
           const phoneNumberString = element['__EMPTY_14'];
-          //let testNumber = phoneNumberString.replace(" ", "");
-          testNumber = phoneNumberString.replace("Telf.:", "");
+          const testNumber = phoneNumberString.replace("Telf.:", "");
           const firstNumber = testNumber.split(' ');
           if(firstNumber.length < 6) {
             ii++;
@@ -110,7 +109,6 @@ async function bookingJSON(unformattedJSON, filePath) {
         if (element[1]) {
           codBook = element[1].toString();
         } else {
-          console.log("Error");
           ii++;
           continue; 
         }
@@ -118,10 +116,10 @@ async function bookingJSON(unformattedJSON, filePath) {
         obj = new Object();
     
         if (codBook !== '') {
-            obj.codBook = codBook;
-            codBookArray.push(codBook);
+          obj.codBook = codBook;
+          codBookArray.push(codBook);
         } else {
-            obj.codBook = "";
+          obj.codBook = "";
         }
     
         var phoneNumbers = [];
