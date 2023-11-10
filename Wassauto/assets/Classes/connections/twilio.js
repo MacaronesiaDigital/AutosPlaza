@@ -8,7 +8,7 @@ const client = require("twilio")(accountSid, authToken);
 function sendTextMessage(recipient, message) {
   console.log(message);
   //if(recipient != "34671152525") { return }
-  return new Promise((resolve, reject) => {
+  /*return new Promise((resolve, reject) => {
     client.messages
       .create({
         from: 'whatsapp:'+ config.PHONENUMBER,
@@ -17,7 +17,7 @@ function sendTextMessage(recipient, message) {
       })
       .then((message) => resolve())
       .catch((err) => reject(err));
-  });
+  });*/
 }
 
 function sendLocationMessage(recipient, latitude, longitude) {
@@ -31,12 +31,12 @@ function sendLocationMessage(recipient, latitude, longitude) {
     //persistentAction: ['geo:' + latitude + ',' + longitude]
   };
   console.log(message);
-  return new Promise((resolve, reject) => {
+  /*return new Promise((resolve, reject) => {
     client.messages
       .create(message)
       .then((message) => resolve())
       .catch((err) => console.log(err));
-  });
+  });*/
 }
 
 function sendMediaMessage(recipient, imageUrl) {
@@ -49,12 +49,12 @@ function sendMediaMessage(recipient, imageUrl) {
     };
   
     console.log(message);
-    return new Promise((resolve, reject) => {
+    /*return new Promise((resolve, reject) => {
       client.messages
         .create(message)
         .then((message) => resolve())
         .catch((err) => reject(err));
-    });
+    });*/
   } catch(error){
     console.log(error);
   }

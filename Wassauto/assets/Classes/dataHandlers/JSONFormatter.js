@@ -7,7 +7,7 @@ const XLSX = require('xlsx');
 
 const MongoHandler = require(__dirname + '../../connections/MongoBDConnection') ;
 
-const thisUserJSON = __dirname + '/../../JSONs/ThisUserData.json';
+//const thisUserJSON = __dirname + '/../../JSONs/ThisUserData.json';
 
 
 async function vehicleJSON(unformattedJSON, filePath){
@@ -70,7 +70,7 @@ async function vehicleJSON(unformattedJSON, filePath){
 
 async function bookingJSON(unformattedJSON, filePath) {
     var codBookArray = [];
-    console.log("formatter:" + unformattedJSON);
+    //console.log("formatter:" + unformattedJSON);
     /*const userJSONF = require('../../JSONs/UserData.json');
     var phoneUsedArray = userJSONF[userJSONF.length - 1]['usedPhones'];
     */
@@ -84,33 +84,40 @@ async function bookingJSON(unformattedJSON, filePath) {
     });
 
     var jsonString = "[\n";
-    var ii = 0;
     var obj = new Object();
-    for (const element of unformattedJSON) {
+    console.log(unformattedJSON[12]);
+    for (let ii = 0; ii < unformattedJSON.length; ii++) {
+      const element = unformattedJSON[ii];
       //console.log(ii + ' - ' + unformattedJSON.length)
       if (ii > unformattedJSON.length - 3) break;
 
       var codBook = '';
 
+      console.log("Aqui: " + ii);
+
+      //console.log(element);
+
       if (ii % 2 === 0) {
         if (element['__EMPTY_14']) {
           const phoneNumberString = element['__EMPTY_14'];
-          const testNumber = phoneNumberString.replace("Telf.:", "");
+          const testNumber = phoneNumberString.replace("Telf.: ", "");
           const firstNumber = testNumber.split(' ');
-          if(firstNumber.length < 6) {
+          if(firstNumber[0].length < 6) {
+            console.log("Test1");
+            console.log(phoneNumberString + " - " + firstNumber[0]);
             ii++;
             continue; 
           }
         } else{
+          console.log("Test2");
           ii++;
           continue; 
         }
 
-        if (element[1]) {
-          codBook = element[1].toString();
+        if (element['Fecha :']) {
+          codBook = element['Fecha :'].toString();
         } else {
-          ii++;
-          continue; 
+          codBook = '';
         }
     
         obj = new Object();
@@ -188,14 +195,13 @@ async function bookingJSON(unformattedJSON, filePath) {
         jsonString += JSON.stringify(obj);
         jsonString += ",\n";
       }  
-      ii++;
     }
     codBookArray = await JSON.stringify(codBookArray);
     jsonString += '{\"usedBookings\":' + codBookArray + "}\n]";
     await fs.writeFileSync(filePath, jsonString);
 }
 
-async function userJSON(unformattedJSON, filePath, bookCod) {
+async function userJSON(unformattedJSON, bookCod) {
   var clientPhoneArray = [];
   var jsonString = "[\n";
 
@@ -214,18 +220,32 @@ async function userJSON(unformattedJSON, filePath, bookCod) {
     if (ii % 2 === 0) {
       if (element['__EMPTY_14']) {
         const phoneNumberString = element['__EMPTY_14'];
-        //let testNumber = phoneNumberString.replace(" ", "");
-        testNumber = phoneNumberString.replace("Telf.:", "");
-        const firstNumber = inputString.split(' ');
-        if(firstNumber.length < 6) {
-          ii++; 
+        const testNumber = phoneNumberString.replace("Telf.: ", "");
+        const firstNumber = testNumber.split(' ');
+        if(firstNumber[0].length < 6) {
+          console.log(phoneNumberString + " - " + firstNumber[0]);
+          ii+=2;
           continue; 
         }
+      } else{
+        console.log("Test2");
+        ii+=2;
+        continue; 
+      }
+
+      const valuesArray = Object.values(element);
+
+      if (element['Fecha :']) {
+        codBook = element['Fecha :'].toString();
+      } else {
+        ii+=2;
+        continue; 
       }
 
       obj = new Object();
-      if (element[2]) {
-        const fullName = element[2];
+
+      if (valuesArray[2]) {
+        const fullName = valuesArray[2];
         const names = fullName.split(' ');
         var firstName = '';
         var surnames = '';
@@ -246,8 +266,10 @@ async function userJSON(unformattedJSON, filePath, bookCod) {
       if (element['__EMPTY_14']) {
         const phoneNumberString = element['__EMPTY_14'];
         const phoneNumberPattern = /(?:(?:\+|00)\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{6,10}/g;
-        const phoneNumbers = phoneNumberString.match(phoneNumberPattern);
-        const formattedPhoneNumbers = phoneNumbers.map(phoneNumber => {
+        phoneNumbers = phoneNumberString.match(phoneNumberPattern);
+        console.log("THIS:" + phoneNumberString);
+        console.log("THIS:" + phoneNumbers);
+        formattedPhoneNumbers = phoneNumbers.map(phoneNumber => {
           let formattedNumber = phoneNumber.replace(/^(00|\+)/, ""); // Remove "+" and "00" prefixes
           if (!/^(00|\+)/.test(phoneNumber)) {
             formattedNumber = "34" + formattedNumber; // Add "34" to numbers without "+" or "00" prefix
@@ -255,9 +277,6 @@ async function userJSON(unformattedJSON, filePath, bookCod) {
           return formattedNumber;
         });
         obj.phones = formattedPhoneNumbers;
-        formattedPhoneNumbers.forEach(element => {
-          clientPhoneArray.push(element);
-        });
       } else {
         obj.phones = "";
       }
@@ -268,8 +287,8 @@ async function userJSON(unformattedJSON, filePath, bookCod) {
         obj.address = "";
       }
     } else {
-      if (element[0]) {
-        const inputString = element[0];
+      if (element['LISTADO DE ENTREGAS']) {
+        const inputString = element['LISTADO DE ENTREGAS'];
         const modifiedString = inputString.replace('#', '@');
         obj.email = modifiedString;
       } else {
@@ -321,14 +340,13 @@ async function checkForUser(unformattedJSON, phoneNumbers, index, codBook){
       } else {
         console.log("NEW USER");
         var newJSON = await JSON.parse(await JSON.stringify([unformattedJSON[index], unformattedJSON[index+1]]));
-        FUserJSON = await userJSON(newJSON, thisUserJSON, codBook);
+        let FUserJSON = await userJSON(newJSON, codBook);
         FUserJSON = await JSON.parse(FUserJSON);
         result = await MongoHandler.saveJsonToMongo(FUserJSON, 'Users', true, 'phones', 'usedPhones');
         const query = { phones: phoneNumber };
         const item = await MongoHandler.executeQueryFirst(query, 'Users');
         //await sleep(1000);
-        console.log("item");
-        console.log(item);
+        //console.log(item);
         codClient = item._id;
       }
     }

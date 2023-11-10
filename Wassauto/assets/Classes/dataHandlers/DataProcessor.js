@@ -32,10 +32,10 @@ async function processBookings(){
     try{
         const inputDate = new Date();
         const formattedDate = `${inputDate.getFullYear()}-${(inputDate.getMonth() + 1).toString().padStart(2, '0')}-${inputDate.getDate().toString().padStart(2, '0')} ${inputDate.getHours().toString().padStart(2, '0')}:${inputDate.getMinutes().toString().padStart(2, '0')}`;
+        
+        await MongoHandler.connectToDatabase();
 
         await JSONFormatter.bookingJSON(uBookingJSON, __dirname + '/' + BookingJSONPath);
-
-        await MongoHandler.connectToDatabase();
 
         const FBookingJSON = JSON.parse(await readFilePromise(__dirname + '/' + BookingJSONPath));
         var bookingsArr = await MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');

@@ -392,7 +392,6 @@ async function saveJsonToMongo(jsonToSave, collection, checkDup, dupChecker) {
             let query = {  }
               switch(collection){
                 case "Bookings":
-                  console.log("This code: " + dupCheck);
                   query = { codBook: dupCheck };
                 break;
 
