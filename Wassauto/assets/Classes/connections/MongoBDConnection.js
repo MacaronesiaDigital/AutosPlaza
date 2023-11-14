@@ -141,6 +141,7 @@ async function executeQueryFirst(query, collectionName) {
 
 async function executeQueryFirstNC(query, collectionName) {
   const nClient = await newClient();
+  console.log(nClient)
   try {
     await connectNewClient(nClient);
     const db = await nClient.db(dbName);
@@ -152,7 +153,7 @@ async function executeQueryFirstNC(query, collectionName) {
     console.error('Error:', error);
     throw error;
   } finally {
-    disconnectNewClient(nClient);
+    //disconnectNewClient(nClient);
   }
 }
 
