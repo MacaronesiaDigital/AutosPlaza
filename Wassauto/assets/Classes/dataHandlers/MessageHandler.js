@@ -15,25 +15,28 @@ const ngrokUrl = config.NGROKURL;
 var testCounter = 0;
 
 async function languageSelector(phoneNumber){
-    const query = { phones: phone };
+    const query = { phones: phoneNumber };
     var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
     if(user == undefined){
         return;
     }
 
     const userID = user._id;
-    const query2 = { codClient: userID };
+    const query2 = { codClient: userID.toString() };
     var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
-    
+
     if(booking == undefined){
+        
         console.log(userID);
         const updateData = { active: 0 };
-        const result = await MongoHandler.executeUpdate(user, updateData, "Users");
+        const result = await MongoHandler.executeUpdateNC(user, updateData, "Users");
         //console.log(result);
         return;
     }
 
     if(user.active == 0){
+        
+        console.log("A VER 4");
         payload = await dialogflow.sendToDialogFlow("langChose", phoneNumber);
     }
 }

@@ -51,10 +51,11 @@ async function processBookings(){
                 const codClient = element.codClient;
                 let query = { _id: new ObjectId(codClient) }
                 let user = await MongoHandler.executeQueryFirst(query, "Users");
+                console.log(user);
                 if(user.active == 0){
                     console.log(user.phones[0]);
                     //firstMessage(user.phones[0]);
-                    MessageHandler.languageSelector(user.phones[0]);
+                    await MessageHandler.languageSelector(user.phones[0]);
                     const updateData = { active: 1 };
                     const result = await MongoHandler.executeUpdate(user, updateData, "Users");
                     //console.log(result);

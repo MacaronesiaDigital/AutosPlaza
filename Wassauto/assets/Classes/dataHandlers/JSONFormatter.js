@@ -300,7 +300,7 @@ async function userJSON(unformattedJSON, bookCod) {
       if (element['__EMPTY_5']) {
         obj.active = element['__EMPTY_5'];
       } else {
-        obj.active = "";
+        obj.active = 0;
       }
       
       jsonString += JSON.stringify(obj);
