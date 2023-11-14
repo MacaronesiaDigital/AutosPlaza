@@ -148,7 +148,7 @@ async function executeQueryFirstNC(query, collectionName) {
     console.log(db)
     const collection = await db.collection(collectionName);
     console.log(collection)
-    console.log(await collection.findOne(query))
+    console.log(collection.findOne(query))
     return await collection.findOne(query);
   } catch (error) {
     console.error('Error:', error);
