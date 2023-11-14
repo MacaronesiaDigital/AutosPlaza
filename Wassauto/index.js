@@ -89,6 +89,7 @@ app.listen(process.env.PORT || 5000, function () {
 //Manages what to do with all messages received by the twilio number.
 app.post("/twilio", express.json(), async function (req, res) {
     testCounter2++;
+    console.log(req.body)
     console.log("test: " + testCounter2);
     try{
         let phone = req.body.WaId;
