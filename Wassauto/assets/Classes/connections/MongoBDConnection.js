@@ -141,12 +141,10 @@ async function executeQueryFirst(query, collectionName) {
 
 async function executeQueryFirstNC(query, collectionName) {
   const nClient = await newClient();
-  console.log(nClient)
   try {
     await connectNewClient(nClient);
     const db = await nClient.db(dbName);
     const collection = await db.collection(collectionName);
-    console.log(query)
     console.log(await collection.findOne(query))
     return await collection.findOne(query);
   } catch (error) {
