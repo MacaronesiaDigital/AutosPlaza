@@ -99,10 +99,8 @@ app.post("/twilio", express.json(), async function (req, res) {
         if(user == undefined){
             return;
         }
-        const userID = user._id;
-        
+        const userID = user._id;       
         const query2 = { codClient: userID };
-        console.log(userID, "USUARIO")
         var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
         if(booking == undefined){
             //console.log(userID);
