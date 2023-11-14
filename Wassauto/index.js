@@ -101,15 +101,16 @@ app.post("/twilio", express.json(), async function (req, res) {
             return;
         }
         const userID = user._id;
+        
         const query2 = { codClient: userID };
+        console.log(userID, "USUARIO"), query2
         var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
-        console.log("BOOKNGS", booking)
         if(booking == undefined){
-            console.log(userID);
+            //console.log(userID);
             //console.log(result);
             return;
         }
-        console.log(req.body);
+        //console.log(req.body);
         if(req.body.Latitude && req.body.Longitude || req.body.MediaUrl0){
             if(req.body.Latitude && req.body.Longitude) {
                 await MediaHandler.saveUserLocation(phone, req.body.Latitude, req.body.Longitude);
