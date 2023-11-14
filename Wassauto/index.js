@@ -95,8 +95,11 @@ app.post("/twilio", express.json(), async function (req, res) {
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
 
+        console.log(phone, receivedMessage)
+
         const query = { phones: phone };
         var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
+        console.log(user)
         if(user == undefined){
             return;
         }
