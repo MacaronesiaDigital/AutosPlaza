@@ -145,8 +145,8 @@ async function executeQueryFirstNC(query, collectionName) {
     await connectNewClient(nClient);
     const db = await nClient.db(dbName);
     const collection = await db.collection(collectionName);
-    console.log(await collection.findOne(new ObjectId("6553b85809418e7f4ae231d2")))
-    return await collection.findOne(new ObjectId("6553b85809418e7f4ae231d2"));
+    console.log(await collection.findOne(query))
+    return await collection.findOne(query);
   } catch (error) {
     console.error('Error:', error);
     throw error;
