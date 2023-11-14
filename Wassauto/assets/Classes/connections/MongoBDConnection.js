@@ -140,6 +140,7 @@ async function executeQueryFirst(query, collectionName) {
 }
 
 async function executeQueryFirstNC(query, collectionName) {
+  console.log(query, collectionName)
   const nClient = await newClient();
   try {
     await connectNewClient(nClient);
