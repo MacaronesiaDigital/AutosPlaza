@@ -106,7 +106,7 @@ app.post("/twilio", express.json(), async function (req, res) {
 
         if(booking == undefined){
             console.log(userID);
-            //console.log(result);
+            console.log(result);
             return;
         }
 
