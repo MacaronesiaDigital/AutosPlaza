@@ -145,8 +145,8 @@ async function executeQueryFirstNC(query, collectionName) {
     await connectNewClient(nClient);
     const db = await nClient.db(dbName);
     const collection = await db.collection(collectionName);
-    console.log(await collection.findOne(query))
-    return await collection.findOne(query);
+    console.log(await collection.findOne('6553b85809418e7f4ae231d2'))
+    return await collection.findOne('6553b85809418e7f4ae231d2');
   } catch (error) {
     console.error('Error:', error);
     throw error;
