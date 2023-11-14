@@ -93,28 +93,22 @@ app.post("/twilio", express.json(), async function (req, res) {
     try{
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
-
         console.log(phone, receivedMessage)
-
         const query = { phones: phone };
         var user = await MongoHandler.executeQueryFirstNC(query, 'Users');
         console.log(user)
         if(user == undefined){
             return;
         }
-        
         const userID = user._id;
         const query2 = { codClient: userID };
-        console.log("QUERY", query2)
         var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
-        console.log("BOOKING", booking)
-
+        console.log("BOOKNGS", booking)
         if(booking == undefined){
             console.log(userID);
             //console.log(result);
             return;
         }
-
         console.log(req.body);
         if(req.body.Latitude && req.body.Longitude || req.body.MediaUrl0){
             if(req.body.Latitude && req.body.Longitude) {
@@ -129,7 +123,6 @@ app.post("/twilio", express.json(), async function (req, res) {
             payload = await dialogflow.sendToDialogFlow(receivedMessage, phone);
             console.log(payload);
         }
-
     }catch (error){
         console.error('An error occurred:', error);
         res.sendStatus(500);
