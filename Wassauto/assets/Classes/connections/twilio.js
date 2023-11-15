@@ -6,6 +6,7 @@ const authToken = config.TWILIO_AUTH;
 const client = require("twilio")(accountSid, authToken);
 
 function sendTextMessage(recipient, message) {
+  console.log(recipient);
   console.log(message);
   //if(recipient != "34671152525") { return }
   return new Promise((resolve, reject) => {
