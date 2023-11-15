@@ -85,7 +85,6 @@ async function bookingJSON(unformattedJSON, filePath) {
 
     var jsonString = "[\n";
     var obj = new Object();
-    console.log(unformattedJSON[12]);
     for (let ii = 0; ii < unformattedJSON.length; ii++) {
       const element = unformattedJSON[ii];
       //console.log(ii + ' - ' + unformattedJSON.length)
@@ -95,7 +94,7 @@ async function bookingJSON(unformattedJSON, filePath) {
 
       console.log("Aqui: " + ii);
 
-      //console.log(element);
+      console.log(element);
 
       if (ii % 2 === 0) {
         if (element['__EMPTY_14']) {
