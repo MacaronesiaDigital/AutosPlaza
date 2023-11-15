@@ -94,8 +94,6 @@ async function bookingJSON(unformattedJSON, filePath) {
 
       console.log("Aqui: " + ii);
 
-      console.log(element);
-
       if (ii % 2 === 0) {
         if (element['__EMPTY_14']) {
           const phoneNumberString = element['__EMPTY_14'];
