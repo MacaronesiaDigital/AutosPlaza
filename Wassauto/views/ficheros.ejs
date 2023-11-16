@@ -172,7 +172,7 @@
         })
         .then((res) => {
             if (res.status === 200) {
-              showAlert("RESERVAS SUBIDAS EXITOSAMENTE");
+              showAlert("OK: Reservas subidas exitosamente");
             } else if (res.status === 400) {
               showAlert("ERROR: Revisa los parámetros del Excel.");
             } else {

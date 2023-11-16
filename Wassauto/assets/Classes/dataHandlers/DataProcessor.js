@@ -51,7 +51,6 @@ async function processBookings(){
                 const codClient = element.codClient;
                 let query = { _id: new ObjectId(codClient) }
                 let user = await MongoHandler.executeQueryFirst(query, "Users");
-                console.log(user);
                 if(user.active == 0){
                     console.log(user.phones[0]);
                     //firstMessage(user.phones[0]);
@@ -69,7 +68,7 @@ async function processBookings(){
 
         rmFilePromise(__dirname + '/' + BookingJSONPath);
 
-        return true;
+        return false;
 
     }catch (error) {
         console.error('Error fetching data:', error);
