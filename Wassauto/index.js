@@ -220,8 +220,12 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
     await unlinkPromise(filePath);
 
     if(req.body['dataType'] === 'booking') {
-        if(succesBook) {
-            res.sendStatus(200);
+        if(succesBook[0]) {
+            if(succesBook[1] > 0){
+                res.sendStatus(100);
+            } else{
+                res.sendStatus(200);
+            }
         } else{
             res.sendStatus(400);
         }

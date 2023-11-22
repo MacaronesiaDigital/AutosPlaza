@@ -33,9 +33,11 @@ async function processBookings(){
         const inputDate = new Date();
         const formattedDate = `${inputDate.getFullYear()}-${(inputDate.getMonth() + 1).toString().padStart(2, '0')}-${inputDate.getDate().toString().padStart(2, '0')} ${inputDate.getHours().toString().padStart(2, '0')}:${inputDate.getMinutes().toString().padStart(2, '0')}`;
         
+        var successCode = 0;
+
         await MongoHandler.connectToDatabase();
 
-        await JSONFormatter.bookingJSON(uBookingJSON, __dirname + '/' + BookingJSONPath);
+        successCode = await JSONFormatter.bookingJSON(uBookingJSON, __dirname + '/' + BookingJSONPath);
 
         const FBookingJSON = JSON.parse(await readFilePromise(__dirname + '/' + BookingJSONPath));
         var bookingsArr = await MongoHandler.saveJsonToMongo(FBookingJSON, 'Bookings', true, 'codBook');
@@ -68,11 +70,11 @@ async function processBookings(){
 
         rmFilePromise(__dirname + '/' + BookingJSONPath);
 
-        return false;
+        return [true, successCode];
 
     }catch (error) {
         console.error('Error fetching data:', error);
-        return false;
+        return [false];
     }
 }
 
