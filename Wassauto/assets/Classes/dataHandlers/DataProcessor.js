@@ -68,7 +68,7 @@ async function processBookings(){
 
         rmFilePromise(__dirname + '/' + BookingJSONPath);
 
-        return false;
+        return true;
 
     }catch (error) {
         console.error('Error fetching data:', error);
