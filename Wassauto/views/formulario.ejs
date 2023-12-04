@@ -279,34 +279,23 @@
             method: 'POST',
             body: formData,
         })
-            .then((res) => showAlert("Envíado con éxito"))
-            .catch((err) => ("Error occured", err));
+        .then((res) => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error(`Error: ${res.status}`);
+            }
+        })
+        .then((data) => {
+            // Manejar la respuesta del servidor según sea necesario
+            console.log(data);
+            showAlert("Envíado con éxito");
+        })
+        .catch((err) => {
+            // Manejar errores aquí
+            console.error("Error:", err);
+        });
     }
-
-      /*function formSubmit(event) {
-        var url = "/updateBooking";
-        var request = new XMLHttpRequest();
-        request.open('POST', url, true);
-        request.onload = function() { // request successful
-        // we can use server response to our request now
-          showAlert("Envíado con éxito");
-        };
-      
-        request.onerror = function() {
-          showAlert("An error occurred while updating the car.");
-          // request failed
-        };
-      
-        request.send(new FormData(event.target)).then((res) => showAlert("Envíado con éxito"))
-        event.preventDefault();
-      }*/
-
-      /*showAlert = function(mss) {
-        confirm(mss);
-        detailsButtons.removeAttribute("disabled");
-        window.location.href = "/reservas";
-      }*/
-
       function changeMapLocation(selectedRadioButton) {
         const location = selectedRadioButton.value;
         let newLatLng;
