@@ -269,7 +269,7 @@
     showAlert = function(mss) {
       confirm(mss);
       button.removeAttribute("disabled");
-      window.location.href = "/reservas";
+      //window.location.href = "/reservas";
     }
 
     function submitForm(e) {
@@ -279,22 +279,10 @@
             method: 'POST',
             body: formData,
         })
-        .then((res) => {
-            if (res.ok) {
-                return res.json();
-            } else {
-                throw new Error(`Error: ${res.status}`);
-            }
-        })
-        .then((data) => {
-            // Manejar la respuesta del servidor según sea necesario
-            console.log(data);
-            showAlert("Envíado con éxito");
-        })
-        .catch((err) => {
-            // Manejar errores aquí
-            console.error("Error:", err);
-        });
+            .then((res) => {
+              showAlert("Datos enviados con éxito"); 
+              window.location.href = "/reservas"})
+            .catch((err) => ("Error occured", err));
     }
       function changeMapLocation(selectedRadioButton) {
         const location = selectedRadioButton.value;
