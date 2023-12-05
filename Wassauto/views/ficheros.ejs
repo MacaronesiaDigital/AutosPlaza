@@ -154,7 +154,7 @@
     showAlert = function(mss) {
       confirm(mss);
       button.removeAttribute("disabled");
-      window.location.href = "/inicio";
+      //window.location.href = "/inicio";
     }
 
     function submitForm(e) {
@@ -190,8 +190,10 @@
           }
             if (res.status === 200) {
               showAlert("OK: Reservas subidas exitosamente");
+              window.location.href = "/reservas";
             } else if (res.status === 400) {
-              showAlert("ERROR: Revisa los parámetros del Excel.");
+              showAlert("ERROR: Error en la subida de reservas, revisa los parámetros en el Excel.");
+              window.location.href = "/reservas";
             } else {
               showAlert("ERROR: Desconocido");
             }

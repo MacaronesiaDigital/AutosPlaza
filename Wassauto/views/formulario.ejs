@@ -269,7 +269,7 @@
     showAlert = function(mss) {
       confirm(mss);
       button.removeAttribute("disabled");
-      window.location.href = "/reservas";
+      //window.location.href = "/reservas";
     }
 
     function submitForm(e) {
@@ -279,34 +279,11 @@
             method: 'POST',
             body: formData,
         })
-            .then((res) => showAlert("Envíado con éxito"))
+            .then((res) => {
+              showAlert("Datos enviados con éxito"); 
+              window.location.href = "/reservas"})
             .catch((err) => ("Error occured", err));
     }
-
-      /*function formSubmit(event) {
-        var url = "/updateBooking";
-        var request = new XMLHttpRequest();
-        request.open('POST', url, true);
-        request.onload = function() { // request successful
-        // we can use server response to our request now
-          showAlert("Envíado con éxito");
-        };
-      
-        request.onerror = function() {
-          showAlert("An error occurred while updating the car.");
-          // request failed
-        };
-      
-        request.send(new FormData(event.target)).then((res) => showAlert("Envíado con éxito"))
-        event.preventDefault();
-      }*/
-
-      /*showAlert = function(mss) {
-        confirm(mss);
-        detailsButtons.removeAttribute("disabled");
-        window.location.href = "/reservas";
-      }*/
-
       function changeMapLocation(selectedRadioButton) {
         const location = selectedRadioButton.value;
         let newLatLng;
@@ -454,7 +431,7 @@
             callback("Geocoder failed due to: " + status);
           }
         });
-      }
+    }
     </script>
     </section>
   </body>
