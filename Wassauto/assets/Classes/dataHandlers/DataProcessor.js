@@ -18,6 +18,9 @@ var testCounter = 0;
 const uBookingJSONPath = '../../JSONs/UnformattedBooking.json';
 const BookingJSONPath = '../../JSONs/BookingData.json';
 
+const uVehicleJSONPath = '../../JSONs/UnformattedVehicle.json';
+const vehicleJSONPath = '../../JSONs/VehicleData.json';
+
 //Processes all the booking data from the excel and saves it as a unformatted json.
 async function processBookings(){
 
@@ -80,18 +83,28 @@ async function processBookings(){
 
 //Processes all the vehicle data from the excel and saves it as a unformatted json.
 async function processVehicles(){
-    const uVehicleJSON = require('../../JSONs/UnformattedVehicle.json');
-    const vehicleJSON = require.resolve('../../JSONs/VehicleData.json');
+    
+    if (fs.existsSync(__dirname + '/' + vehicleJSONPath)) {
+        await unlinkPromise(__dirname + '/' + vehicleJSONPath);
+    }
+
+    const uVehicleJSON = JSON.parse(await readFilePromise(__dirname + '/' + uVehicleJSONPath));
+
+    await writeFilePromise(__dirname + '/' + vehicleJSONPath, "", { flag: 'wx' } );
+
     try{
         await MongoHandler.connectToDatabase();
 
-        var uFile = uVehicleJSON;
-        uFile = JSON.parse(JSON.stringify(uFile));
-        JSONFormatter.vehicleJSON(uFile, vehicleJSON);
-        const FVehicleJSON = require(vehicleJSON);
+        await JSONFormatter.vehicleJSON(uVehicleJSON, __dirname + '/' + vehicleJSONPath);
+
+        const FVehicleJSON = JSON.parse(await readFilePromise(__dirname + '/' + vehicleJSONPath));
+        
         await MongoHandler.saveJsonToMongo(FVehicleJSON, 'Flota', true, 'license');
 
         await MongoHandler.disconnectFromDatabase();
+        
+        rmFilePromise(__dirname + '/' + vehicleJSONPath);
+        
     } catch (error) {
         console.error('Error fetching data:', error);
     }

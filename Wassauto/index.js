@@ -215,9 +215,9 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             break;
     }
 
-    await unlinkPromise(req.file['path']);
-    await unlinkPromise(excelPath);
-    await unlinkPromise(filePath);
+    //await unlinkPromise(req.file['path']);
+    //await unlinkPromise(excelPath);
+    //await unlinkPromise(filePath);
 
     if(req.body['dataType'] === 'booking') {
         if(succesBook[0]) {
