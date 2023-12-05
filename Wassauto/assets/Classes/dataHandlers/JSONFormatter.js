@@ -57,9 +57,6 @@ async function vehicleJSON(unformattedJSON, filePath){
 
     jsonString += JSON.stringify(obj);
     jsonString += ",\n";
-    /*if(ii < unformattedJSON.length - 3){
-        jsonString += ",\n"
-    }*/
     ii++;
   });
 

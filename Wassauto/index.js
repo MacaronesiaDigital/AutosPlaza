@@ -491,10 +491,29 @@ app.post('/updateCar', async (req, res) => {
             thisNotes = car.notes;
         }
 
-        thisDeposit = thisDeposit.toString();
-        thisTrunk = thisTrunk.toString();
-        thisReverse = thisReverse.toString();
-        thisNotes = thisNotes.toString();
+        if(thisDeposit){
+            thisDeposit = thisDeposit.toString();
+        } else {
+            thisDeposit = 'None';
+        }
+    
+        if(thisTrunk){
+            thisTrunk = thisTrunk.toString();
+        } else {
+            thisTrunk = 'None';
+        }
+    
+        if(thisReverse){
+            thisReverse = thisReverse.toString();
+        } else {
+            thisReverse = 'None';
+        }
+    
+        if(thisNotes){
+            thisNotes = thisNotes.toString();
+        } else {
+            thisNotes = 'None';
+        }
 
         const updateData = { depositType: thisDeposit, trunkType: thisTrunk, reverseType: thisReverse, notes: thisNotes };
 
