@@ -215,13 +215,17 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             break;
     }
 
-    await unlinkPromise(req.file['path']);
-    await unlinkPromise(excelPath);
-    await unlinkPromise(filePath);
+    //await unlinkPromise(req.file['path']);
+    //await unlinkPromise(excelPath);
+    //await unlinkPromise(filePath);
 
     if(req.body['dataType'] === 'booking') {
-        if(succesBook) {
-            res.sendStatus(200);
+        if(succesBook[0]) {
+            if(succesBook[1] > 0){
+                res.sendStatus(100);
+            } else{
+                res.sendStatus(200);
+            }
         } else{
             res.sendStatus(400);
         }
@@ -487,10 +491,29 @@ app.post('/updateCar', async (req, res) => {
             thisNotes = car.notes;
         }
 
-        thisDeposit = thisDeposit.toString();
-        thisTrunk = thisTrunk.toString();
-        thisReverse = thisReverse.toString();
-        thisNotes = thisNotes.toString();
+        if(thisDeposit){
+            thisDeposit = thisDeposit.toString();
+        } else {
+            thisDeposit = 'None';
+        }
+    
+        if(thisTrunk){
+            thisTrunk = thisTrunk.toString();
+        } else {
+            thisTrunk = 'None';
+        }
+    
+        if(thisReverse){
+            thisReverse = thisReverse.toString();
+        } else {
+            thisReverse = 'None';
+        }
+    
+        if(thisNotes){
+            thisNotes = thisNotes.toString();
+        } else {
+            thisNotes = 'None';
+        }
 
         const updateData = { depositType: thisDeposit, trunkType: thisTrunk, reverseType: thisReverse, notes: thisNotes };
 
