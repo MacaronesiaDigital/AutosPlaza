@@ -342,7 +342,8 @@ async function startRating(phoneNumber){
 function GetReturnCar(phoneNumber, license){
     try{
         const imageDir = path.join(__dirname, '../../Images/Cars/' + license + '/worker');
-        const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
+        //const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.(jpg|jpeg|png|gif)$/i));
+        const imageFiles = fs.readdirSync(imageDir).filter(file => file.match(/\.[^.]+$/)); // Aceptar cualquier extensión
         const imageUrls = imageFiles.map(file => `${ngrokUrl}/Images/Cars/${license}/worker/${file}`);
         imageUrls.forEach(element => {
             const modifiedString = element.replace(/ /g, '%20');
