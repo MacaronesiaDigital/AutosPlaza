@@ -337,13 +337,13 @@ app.get('/vehiculoform', async (req, res) => {
 
 //Updates the bookings on the database with the data received from /formulario.
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
-    console.log(req)
-    if(testCounter == 1){
-        testCounter = 0; 
-        return;
-    } else{
-        testCounter++;
-    }
+    console.log(req.body, "BODDDDDDDDDDDDDYYYYYYYYYYYYYYYY")
+    //if(testCounter == 1){
+    //    testCounter = 0; 
+    //    return;
+    //} else{
+    //    testCounter++;
+    //}
     try {
         await MongoHandler.connectToDatabase();
 
@@ -455,10 +455,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     } catch (error) {
       console.error('Error while updating booking:', error);
       res.status(500);
-    }
-
-    res.render('reservas');
-    
+    }  
     res.sendStatus(200);
     
 });
