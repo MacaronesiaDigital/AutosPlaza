@@ -147,7 +147,7 @@ async function confirmationMessage(phoneNumber){
 
             case "de":
                 message = "ℹ️ Willkommen auf Teneriffa, hier sind die detaillierten Informationen zu Ihrem Mietwagen:\n\n" +
-                "Datum und Uhrzeit der Abholung: " + formattedDate.toString() + "\n "+ 
+                "Datum und Uhrzeit der Abholung: " + formattedDate.toString() + "\n"+ 
                 "Abholort: " + booking.returnLocation + "\n" + 
                 "Modell: " + car.model + "\n"+
                 "Lizenz: " + car.license + "\n";
@@ -184,7 +184,7 @@ async function confirmationMessage(phoneNumber){
 
             default:
                 message = "ℹ️ Welcome to Tenerife, here is the detailed information about your rented car:\n\n" +
-                "Pick-up date and time: " + formattedDate.toString() + "\n "+ 
+                "Pick-up date and time: " + formattedDate.toString() + "\n"+ 
                 "Pickup location: " + booking.returnLocation + "\n" +
                 "Model: " + car.model + "\n"+
                 "License: " + car.license + "\n";
