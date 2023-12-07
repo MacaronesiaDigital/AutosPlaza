@@ -456,7 +456,8 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
       console.error('Error while updating booking:', error);
       res.status(500);
     }  
-    res.sendStatus(200);
+    //res.sendStatus(200);
+    res.redirect('/reservas');
     
 });
 
