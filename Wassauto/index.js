@@ -456,9 +456,11 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
       console.error('Error while updating booking:', error);
       res.status(500);
     }
+
+    res.render('reservas');
     
     res.sendStatus(200);
-    res.render('reservas');
+    
 });
 
 //Updates the vehicles on the database with the data received from /vehiculoform.
