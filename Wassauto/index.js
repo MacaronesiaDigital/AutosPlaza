@@ -344,11 +344,14 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     } else{
         testCounter++;
     }
+    console.log("despues del counter")
     try {
         await MongoHandler.connectToDatabase();
+        console.log("Se conecta a la base de datos")
 
         const objectId = req.body['id'];  
         //console.log('this id: ' + objectId);
+        console.log("Mira el id", objectId)
         
         if(!objectId){
             //console.log(req.body);
