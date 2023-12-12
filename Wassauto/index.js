@@ -337,7 +337,7 @@ app.get('/vehiculoform', async (req, res) => {
 
 //Updates the bookings on the database with the data received from /formulario.
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
-    console.log(req)
+    console.log(req.rawHeaders)
     console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", testCounter)
     if(testCounter == 1){
         testCounter = 0; 
@@ -459,7 +459,6 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
       res.status(500);
     }  
     //res.sendStatus(200);
-    testCounter == 1;
     res.redirect('/reservas');
     
 });
