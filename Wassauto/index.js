@@ -339,11 +339,13 @@ app.get('/vehiculoform', async (req, res) => {
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     console.log(req.rawHeaders[13])
     console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", testCounter)
-    if(testCounter == 1){
-        testCounter = 0; 
-        return;
-    } else{
-        testCounter++;
+    if (!(req.rawHeaders[13].includes("Iphone"))) {
+        if(testCounter == 1){
+            testCounter = 0; 
+            return;
+        } else{
+            testCounter++;
+        }
     }
     console.log("despues del counter")
     try {
