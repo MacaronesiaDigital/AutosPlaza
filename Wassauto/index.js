@@ -89,7 +89,7 @@ app.listen(process.env.PORT || 5000, function () {
 //Manages what to do with all messages received by the twilio number.
 app.post("/twilio", express.json(), async function (req, res) {
     testCounter2++;
-    console.log("test: " + testCounter2);
+    //console.log("test: " + testCounter2);
     try{
         let phone = req.body.WaId;
         let receivedMessage = req.body.Body;
@@ -337,21 +337,21 @@ app.get('/vehiculoform', async (req, res) => {
 
 //Updates the bookings on the database with the data received from /formulario.
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
-    console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    //if(testCounter == 1){
-    //    testCounter = 0; 
-    //    return;
-    //} else{
-    //    testCounter++;
-    //}
+    console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", testCounter)
+    if(testCounter == 1){
+        testCounter = 0; 
+        return;
+    } else{
+        testCounter++;
+    }
     try {
         await MongoHandler.connectToDatabase();
 
         const objectId = req.body['id'];  
-        console.log('this id: ' + objectId);
+        //console.log('this id: ' + objectId);
         
         if(!objectId){
-            console.log(req.body);
+            //console.log(req.body);
             res.status(200).send('Booking not updated.');
         } else{
             const query = { _id: new ObjectId(objectId) };
@@ -455,12 +455,6 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
       res.status(500);
     }  
     //res.sendStatus(200);
-    if(testCounter == 1){
-        testCounter = 0; 
-        return;
-    } else{
-        testCounter++;
-    }
     res.redirect('/reservas');
     
 });
@@ -471,7 +465,7 @@ app.post('/updateCar', async (req, res) => {
         
         await MongoHandler.connectToDatabase();
         
-        console.log(req.body);
+        //console.log(req.body);
         const objectId = req.body['id'];  
         
         const query = { _id: new ObjectId(objectId) };
@@ -482,7 +476,7 @@ app.post('/updateCar', async (req, res) => {
         let thisReverse = req.body['revType'];
         let thisNotes = req.body['notes'];
 
-        console.log(car);
+        //console.log(car);
 
         if(!thisDeposit){
             thisDeposit = car.depositType;
@@ -523,7 +517,7 @@ app.post('/updateCar', async (req, res) => {
 
         const updateData = { depositType: thisDeposit, trunkType: thisTrunk, reverseType: thisReverse, notes: thisNotes };
 
-        console.log(updateData);
+        //console.log(updateData);
 
         await MongoHandler.executeUpdate(query, updateData, "Flota");    
         res.status(200);
@@ -660,7 +654,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const query3 = { license: thisLicense};
                 const car = await MongoHandler.executeQueryFirstNC(query3, 'Flota');
 
-                console.log(booking);
+                //console.log(booking);
 
                 var message = ""
 
@@ -837,7 +831,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/AirportNorth/General/AirportNGeneral.mp4`);
-                console.log(videoUrl)
+                //console.log(videoUrl)
 
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
@@ -868,7 +862,7 @@ app.post("/webhook", express.json(), async function (req, res) {
                 const videoFiles = fs.readdirSync(videoDir).filter(file => file.match(/\.(mp4|avi)$/i));
 
                 const videoUrl = videoFiles.map(file => `${ngrokUrl}/Videos/SetLocations/Airport/General/${file}`);
-                console.log(videoUrl)
+                //console.log(videoUrl)
                 videoUrl.forEach(element => {
                     const modifiedString = element.replace(/ /g, '%20');
                     twilio.sendMediaMessage(phoneNumber, modifiedString);
