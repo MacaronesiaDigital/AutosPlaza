@@ -340,7 +340,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", testCounter)
     if(testCounter == 1){
         testCounter = 0; 
-        res.redirect('/reservas');
+        await res.redirect('/reservas');
     } else{
         testCounter++;
     }
