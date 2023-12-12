@@ -455,7 +455,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
       res.status(500);
     }  
     //res.sendStatus(200);
-    testCounter == 0;
+    testCounter == 1;
     res.redirect('/reservas');
     
 });
