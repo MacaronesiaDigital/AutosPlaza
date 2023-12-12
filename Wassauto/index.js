@@ -347,6 +347,14 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
         } else{
             testCounter++;
         }
+    }else{
+        if(testCounter == 2){
+            testCounter = 0; 
+            return;
+        } else{
+            testCounter++;
+        }
+
     }
     console.log("despues del counter")
     try {
