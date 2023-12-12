@@ -414,8 +414,6 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             const updateData = { accesories: thisAccesories, parking:  thisParking, notes: thisNotes };
             const updateData2 = { locationCoords: [thisLatitude, thisLongitude] };
         
-            //console.log(updateData);
-        
             result = await MongoHandler.executeUpdate(query, updateData, "Bookings");
             result = await MongoHandler.executeUpdate(query2, updateData2, "Flota");
 
@@ -457,6 +455,12 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
       res.status(500);
     }  
     //res.sendStatus(200);
+    if(testCounter == 1){
+        testCounter = 0; 
+        return;
+    } else{
+        testCounter++;
+    }
     res.redirect('/reservas');
     
 });
