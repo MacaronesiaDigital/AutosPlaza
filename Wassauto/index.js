@@ -340,7 +340,7 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
     console.log(req.rawHeaders)
     console.log(req.rawHeaders[17])
     console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", testCounter)
-    if (!(req.rawHeaders[17].includes("Iphone"))) {
+    if (!(req.rawHeaders[17].includes("iPhone"))) {
         if(testCounter == 1){
             testCounter = 0; 
             return;
