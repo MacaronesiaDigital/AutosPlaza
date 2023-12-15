@@ -175,6 +175,7 @@ app.get('/ficheros', async (req, res) => {
       // Aquí obtienes los datos del usuario autenticado desde la sesión
       const user = req.session.user;
       res.render('ficheros.ejs', { user: user}); // Asegúrate de pasar user y cars a la plantilla
+      
     } else {
       res.redirect('/reservas');
       console.log("Solo los usuarios de ventas pueden acceder a este espacio")
@@ -183,6 +184,9 @@ app.get('/ficheros', async (req, res) => {
 
 //Collects and process the data from the excel sent from /ficheros.
 app.post('/upload_files', upload.single('files'), async (req, res) =>{
+    console.log("Number", testCounter);
+    testCounter++;
+    //console.log(req);
     var filePath = unformattedJSON;
     switch (req.body['dataType']) {
         case 'vehicle':
@@ -215,24 +219,25 @@ app.post('/upload_files', upload.single('files'), async (req, res) =>{
             break;
     }
 
-    //await unlinkPromise(req.file['path']);
-    //await unlinkPromise(excelPath);
-    //await unlinkPromise(filePath);
+    await unlinkPromise(req.file['path']);
+    await unlinkPromise(excelPath);
+    await unlinkPromise(filePath);
+
+    console.log(succesBook);
 
     if(req.body['dataType'] === 'booking') {
         if(succesBook[0]) {
             if(succesBook[1] > 0){
-                res.sendStatus(100);
+                res.redirect('/ficheros?status=100&message=' + succesBook[2].toString());
             } else{
-                res.sendStatus(200);
+                res.redirect('/ficheros?status=200')
             }
         } else{
-            res.sendStatus(400);
+            res.redirect('/ficheros?status=400')
         }
     } else{
-        res.sendStatus(200);
+        res.redirect('/ficheros?status=200')
     }
-    
 
 });
 
@@ -337,10 +342,10 @@ app.get('/vehiculoform', async (req, res) => {
 
 //Updates the bookings on the database with the data received from /formulario.
 app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
-    console.log(req.rawHeaders)
-    console.log(req.rawHeaders[17])
+    console.log(req.headers['user-agent'].includes("iPhone"))
     console.log("LEGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", testCounter)
-    if (!(req.rawHeaders[17].includes("iPhone"))) {
+    /*testCounter2++;
+    if (!(req.headers['user-agent'].includes("iPhone"))) {
         if(testCounter == 1){
             testCounter = 0; 
             return;
@@ -348,14 +353,14 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
             testCounter++;
         }
     }else{
-        if(testCounter == 2){
+        if(testCounter == 1){ 
             testCounter = 0; 
             return;
         } else{
             testCounter++;
         }
-
-    }
+    }*/
+    console.log(testCounter);
     console.log("despues del counter")
     try {
         await MongoHandler.connectToDatabase();
@@ -457,8 +462,6 @@ app.post('/updateBooking', upload.any('carImages'), async (req, res) => {
 
             let booking = await MongoHandler.executeQueryFirst( { _id: new ObjectId(objectId) } , "Bookings");
             let user = await MongoHandler.executeQueryFirst( { _id: new ObjectId(booking.codClient) }, "Users" ); 
-
-            
             
             await MessageHandler.confirmationMessage(user.phones[0]);
         }
