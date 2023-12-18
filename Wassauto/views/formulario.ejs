@@ -184,7 +184,7 @@
         <br>
           <input type="hidden" name="id" id="id" class="input" value="<%= item._id %>"/>
           <input type="hidden" class="objectId" value="<%= item._id %>"> 
-          <button type="submit" class="btn btn-primary mt-3" name="save-booking" data-id="<%= item._id %>">Enviar</button>
+          <button type="update" class="btn btn-primary mt-3" name="save-booking" data-id="<%= item._id %>">Enviar</button>
         <br>
       </form>
     </div>
@@ -264,7 +264,7 @@
     const form = document.getElementById("form");
     const button = document.querySelector('[name="save-booking"]');
 
-    form.addEventListener("submit", submitForm);
+    form.addEventListener("update", submitForm);
 
     showAlert = function(mss) {
       confirm(mss);
@@ -279,10 +279,10 @@
             method: 'POST',
             body: formData,
         })
-            .then((res) => {
-              showAlert("Datos enviados con éxito")})
-              //window.location.href = "/reservas"})
-            .catch((err) => ("Error occured", err));
+        .then((res) => {
+          showAlert("Datos enviados con éxito")})
+          //window.location.href = "/reservas"})
+        .catch((err) => ("Error occured", err));
     }
       function changeMapLocation(selectedRadioButton) {
         const location = selectedRadioButton.value;

@@ -80,6 +80,9 @@ async function bookingJSON(unformattedJSON, filePath) {
       });
     });
 
+    var ignoredNumbers = 0;
+    var ignoredBookings = [];
+
     var jsonString = "[\n";
     var obj = new Object();
     for (let ii = 0; ii < unformattedJSON.length; ii++) {
@@ -91,8 +94,6 @@ async function bookingJSON(unformattedJSON, filePath) {
 
       console.log("Aqui: " + ii);
 
-      var ignoredNumbers = 0;
-
       if (ii % 2 === 0) {
         if (element['__EMPTY_14']) {
           const phoneNumberString = element['__EMPTY_14'];
@@ -103,12 +104,14 @@ async function bookingJSON(unformattedJSON, filePath) {
             console.log(phoneNumberString + " - " + firstNumber[0]);
             ii++;
             ignoredNumbers++;
+            ignoredBookings.push(element['Fecha :'].toString());
             continue; 
           }
         } else{
           console.log("Test2");
           ii++;
           ignoredNumbers++;
+          ignoredBookings.push(element['Fecha :'].toString());
           continue; 
         }
 
@@ -198,7 +201,9 @@ async function bookingJSON(unformattedJSON, filePath) {
     jsonString += '{\"usedBookings\":' + codBookArray + "}\n]";
     await fs.writeFileSync(filePath, jsonString);
 
-    return ignoredNumbers;
+    console.log("Fallo", ignoredNumbers);
+
+    return [ignoredNumbers, ignoredBookings];
 }
 
 async function userJSON(unformattedJSON, bookCod) {

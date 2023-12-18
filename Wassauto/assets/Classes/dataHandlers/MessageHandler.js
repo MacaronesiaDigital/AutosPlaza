@@ -33,11 +33,11 @@ async function languageSelector(phoneNumber){
         //console.log(result);
         return;
     }
-
+    
+    payload = await dialogflow.sendToDialogFlow("langChose", phoneNumber);
+    
     if(user.active == 0){
-        
-        console.log("A VER 4");
-        payload = await dialogflow.sendToDialogFlow("langChose", phoneNumber);
+        //console.log("A VER 4");
     }
 }
 

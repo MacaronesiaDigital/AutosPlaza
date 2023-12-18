@@ -7,6 +7,7 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    
     <style>
       .center-container {
       max-width: 1800px; /* Ajusta el ancho máximo según tu preferencia */
@@ -122,7 +123,7 @@
             <div class="col-12 col-md-11 col-lg-6 col-xl-4">
               <div class="card shadow-2-strong" style="border-radius: 1rem;">
                 <div class="card-body p-1 text-center">
-                  <form id='form'>
+                  <form id='form' method="POST" action="/upload_files" enctype="multipart/form-data">
                     <br>
                     <div class="form-group">
                         <select class="form-select" aria-label="Default select example" name="dataType" id="dataType" required>
@@ -132,11 +133,10 @@
                     </div>
                     <br>
                     <div class="mb-3">
-                        <input id='files' type="file" required>
+                        <input id='files' name="files" type="file" required>
                     </div>
                     <br>
-                    <button type='submit' name="send" class="btn btn-primary">Actualizar</button>
-                    
+                    <button type='upload' name="send" class="btn btn-primary">Actualizar</button>
                   </form>
                 </div>
               </div> 
@@ -149,7 +149,7 @@
   <script>
     const form = document.getElementById("form");
     const button = document.querySelector('[name="send"]');
-    form.addEventListener("submit", submitForm);
+    form.addEventListener("upload", submitForm);
 
     showAlert = function(mss) {
       confirm(mss);
@@ -160,9 +160,7 @@
     function submitForm(e) {
         e.preventDefault();
         button.setAttribute('disabled', '');
-        const dataType = document.getElementById("dataType");
-        const files = document.getElementById("files");
-        const formData = new FormData();
+        const formData = new FormData(e.target);
         var dataTypeText = dataType.value;
         formData.append('dataType', dataTypeText);
         formData.append('files', files.files[0])
@@ -174,10 +172,12 @@
           switch(res.status){
             case 100:
               showAlert("AVISO: Algunas reservas no se han subido.");
+              window.location.href = "/reservas";
             break;
             
             case 200:
-              showAlert("OK: Reservas subidas exitosamente");
+              //showAlert("OK: Reservas subidas exitosamente");
+              window.location.href = "/ficheros";
             break;
             
             case 400:
@@ -186,19 +186,40 @@
 
             default:
               showAlert("ERROR: Desconocido");
-
           }
-            if (res.status === 200) {
-              showAlert("OK: Reservas subidas exitosamente");
-              window.location.href = "/reservas";
-            } else if (res.status === 400) {
-              showAlert("ERROR: Error en la subida de reservas, revisa los parámetros en el Excel.");
-              window.location.href = "/reservas";
-            } else {
-              showAlert("ERROR: Desconocido");
-            }
         })
         .catch((err) => ("Error occured", err));
     }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the value of the 'status' parameter from the query string
+      const urlParams = new URLSearchParams(window.location.search);
+      const status = urlParams.get('status');
+      
+      setTimeout(function() {
+
+        switch(status){
+          case '100':
+            const message = urlParams.get('message');
+            showAlert("AVISO: Algunas reservas no se han subido.\n" + message);
+            window.location.href = "/reservas";
+          break;
+
+          case '200':
+            showAlert("OK: Reservas subidas exitosamente");
+            window.location.href = "/reservas";
+          break;
+
+          case '400':
+            showAlert("ERROR: Revisa los parámetros del Excel.");
+          break
+          default:
+            console.log(status);
+          break;
+        }
+      }, 100);
+    });
   </script>
 </html>
