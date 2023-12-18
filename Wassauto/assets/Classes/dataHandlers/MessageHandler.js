@@ -20,7 +20,7 @@ async function languageSelector(phoneNumber){
     if(user == undefined){
         return;
     }
-
+    
     const userID = user._id;
     const query2 = { codClient: userID.toString() };
     var booking = await MongoHandler.executeQueryFirstNC(query2, 'Bookings');
