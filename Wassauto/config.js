@@ -4,14 +4,14 @@ module.exports = {
     GOOGLE_PROJECT_ID: "newagent-nuwa",
     DF_LANGUAGE_CODE: "es",
     // live
-    //TWILIO_ACC_SID: "ACfa420b901227e9bf34ec87688215215e",
-    //TWILIO_AUTH: "8c03962561d86cd815c207ea1855797d",
+    TWILIO_ACC_SID: "ACfa420b901227e9bf34ec87688215215e",
+    TWILIO_AUTH: "8c03962561d86cd815c207ea1855797d",
     NGROKURL: "https://autosplaza.macaronesiadigital.com",
-    //PHONENUMBER: "+14847423704",
+    PHONENUMBER: "+14847423704",
     // sandbox
-    PHONENUMBER: "+14155238886",
-    TWILIO_ACC_SID: "AC107db7a59eccaa64795a1a4f843829f3",
-    TWILIO_AUTH: "8c552b149d7239177df23f4bbb03874f",
+    //PHONENUMBER: "+14155238886",
+    //TWILIO_ACC_SID: "AC107db7a59eccaa64795a1a4f843829f3",
+    //TWILIO_AUTH: "8c552b149d7239177df23f4bbb03874f",
         //NGROKURL: "https://1060-83-56-0-34.ngrok-free.app",
   };
 
